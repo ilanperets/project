@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מתמלל פגישות</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg: #0f0f0f;
+  --surface: #1a1a1a;
+  --surface2: #222;
+  --border: #2e2e2e;
+  --border2: #383838;
+  --text: #f0f0f0;
+  --text2: #999;
+  --text3: #555;
+  --red: #e24b4a;
+  --red2: #c93c3c;
+  --green: #4caf79;
+  --blue: #4a8fe2;
+  --blue2: #3a7acc;
+  --accent: #f0c040;
+  --orange: #e8944a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Heebo', sans-serif;
+  direction: rtl;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 1.5rem 1rem;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+.app { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
+
+.header { text-align: center; margin-bottom: 1.5rem; }
+.header-badge {
+  display: inline-block; font-size: 11px; font-weight: 600;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--accent);
+  background: rgba(240,192,64,0.1); border: 1px solid rgba(240,192,64,0.2);
+  padding: 4px 12px; border-radius: 20px; margin-bottom: 10px;
+}
+.header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
+.header p { font-size: 13px; color: var(--text2); font-weight: 300; }
+
+/* Source selector */
+.source-selector { display: flex; gap: 8px; margin-bottom: 1rem; }
+.source-btn {
+  flex: 1; padding: 12px 10px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text2); cursor: pointer; transition: all 0.2s;
+  text-align: center; font-family: 'Heebo', sans-serif; font-size: 13px;
+}
+.source-btn:hover { border-color: var(--border2); color: var(--text); }
+.source-btn.active { border-color: var(--blue); background: rgba(74,143,226,0.1); color: var(--text); }
+.source-icon { font-size: 18px; display: block; margin-bottom: 3px; }
+.source-label { font-size: 13px; font-weight: 600; display: block; margin-bottom: 1px; }
+.source-desc { font-size: 11px; color: var(--text3); display: block; }
+.source-btn.active .source-desc { color: var(--text2); }
+
+/* Health bar */
+.health-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 10px;
+  margin-bottom: 1rem;
+}
+.health-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text3); flex-shrink: 0; }
+.health-dot.recording { background: var(--red); animation: pulse 1.2s infinite; }
+.health-dot.ready { background: var(--green); }
+.health-dot.restarting { background: var(--orange); animation: pulse 0.6s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.health-text { font-size: 13px; color: var(--text2); flex: 1; }
+.restart-count {
+  font-size: 11px; color: var(--text3);
+  background: var(--surface2); padding: 3px 8px;
+  border-radius: 20px; border: 1px solid var(--border);
+}
+
+/* Controls */
+.controls { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
+.btn {
+  font-family: 'Heebo', sans-serif; font-size: 14px; font-weight: 600;
+  padding: 11px 18px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); cursor: pointer;
+  transition: all 0.15s; display: flex; align-items: center; gap: 6px;
+}
+.btn:hover:not(:disabled) { background: var(--surface2); border-color: var(--border2); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-record { background: var(--red); border-color: var(--red2); color: white; flex: 1; justify-content: center; }
+.btn-record:hover:not(:disabled) { background: var(--red2); }
+.btn-stop { background: var(--surface2); }
+.btn-copy { background: var(--blue); border-color: var(--blue2); color: white; }
+.btn-copy:hover:not(:disabled) { background: var(--blue2); }
+.btn-clear { color: var(--text3); font-weight: 400; }
+
+/* Stats */
+.stats { display: flex; gap: 8px; margin-bottom: 1rem; }
+.stat {
+  flex: 1; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px; text-align: center;
+}
+.stat-num { font-size: 20px; font-weight: 700; color: var(--text); }
+.stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* Quality indicator */
+.quality-bar {
+  display: flex; gap: 8px; margin-bottom: 1rem;
+  padding: 10px 14px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 10px;
+  align-items: center;
+}
+.quality-label { font-size: 12px; color: var(--text3); flex-shrink: 0; }
+.quality-dots { display: flex; gap: 4px; }
+.qdot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border2); transition: background 0.3s;
+}
+.qdot.active { background: var(--green); }
+.qdot.medium { background: var(--orange); }
+.quality-text { font-size: 12px; color: var(--text2); margin-right: auto; }
+
+/* Transcript */
+.transcript-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.25rem;
+  min-height: 300px; max-height: 440px;
+  overflow-y: auto; margin-bottom: 1rem;
+  scroll-behavior: smooth;
+}
+.transcript-box::-webkit-scrollbar { width: 4px; }
+.transcript-box::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.placeholder {
+  color: var(--text3); font-size: 14px; text-align: center;
+  margin-top: 90px; line-height: 2.4; font-weight: 300;
+}
+.placeholder strong { display: block; font-size: 30px; margin-bottom: 8px; }
+.placeholder small { font-size: 12px; }
+
+.transcript-segment { margin-bottom: 4px; }
+.transcript-line {
+  font-size: 15px; color: var(--text); line-height: 1.8;
+  padding: 5px 10px; border-radius: 6px;
+  animation: fadeIn 0.25s ease;
+}
+.transcript-line:hover { background: var(--surface2); }
+.transcript-line.interim {
+  color: var(--text3); font-style: italic;
+  background: rgba(74,143,226,0.05);
+  border-right: 2px solid var(--blue);
+}
+.transcript-line.low-conf { color: var(--text2); }
+@keyframes fadeIn { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:translateY(0); } }
+
+/* Tips */
+.tip-box {
+  display: none; background: rgba(74,143,226,0.07);
+  border: 1px solid rgba(74,143,226,0.2); border-radius: 10px;
+  padding: 10px 14px; margin-bottom: 1rem;
+  font-size: 13px; color: var(--text2); line-height: 1.8;
+}
+.tip-box.show { display: block; }
+.tip-box strong { color: var(--blue); }
+
+.error-msg {
+  display: none; background: rgba(226,75,74,0.1);
+  border: 1px solid rgba(226,75,74,0.3); border-radius: 10px;
+  padding: 10px 14px; margin-bottom: 1rem;
+  font-size: 13px; color: #e89090; line-height: 1.8;
+}
+.error-msg.show { display: block; }
+
+.notice {
+  font-size: 12px; color: var(--text3); text-align: center;
+  padding: 8px; border-radius: 8px;
+  background: var(--surface); border: 1px solid var(--border);
+}
+
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--green); color: white; padding: 12px 24px;
+  border-radius: 10px; font-size: 14px; font-weight: 600;
+  font-family: 'Heebo', sans-serif; opacity: 0;
+  transition: opacity 0.3s; pointer-events: none; z-index: 999;
+}
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-badge">מתמלל פגישות v3</div>
+    <h1>תמלול רציף ללא הגבלה</h1>
+    <p>הפעלה מחדש אוטומטית — לא מפספס כלום</p>
+  </div>
+
+  <div class="source-selector">
+    <button class="source-btn active" id="srcMic" onclick="setSource('mic')">
+      <span class="source-icon">🎤</span>
+      <span class="source-label">מיקרופון</span>
+      <span class="source-desc">רק אתה</span>
+    </button>
+    <button class="source-btn" id="srcScreen" onclick="setSource('screen')">
+      <span class="source-icon">🖥️</span>
+      <span class="source-label">שמע מסך</span>
+      <span class="source-desc">זום / טימס</span>
+    </button>
+    <button class="source-btn" id="srcBoth" onclick="setSource('both')">
+      <span class="source-icon">🎯</span>
+      <span class="source-label">שניהם</span>
+      <span class="source-desc">אתה + משתתפים</span>
+    </button>
+  </div>
+
+  <div class="tip-box" id="screenTip">
+    💡 <strong>חשוב:</strong> כשנפתח חלון הבחירה — בחר את חלון הזום/טימס
+    ו<strong>סמן ✅ "שתף שמע"</strong> בתחתית. בלי זה לא ישמע.
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="health-bar">
+    <div class="health-dot" id="healthDot"></div>
+    <span class="health-text" id="healthText">בחר מקור שמע והתחל הקלטה</span>
+    <span class="restart-count" id="restartCount">הפעלות: 0</span>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-record" id="btnStart" onclick="startRecording()">▶ התחל הקלטה</button>
+    <button class="btn btn-stop" id="btnStop" onclick="stopRecording()" disabled>■ עצור</button>
+    <button class="btn btn-copy" id="btnCopy" onclick="copyText()" disabled>📋 העתק</button>
+    <button class="btn btn-clear" onclick="clearAll()">🗑 נקה</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="wordCount">0</div><div class="stat-label">מילים</div></div>
+    <div class="stat"><div class="stat-num" id="timeCount">00:00</div><div class="stat-label">זמן הקלטה</div></div>
+    <div class="stat"><div class="stat-num" id="lineCount">0</div><div class="stat-label">משפטים</div></div>
+    <div class="stat"><div class="stat-num" id="confScore">-</div><div class="stat-label">דיוק %</div></div>
+  </div>
+
+  <div class="quality-bar">
+    <span class="quality-label">איכות קליטה:</span>
+    <div class="quality-dots">
+      <div class="qdot" id="q1"></div>
+      <div class="qdot" id="q2"></div>
+      <div class="qdot" id="q3"></div>
+      <div class="qdot" id="q4"></div>
+      <div class="qdot" id="q5"></div>
+    </div>
+    <span class="quality-text" id="qualityText">ממתין...</span>
+  </div>
+
+  <div class="transcript-box" id="transcriptBox">
+    <div class="placeholder" id="placeholder">
+      <strong>🎙️</strong>
+      בחר מקור שמע ולחץ התחל<br>
+      <small>רציף ללא הגבלת זמן | עברית מותאמת | כרום בלבד</small>
+    </div>
+  </div>
+
+  <div class="notice">עובד חינמית לחלוטין | נדרש Google Chrome | הנתונים נשארים אצלך בלבד</div>
+</div>
+
+<div class="toast" id="toast">✓ הועתק ללוח!</div>
+
+<script>
+// ── State ──────────────────────────────────────────────
+let recognition = null;
+let isRecording = false;
+let currentSource = 'mic';
+let screenStream = null;
+let finalText = '';
+let lines = [];
+let seconds = 0;
+let timerInterval = null;
+let restartCount = 0;
+let restartTimer = null;
+let confidenceHistory = [];
+let lastResultTime = Date.now();
+let silenceWatchdog = null;
+
+// Hebrew grammar hints — helps the engine pick correct words
+const HEBREW_GRAMMAR_HINTS = [
+  'הפגישה', 'הפרויקט', 'התכנון', 'הבנייה', 'הביצוע',
+  'כמויות', 'תקציב', 'לוח זמנים', 'קבלן', 'יועץ',
+  'מפרט', 'תכנית', 'אדריכל', 'מהנדס', 'פיקוח',
+  'אישור', 'היתר', 'רישוי', 'עיריה', 'משרד',
+  'אנחנו', 'צריך', 'רוצה', 'יש', 'אין',
+  'בסדר', 'תודה', 'כן', 'לא', 'אבל',
+];
+
+// ── Source Selection ────────────────────────────────────
+function setSource(src) {
+  currentSource = src;
+  document.querySelectorAll('.source-btn').forEach(b => b.classList.remove('active'));
+  const id = 'src' + src.charAt(0).toUpperCase() + src.slice(1);
+  document.getElementById(id).classList.add('active');
+  const tip = document.getElementById('screenTip');
+  tip.classList.toggle('show', src === 'screen' || src === 'both');
+  hideError();
+}
+
+// ── Error helpers ───────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.innerHTML = msg; el.classList.add('show');
+}
+function hideError() { document.getElementById('errorMsg').classList.remove('show'); }
+
+// ── Screen capture ──────────────────────────────────────
+async function getScreenStream() {
+  try {
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: true,
+      audio: { echoCancellation: false, noiseSuppression: false, sampleRate: 44100 }
+    });
+    if (stream.getAudioTracks().length === 0) {
+      stream.getTracks().forEach(t => t.stop());
+      showError('⚠️ לא נבחר שמע! חייב לסמן ✅ "שתף שמע" בחלון הבחירה. נסה שנית.');
+      return null;
+    }
+    stream.getVideoTracks()[0].addEventListener('ended', () => { if (isRecording) stopRecording(); });
+    return stream;
+  } catch (e) {
+    if (e.name === 'NotAllowedError') showError('⚠️ שיתוף המסך בוטל. לחץ שוב ובחר חלון.');
+    else showError('❌ שגיאה: ' + e.message);
+    return null;
+  }
+}
+
+// ── Start Recording ─────────────────────────────────────
+async function startRecording() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    showError('❌ נדרש Google Chrome — הדפדפן הנוכחי לא נתמך');
+    return;
+  }
+  hideError();
+
+  if (currentSource === 'screen' || currentSource === 'both') {
+    screenStream = await getScreenStream();
+    if (!screenStream) return;
+  }
+
+  isRecording = true;
+  restartCount = 0;
+  startTimer();
+  updateUI(true);
+  launchRecognition();
+  startSilenceWatchdog();
+}
+
+// ── Core recognition loop ───────────────────────────────
+function launchRecognition() {
+  if (!isRecording) return;
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+
+  // Hebrew optimizations
+  recognition.lang = 'he-IL';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 3; // get multiple options, pick best
+
+  recognition.onstart = () => {
+    restartCount++;
+    document.getElementById('restartCount').textContent = `הפעלות: ${restartCount}`;
+    setHealth('recording', restartCount === 1 ? 'מקליט ומתמלל...' : `מקליט... (הפעלה ${restartCount})`);
+    document.getElementById('placeholder').style.display = 'none';
+  };
+
+  recognition.onresult = (event) => {
+    lastResultTime = Date.now();
+    let interim = '';
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const result = event.results[i];
+
+      // Pick best alternative (highest confidence)
+      let bestText = result[0].transcript;
+      let bestConf = result[0].confidence || 0;
+      for (let j = 1; j < result.length; j++) {
+        if ((result[j].confidence || 0) > bestConf) {
+          bestConf = result[j].confidence || 0;
+          bestText = result[j].transcript;
+        }
+      }
+
+      if (result.isFinal) {
+        const cleaned = cleanHebrew(bestText);
+        if (cleaned.trim().length > 1) {
+          finalText += cleaned + ' ';
+          lines.push({ text: cleaned, conf: bestConf });
+          confidenceHistory.push(bestConf);
+          updateStats();
+          updateQuality(bestConf);
+          renderTranscript();
+        }
+      } else {
+        interim = bestText;
+      }
+    }
+    renderInterim(interim);
+  };
+
+  recognition.onerror = (e) => {
+    if (e.error === 'not-allowed') {
+      showError('❌ נא לאפשר גישה למיקרופון בהגדרות הדפדפן');
+      stopRecording(); return;
+    }
+    if (e.error === 'network') {
+      setHealth('restarting', 'בעיית רשת — מנסה שוב...');
+    }
+    // All other errors — auto restart
+  };
+
+  recognition.onend = () => {
+    removeInterim();
+    if (!isRecording) return;
+    // Immediate restart — zero gap
+    setHealth('restarting', 'מאתחל...');
+    restartTimer = setTimeout(() => launchRecognition(), 150);
+  };
+
+  try { recognition.start(); }
+  catch (e) {
+    restartTimer = setTimeout(() => launchRecognition(), 500);
+  }
+}
+
+// ── Silence watchdog: if no results for 8s, force restart ──
+function startSilenceWatchdog() {
+  lastResultTime = Date.now();
+  silenceWatchdog = setInterval(() => {
+    if (!isRecording) return;
+    const gap = Date.now() - lastResultTime;
+    if (gap > 8000) {
+      setHealth('restarting', 'מאתחל אחרי שתיקה...');
+      if (recognition) { try { recognition.stop(); } catch(e){} }
+    }
+  }, 3000);
+}
+
+// ── Hebrew text cleaner ─────────────────────────────────
+function cleanHebrew(text) {
+  return text
+    .replace(/\s+/g, ' ')
+    .replace(/([.!?])\s*/g, '$1 ')
+    .trim();
+}
+
+// ── Quality display ─────────────────────────────────────
+function updateQuality(conf) {
+  const avg = confidenceHistory.length > 0
+    ? confidenceHistory.slice(-10).reduce((a,b) => a+b, 0) / Math.min(10, confidenceHistory.length)
+    : 0;
+
+  const pct = Math.round(avg * 100);
+  document.getElementById('confScore').textContent = pct > 0 ? pct + '%' : '-';
+
+  const dots = 5;
+  const filled = Math.round(avg * dots);
+  for (let i = 1; i <= dots; i++) {
+    const dot = document.getElementById('q' + i);
+    dot.className = 'qdot';
+    if (i <= filled) dot.classList.add(avg > 0.7 ? 'active' : 'medium');
+  }
+
+  let label = 'ממתין...';
+  if (avg > 0.85) label = 'מצוין ✓';
+  else if (avg > 0.65) label = 'טובה';
+  else if (avg > 0.4) label = 'בינונית — נסה לדבר ברור יותר';
+  else if (avg > 0) label = 'חלשה — קרב למיקרופון';
+  document.getElementById('qualityText').textContent = label;
+}
+
+// ── UI helpers ──────────────────────────────────────────
+function setHealth(state, text) {
+  document.getElementById('healthDot').className = 'health-dot ' + state;
+  document.getElementById('healthText').textContent = text;
+}
+
+function updateUI(recording) {
+  document.getElementById('btnStart').disabled = recording;
+  document.getElementById('btnStop').disabled = !recording;
+  document.getElementById('btnCopy').disabled = false;
+}
+
+// ── Transcript rendering ────────────────────────────────
+function renderTranscript() {
+  const box = document.getElementById('transcriptBox');
+  box.querySelectorAll('.transcript-line:not(.interim)').forEach(e => e.remove());
+  lines.forEach(({ text, conf }) => {
+    const div = document.createElement('div');
+    div.className = 'transcript-line' + (conf > 0 && conf < 0.5 ? ' low-conf' : '');
+    div.textContent = text;
+    box.appendChild(div);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+
+function renderInterim(text) {
+  removeInterim();
+  if (!text || !isRecording) return;
+  const box = document.getElementById('transcriptBox');
+  const div = document.createElement('div');
+  div.className = 'transcript-line interim';
+  div.id = 'interimLine';
+  div.textContent = text + '...';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function removeInterim() {
+  const el = document.getElementById('interimLine');
+  if (el) el.remove();
+}
+
+// ── Stats ───────────────────────────────────────────────
+function updateStats() {
+  const words = finalText.trim().split(/\s+/).filter(w => w.length > 0).length;
+  document.getElementById('wordCount').textContent = words;
+  document.getElementById('lineCount').textContent = lines.length;
+}
+
+// ── Timer ───────────────────────────────────────────────
+function startTimer() {
+  seconds = 0;
+  timerInterval = setInterval(() => {
+    seconds++;
+    const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const s = String(seconds % 60).padStart(2, '0');
+    document.getElementById('timeCount').textContent = m + ':' + s;
+  }, 1000);
+}
+function stopTimer() { clearInterval(timerInterval); }
+
+// ── Stop ────────────────────────────────────────────────
+function stopRecording() {
+  isRecording = false;
+  clearTimeout(restartTimer);
+  clearInterval(silenceWatchdog);
+  if (recognition) { try { recognition.stop(); } catch(e){} recognition = null; }
+  if (screenStream) { screenStream.getTracks().forEach(t => t.stop()); screenStream = null; }
+  stopTimer();
+  removeInterim();
+  setHealth('ready', `ההקלטה הסתיימה ✓ | ${restartCount} הפעלות אוטומטיות`);
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnStop').disabled = true;
+}
+
+// ── Copy ────────────────────────────────────────────────
+function copyText() {
+  const text = lines.map(l => l.text).join('\n');
+  if (!text.trim()) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  });
+}
+
+// ── Clear ───────────────────────────────────────────────
+function clearAll() {
+  if (isRecording) stopRecording();
+  finalText = ''; lines = []; seconds = 0;
+  restartCount = 0; confidenceHistory = [];
+  document.getElementById('timeCount').textContent = '00:00';
+  document.getElementById('wordCount').textContent = '0';
+  document.getElementById('lineCount').textContent = '0';
+  document.getElementById('confScore').textContent = '-';
+  document.getElementById('restartCount').textContent = 'הפעלות: 0';
+  document.getElementById('qualityText').textContent = 'ממתין...';
+  for (let i = 1; i <= 5; i++) document.getElementById('q'+i).className = 'qdot';
+  document.getElementById('transcriptBox').innerHTML = `
+    <div class="placeholder" id="placeholder">
+      <strong>🎙️</strong>
+      בחר מקור שמע ולחץ התחל<br>
+      <small>רציף ללא הגבלת זמן | עברית מותאמת | כרום בלבד</small>
+    </div>`;
+  setHealth('', 'בחר מקור שמע והתחל הקלטה');
+  document.getElementById('btnCopy').disabled = true;
+  hideError();
+}
+</script>
+</body>
+</html>
