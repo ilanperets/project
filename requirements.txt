@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-multipart
+PyMuPDF
+opencv-python-headless
+scikit-image
+shapely
+numpy
+openpyxl
