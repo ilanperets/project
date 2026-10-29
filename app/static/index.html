@@ -18,7 +18,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .nav a:hover{background:#1a2a5a}.nav a.on{background:var(--pri2);color:#fff}
 .nav .sep{font-size:12px;color:#7d8cb8;padding:14px 12px 4px}
 .pname{margin:4px 10px 8px;padding:10px 12px;background:#1a2a5a;border-radius:10px;font-size:13px;color:#fff}
-.main{padding:26px 30px 60px;max-width:1400px;width:100%}
+.main{padding:26px 30px 60px;max-width:1400px;width:100%;min-width:0}.app>*{min-width:0}.scroll table{min-width:760px}
 h1{font-size:26px;margin:0 0 4px}h2{font-size:18px;margin:0 0 12px}.sub{color:var(--mut);margin:0 0 22px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:0 1px 2px rgba(15,27,61,.04)}
 .grid{display:grid;gap:16px}.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:1.4fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
@@ -51,6 +51,28 @@ tr.ch td{background:color-mix(in srgb,var(--pri) 10%,var(--card));font-weight:80
 @media(max-width:1024px){.app{grid-template-columns:1fr}.side{position:fixed;bottom:0;top:auto;height:auto;width:100%;flex-direction:row;z-index:5;padding:6px;overflow-x:auto;border-top:1px solid #243055}
 .logo,.pname,.nav .sep{display:none}.nav{display:flex;gap:2px;width:100%}.nav a{flex-direction:column;gap:2px;font-size:11px;padding:6px 10px;min-height:54px;white-space:nowrap;justify-content:center}
 .main{padding:18px 16px 100px}.g4{grid-template-columns:repeat(2,1fr)}.g2,.g3{grid-template-columns:1fr}}
+
+.steps{display:flex;gap:0;margin:0 0 22px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.steps a{flex:1;padding:12px 14px;text-decoration:none;color:var(--mut);display:flex;gap:10px;align-items:center;border-inline-start:1px solid var(--line);font-weight:600;min-height:52px}
+.steps a:first-child{border:0}.steps a b{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--line);font-size:13px;flex:none}
+.steps a.done b{background:var(--ok);color:#fff}.steps a.now{color:var(--ink);background:color-mix(in srgb,var(--pri2) 9%,var(--card))}.steps a.now b{background:var(--pri2);color:#fff}
+.drop{display:block;padding:46px 24px;transition:.15s}.drop .big{font-size:42px;line-height:1}.drop:hover{transform:translateY(-1px)}
+.prog{height:10px;background:var(--line);border-radius:8px;overflow:hidden;margin-top:14px}.prog b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--pri2),var(--acc));transition:width .2s}
+.sheets{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-top:14px}
+.sh{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card);display:flex;flex-direction:column}
+.sh .im{aspect-ratio:4/3;background:#fff;display:grid;place-items:center;cursor:zoom-in;border-bottom:1px solid var(--line)}.sh .im img{max-width:100%;max-height:100%;object-fit:contain}
+.sh .bd{padding:10px 12px;display:grid;gap:8px}.sh .fn{font-size:12px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:right}
+.lb{position:fixed;inset:0;background:#000c;z-index:20;display:grid;place-items:center;padding:20px;cursor:zoom-out}.lb img{max-width:100%;max-height:100%;background:#fff;border-radius:8px}
+.menu{position:relative;display:inline-block}.menu .mi{display:none;position:absolute;inset-inline-end:0;top:100%;margin-top:6px;background:var(--card);border:1px solid var(--line);border-radius:12px;min-width:230px;box-shadow:0 12px 40px rgba(15,27,61,.2);z-index:6;overflow:hidden}
+.menu.open .mi{display:block}.menu .mi a,.menu .mi button{display:block;width:100%;text-align:right;padding:12px 16px;border:0;background:none;color:var(--ink);text-decoration:none;cursor:pointer;min-height:44px}.menu .mi a:hover,.menu .mi button:hover{background:var(--bg)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{padding:7px 14px;border-radius:20px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:13px;font-weight:600}.chip.on{background:var(--pri2);color:#fff;border-color:var(--pri2)}
+tr.ch{cursor:pointer}tr.hid{display:none}tr.m td{background:color-mix(in srgb,var(--acc) 7%,var(--card))}
+.x{border:0;background:none;color:var(--mut);cursor:pointer;font-size:16px;padding:4px 8px;border-radius:6px}.x:hover{background:var(--badb);color:var(--bad)}
+.ring{--v:0;width:78px;height:78px;border-radius:50%;background:conic-gradient(var(--pri2) calc(var(--v)*1%),var(--line) 0);display:grid;place-items:center;flex:none}.ring i{width:60px;height:60px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-style:normal;font-weight:800;font-size:17px}
+.builder{border:2px solid color-mix(in srgb,var(--acc) 50%,var(--line));background:color-mix(in srgb,var(--acc) 5%,var(--card))}
+.fld{display:grid;gap:4px}.fld label{font-size:12px;color:var(--mut);font-weight:600}
+@media(max-width:1024px){.steps a{flex-direction:column;gap:4px;justify-content:center;padding:8px 2px;font-size:12px;text-align:center}}
+@media print{.steps,.menu,.chips,.builder,.x{display:none!important}.scroll{max-height:none!important;overflow:visible}body{background:#fff}}
 @media print{.side,.btn{display:none}.app{display:block}}
 </style>
 </head>
@@ -84,10 +106,22 @@ async function render(){
   side();
   const v={projects,dash,plans,boq,materials,bills,brain}[page]||dash;
   $('#main').innerHTML='<div class="empty">טוען…</div>';
-  $('#main').innerHTML=await v();
+  $('#main').innerHTML=(pid?stepper(page):'')+await v();
   if(window['after_'+page])window['after_'+page]();
 }
 window.addEventListener('hashchange',render);
+
+function stepper(page){
+  const S=SUM,st=[['plans','תוכניות',P.sheets.length>0],['boq','כתב כמויות',!!P.boq],['price','תמחור',S.priced>0],['materials','חומרים והזמנות',S.orders>0],['bills','חשבונות',S.bills>0]];
+  const cur=st.findIndex(x=>!x[2]);const href={plans:'plans',boq:'boq',price:'boq',materials:'materials',bills:'bills'};
+  return `<div class="steps">${st.map((x,i)=>`<a href="#/p/${P.id}/${href[x[0]]}" class="${x[2]?'done':''} ${i===cur?'now':''}"><b>${x[2]?'✓':i+1}</b><span>${x[1]}</span></a>`).join('')}</div>`}
+function menu(items){return `<div class="menu"><button class="btn sec" onclick="this.parentNode.classList.toggle('open');event.stopPropagation()">ייצוא ▾</button><div class="mi">${items}</div></div>`}
+document.addEventListener('click',()=>document.querySelectorAll('.menu.open').forEach(m=>m.classList.remove('open')));
+function csv(rows,name){const t='\ufeff'+rows.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download=name;a.click()}
+function boqCsv(){csv([['מספר','תיאור','יחידה','כמות','מחיר','סהכ'],...P.boq.map(r=>r.kind==='item'?[r.code,r.desc,r.unit,r.q??'',P.prices[r.code]??'',r.q&&P.prices[r.code]?r.q*P.prices[r.code]:'']:[r.code,r.desc,'','','',''])],'boq.csv')}
+function matCsv(){csv([['חומר','יחידה','כמות','מחיר','סהכ'],...P.materials.map(m=>[m.material,m.unit,m.qty,P.mprices[m.material]??'',P.mprices[m.material]?m.qty*P.mprices[m.material]:''])],'materials.csv')}
+const ring=(v,l)=>`<div class="row"><div class="ring" style="--v:${v}"><i>${v}%</i></div><div class="l">${l}</div></div>`;
+function lightbox(src){const d=document.createElement('div');d.className='lb';d.innerHTML=`<img src="${src}">`;d.onclick=()=>d.remove();document.body.appendChild(d)}
 
 /* ---------- projects ---------- */
 async function projects(){
@@ -106,10 +140,9 @@ async function dash(){
   const chs=Object.entries(s.chapters);
   const top=(P.needs||[]).filter(n=>n.p==='high').slice(0,3);
   return `<h1>${esc(s.name)}</h1><p class="sub">מצב הפרויקט במבט אחד</p>
-  <div class="grid g4">
-   <div class="card kpi"><div class="n">${s.sheets}</div><div class="l">גיליונות בתיק</div></div>
-   <div class="card kpi"><div class="n">${pm}%</div><div class="l">סעיפים עם כמות (${s.measured}/${s.items})</div><div class="bar" style="margin-top:8px"><b style="width:${pm}%"></b></div></div>
-   <div class="card kpi"><div class="n">${pp}%</div><div class="l">סעיפים מתומחרים</div><div class="bar" style="margin-top:8px"><b style="width:${pp}%"></b></div></div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">
+      <div class="card kpi">${ring(pm,`סעיפים עם כמות<br>${s.measured} מתוך ${s.items}`)}</div>
+   <div class="card kpi">${ring(pp,'סעיפים מתומחרים')}</div>
    <div class="card kpi"><div class="n">${money(s.total)}</div><div class="l">שווי כתב כמויות מתומחר</div></div></div>
   <div class="grid g2" style="margin-top:16px"><div class="card"><h2>התקדמות לפי פרקים</h2>
    ${s.items?chs.map(([n,c])=>`<div style="margin:12px 0"><div class="row"><span>${esc(n)}</span><span class="sp"></span><span class="tag ${c.measured===c.items?'t-ok':c.measured?'t-w':'t-b'}">${c.measured}/${c.items} סעיפים</span><b>${money(c.total)}</b></div><div class="bar"><b style="width:${c.items?c.measured/c.items*100:0}%"></b></div></div>`).join(''):'<div class="empty">עוד לא חושב כתב. עוברים ללשונית תוכניות ומריצים.</div>'}</div>
@@ -118,41 +151,70 @@ async function dash(){
 
 /* ---------- plans ---------- */
 async function plans(){
-  const rows=P.sheets.map(s=>`<tr><td><b>${bl(s.file)}</b><div class="sub" style="margin:0;font-size:12px">${Math.round(s.w_mm)}×${Math.round(s.h_mm)} מ"מ · ${esc(s.why)}</div></td>
-  <td><select onchange="setSheet('${s.sid}',{type:this.value})">${Object.entries(TYPES).map(([k,t])=>`<option value="${k}" ${k===s.type?'selected':''}>${t}</option>`).join('')}</select></td>
-  <td><span class="tag ${s.confirmed||s.conf==='high'?'t-ok':s.conf==='med'?'t-w':'t-b'}">${s.confirmed?'אושר':s.conf==='high'?'בטוח':s.conf==='med'?'סביר':'לא זוהה'}</span></td>
-  <td>${s.type==='floor_plan'?`<select onchange="setSheet('${s.sid}',{floor:this.value})"><option value="">בחר קומה</option>${[['ground','קומת קרקע'],['first','קומה א׳'],['second','קומה ב׳'],['roof','גג']].map(([k,t])=>`<option value="${k}" ${s.floor===k?'selected':''}>${t}</option>`).join('')}</select>`:''}</td></tr>`).join('');
-  return `<h1>תוכניות</h1><p class="sub">גוררים קבצי PDF. המערכת מזהה סוג, מנפה כפולים ולומדת מהתיקונים שלך.</p>
-  <label class="drop" id="drop"><b style="font-size:18px">גרור לכאן תוכניות PDF</b><div class="sub" style="margin:6px 0 0">או לחץ לבחירה, אפשר כמה קבצים יחד</div><input type="file" id="fi" multiple accept=".pdf" hidden></label>
-  <div class="card" style="margin-top:16px"><div class="row"><h2 style="margin:0">${P.sheets.length} גיליונות בתיק</h2><span class="sp"></span><button class="btn" id="runb" onclick="runAll()" ${P.sheets.length?'':'disabled'}>חשב כתב כמויות ▸</button></div>
-  ${P.sheets.length?`<div class="scroll" style="margin-top:12px"><table><tr><th>קובץ</th><th>סוג</th><th>ודאות</th><th>קומה</th></tr>${rows}</table></div>`:'<div class="empty">עוד לא הועלו תוכניות</div>'}</div>
-  ${P.log.length?`<div class="card" style="margin-top:16px"><h2>יומן החישוב האחרון</h2>${P.log.map(l=>`<div class="sub" style="margin:2px 0">${bl(l)}</div>`).join('')}</div>`:''}`}
+  const cards=P.sheets.map(s=>`<div class="sh"><div class="im" onclick="lightbox('/api/projects/${P.id}/sheets/${s.sid}/thumb.png')"><img loading="lazy" src="/api/projects/${P.id}/sheets/${s.sid}/thumb.png" alt=""></div><div class="bd"><div class="fn" title="${esc(s.file)}">${esc(s.file)}</div>
+   <div class="row"><span class="tag ${s.confirmed||s.conf==='high'?'t-ok':s.conf==='med'?'t-w':'t-b'}">${s.confirmed?'אושר':s.conf==='high'?'זוהה בביטחון':s.conf==='med'?'זוהה, כדאי לאשר':'לא זוהה'}</span></div>
+   <select onchange="setSheet('${s.sid}',{type:this.value})">${Object.entries(TYPES).map(([k,t])=>`<option value="${k}" ${k===s.type?'selected':''}>${t}</option>`).join('')}</select>
+   ${s.type==='floor_plan'?`<select onchange="setSheet('${s.sid}',{floor:this.value})"><option value="">באיזו קומה?</option>${[['ground','קומת קרקע'],['first','קומה א׳'],['second','קומה ב׳'],['roof','גג']].map(([k,t])=>`<option value="${k}" ${s.floor===k?'selected':''}>${t}</option>`).join('')}</select>`:''}</div></div>`).join('');
+  const cnt={};P.sheets.forEach(s=>cnt[TYPES[s.type]]=(cnt[TYPES[s.type]]||0)+1);
+  return `<h1>תוכניות</h1><p class="sub">גוררים את כל הקבצים של הפרויקט. המערכת מזהה כל גיליון, מנפה כפולים ולומדת מכל תיקון שלך.</p>
+  <label class="drop" id="drop"><div class="big">⇪</div><b style="font-size:19px">גרור לכאן קבצי PDF</b><div class="sub" style="margin:6px 0 0">או לחץ לבחירה. אפשר להעלות הרבה קבצים יחד, גם בהמשך.</div><div class="prog" id="prog" style="display:none"><b></b></div><div id="pst" class="sub" style="margin:8px 0 0"></div><input type="file" id="fi" multiple accept=".pdf" hidden></label>
+  ${P.sheets.length?`<div class="card" style="margin-top:16px"><div class="row"><div><h2 style="margin:0">${P.sheets.length} גיליונות בתיק</h2><div class="sub" style="margin:2px 0 0">${Object.entries(cnt).map(([k,v])=>`${v} ${k}`).join(' · ')}</div></div><span class="sp"></span>
+   <button class="btn" id="runb" onclick="runAll()">חשב כתב כמויות ▸</button></div><div class="sheets">${cards}</div></div>`:`<div class="card empty" style="margin-top:16px">עוד לא הועלו תוכניות.<br><br><button class="btn sec" onclick="startEmpty()">או התחל כתב כמויות ריק ומלא בעצמך</button></div>`}
+  ${P.log.length?`<details class="card" style="margin-top:16px"><summary style="cursor:pointer;font-weight:700">יומן החישוב האחרון</summary>${P.log.map(l=>`<div class="sub" style="margin:4px 0">${bl(l)}</div>`).join('')}</details>`:''}`}
 window.after_plans=()=>{const d=$('#drop'),f=$('#fi');if(!d)return;
   f.onchange=()=>up(f.files);['dragenter','dragover'].forEach(e=>d.addEventListener(e,x=>{x.preventDefault();d.classList.add('over')}));
-  ['dragleave','drop'].forEach(e=>d.addEventListener(e,x=>{x.preventDefault();d.classList.remove('over')}));d.addEventListener('drop',x=>up(x.dataTransfer.files))};
-async function up(files){const f=new FormData();[...files].forEach(x=>f.append('files',x));$('#drop').innerHTML='<b>מעלה ומזהה… זה לוקח רגע לכל גיליון</b>';
-  try{const r=await api(`/projects/${P.id}/upload`,{method:'POST',body:f});const d=r.added.filter(a=>a.dup_of).length,e=r.added.filter(a=>a.error).length;toast(`נקלטו ${r.added.filter(a=>a.sid).length} גיליונות${d?`, ${d} כפולים הוסרו`:''}${e?`, ${e} נכשלו`:''}`)}catch(x){toast(x.message)}render()}
+  ['dragleave','drop'].forEach(e=>d.addEventListener(e,x=>{x.preventDefault();d.classList.remove('over')}));d.addEventListener('drop',x=>{x.preventDefault();up(x.dataTransfer.files)})};
+function up(files){const fd=new FormData();[...files].forEach(x=>fd.append('files',x));const pr=$('#prog'),st=$('#pst');pr.style.display='block';st.textContent='מעלה…';
+  const x=new XMLHttpRequest();x.open('POST',`/api/projects/${P.id}/upload`);
+  x.upload.onprogress=e=>{if(e.lengthComputable){pr.firstChild.style.width=(e.loaded/e.total*90)+'%';st.textContent=`מעלה ${Math.round(e.loaded/e.total*100)}%`}};
+  x.upload.onload=()=>{pr.firstChild.style.width='95%';st.textContent='מזהה את הגיליונות… זה לוקח כמה שניות לכל קובץ'};
+  x.onload=()=>{try{const r=JSON.parse(x.responseText);const d=r.added.filter(a=>a.dup_of).length,e=r.added.filter(a=>a.error).length;toast(`נקלטו ${r.added.filter(a=>a.sid).length} גיליונות${d?`, ${d} כפולים הוסרו`:''}${e?`, ${e} נכשלו`:''}`)}catch(e){toast('שגיאה בהעלאה')}render()};
+  x.onerror=()=>{toast('ההעלאה נכשלה');render()};x.send(fd)}
+async function startEmpty(){await api(`/projects/${P.id}/start`,{method:'POST'});location.hash=`#/p/${P.id}/boq`}
 async function setSheet(sid,b){await api(`/projects/${P.id}/sheets/${sid}`,{method:'POST',body:b});toast(b.type?'נשמר. המערכת תזהה כך גיליונות דומים בפעם הבאה':'נשמר');render()}
 async function runAll(){const b=$('#runb');b.disabled=true;b.innerHTML='<span class="spin"></span> מחשב…';try{await api(`/projects/${P.id}/run`,{method:'POST'});toast('הכתב חושב');location.hash=`#/p/${P.id}/boq`}catch(e){toast(e.message);b.disabled=false}}
 
 /* ---------- BOQ ---------- */
+let FLT='all',COLL={};
 async function boq(){
-  if(!P.boq)return `<h1>כתב כמויות</h1><div class="card empty">עוד לא חושב. העלה תוכניות והרץ חישוב.</div>`;
-  const pr=P.prices;let last='';
-  const tr=P.boq.map(r=>{
-    if(r.kind==='ch')return `<tr class="ch"><td class="code">${r.code}</td><td colspan="7">${esc(r.desc)}</td></tr>`;
-    if(r.kind==='sub')return `<tr class="sub"><td class="code">${r.code}</td><td colspan="7">${esc(r.desc)}</td></tr>`;
-    const q=r.q,p=pr[r.code],tot=q&&p?q*p:null;
-    return `<tr><td class="code">${r.code}</td><td>${esc(r.desc)}${r.need?`<div class="sub" style="margin:0;font-size:12px">${esc(r.need)}</div>`:''}<span class="sug" id="s-${r.code}"></span></td><td>${esc(r.unit)}</td>
-    <td>${q==null?'<span class="tag t-b">חסר</span>':`<b>${nf(q)}</b>${r.st==='חלקי'?' <span class="tag t-w">חלקי</span>':''}`}</td>
-    <td><input class="num" data-c="${r.code}" value="${p??''}" placeholder="מחיר" ${q==null?'disabled':''} onchange="setPrice(this)"></td><td>${tot!=null?money(tot):''}</td><td style="font-size:12px;color:var(--mut)">${esc(r.src)}</td></tr>`}).join('');
-  const prm=Object.entries(PARAMS).map(([k,d])=>`<div><label style="font-size:12px;color:var(--mut)">${d.label}</label><input class="num" style="width:100%" id="pp-${k}" value="${P.params[k]??d.v}"></div>`).join('');
-  return `<h1>כתב כמויות</h1><p class="sub">בפורמט כתב כמויות מכרזי: מספור היררכי, כמות, מחיר וסה"כ. מלא מחיר והסה"כ מתעדכן.</p>
-  <div class="row" style="margin-bottom:14px"><button class="btn sec" onclick="suggestAll()">הצע מחירים מהזיכרון</button><button class="btn sec" onclick="remember()">שמור מחירים לזיכרון</button><span class="sp"></span>
-   <a class="btn sec" href="/api/projects/${P.id}/export.xlsx">ייצוא כתב (Excel)</a><a class="btn" href="/api/projects/${P.id}/quote.xlsx">הצעת מחיר (Excel)</a></div>
-  <div class="card"><div class="scroll"><table><tr><th>מספר</th><th>תיאור</th><th>יח'</th><th>כמות</th><th>מחיר</th><th>סה"כ</th><th>מקור</th></tr>${tr}</table></div>
-  <div class="row" style="margin-top:14px;font-size:18px"><span class="sp"></span><b>סה"כ מתומחר: ${money(SUM.total)}</b></div></div>
-  <details class="card" style="margin-top:16px"><summary style="cursor:pointer;font-weight:700">הנחות החישוב (ניתן לשנות, והחישוב ירוץ מחדש)</summary><div class="grid g4" style="margin-top:12px">${prm}</div><button class="btn" style="margin-top:12px" onclick="saveParams()">שמור וחשב מחדש</button></details>`}
+  if(!P.boq)return `<h1>כתב כמויות</h1><div class="card empty">עוד לא חושב. <a href="#/p/${P.id}/plans">העלה תוכניות</a> והרץ חישוב, או <button class="btn sec" onclick="startEmpty()">התחל כתב ריק</button></div>`;
+  const pr=P.prices;let cur='';
+  const man=new Set((P.manual||[]).map(m=>m.desc));
+  const tr=P.boq.map((r,i)=>{
+    if(r.kind==='ch'){cur=r.code.slice(0,2);return `<tr class="ch" data-ch="${cur}" onclick="toggleCh('${cur}')"><td class="code">${r.code}</td><td colspan="7"><span id="ar-${cur}">${COLL[cur]?'◂':'▾'}</span> ${esc(r.desc)}</td></tr>`}
+    if(r.kind==='sub')return `<tr class="sub" data-in="${cur}"><td class="code">${r.code}</td><td colspan="7">${esc(r.desc)}</td></tr>`;
+    const q=r.q,p=pr[r.code],tot=q&&p?q*p:null,st=q==null?'miss':r.st==='חלקי'?'part':p?'priced':'ok';
+    return `<tr class="${man.has(r.desc)||r.st==='ידני'?'m':''}" data-in="${cur}" data-st="${st}"><td class="code">${r.code}</td><td>${esc(r.desc)}${r.need?`<div class="sub" style="margin:0;font-size:12px">${esc(r.need)}</div>`:''}<span class="sug" id="s-${r.code}"></span></td><td>${esc(r.unit)}</td>
+    <td style="white-space:nowrap"><input class="num" style="width:90px" value="${q??''}" placeholder="כמות" onchange="setQty(${i},this.value)">${r.st==='חלקי'?' <span class="tag t-w">חלקי</span>':r.st==='ידני'?' <span class="tag t-ok">ידני</span>':q==null?' <span class="tag t-b">חסר</span>':''}</td>
+    <td><input class="num" data-c="${r.code}" value="${p??''}" placeholder="מחיר" ${q==null?'disabled':''} onchange="setPrice(this)"></td><td><b>${tot!=null?money(tot):''}</b></td><td style="font-size:12px;color:var(--mut)">${esc(r.src)}</td>
+    <td><button class="x" title="${man.has(r.desc)?'מחק סעיף':'הסתר סעיף'}" onclick="rmItem(${i})">✕</button></td></tr>`}).join('');
+  const chs=[...new Set(P.boq.filter(r=>r.kind==='ch'&&r.code!=='00.00.0000').map(r=>r.code.slice(0,2)+'|'+r.desc))];
+  const prm=Object.entries(PARAMS).map(([k,d])=>`<div class="fld"><label>${d.label}</label><input class="num" style="width:100%" id="pp-${k}" value="${P.params[k]??d.v}"></div>`).join('');
+  const hid=(P.hidden||[]);
+  return `<h1>כתב כמויות</h1><p class="sub">מספור היררכי בפורמט כתב כמויות מכרזי. אפשר לתקן כל כמות, להוסיף סעיפים ופרקים, ולהסתיר מה שלא רלוונטי.</p>
+  <div class="row" style="margin-bottom:14px"><div class="chips">${[['all','הכל'],['miss','חסר כמות'],['part','חלקי'],['ok','עם כמות'],['priced','מתומחר']].map(([k,t])=>`<span class="chip ${FLT===k?'on':''}" onclick="setFlt('${k}')">${t}</span>`).join('')}</div><span class="sp"></span>
+   <button class="btn sec" onclick="document.getElementById('bld').scrollIntoView({behavior:'smooth'})">+ הוסף סעיף</button><button class="btn sec" onclick="suggestAll()">הצע מחירים מהזיכרון</button><button class="btn sec" onclick="remember()">שמור מחירים לזיכרון</button>
+   ${menu(`<a href="/api/projects/${P.id}/export.xlsx">כתב כמויות (Excel)</a><a href="/api/projects/${P.id}/quote.xlsx">הצעת מחיר (Excel)</a><button onclick="boqCsv()">כתב כמויות (CSV)</button><button onclick="window.print()">הדפסה / PDF</button>`)}</div>
+  <div class="card"><div class="scroll"><table><tr><th>מספר</th><th>תיאור</th><th>יח'</th><th>כמות</th><th>מחיר</th><th>סה"כ</th><th>מקור</th><th></th></tr>${tr}</table></div>
+  <div class="row" style="margin-top:14px;font-size:18px"><span class="sub" style="margin:0;font-size:13px">${hid.length?`${hid.length} סעיפים מוסתרים · <a href="#" onclick="unhideAll();return false">החזר הכל</a>`:''}</span><span class="sp"></span><b>סה"כ מתומחר: ${money(SUM.total)}</b></div></div>
+  <div class="card builder" id="bld" style="margin-top:16px"><h2>בנאי: הוספת סעיף</h2><div class="grid g4" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
+   <div class="fld"><label>פרק</label><select id="b-ch" onchange="document.getElementById('b-new').style.display=this.value==='new'?'grid':'none'">${chs.map(c=>{const[n,d]=c.split('|');return `<option value="${+n}">${n} · ${esc(d)}</option>`}).join('')}<option value="new">+ פרק חדש…</option></select></div>
+   <div class="fld" id="b-new" style="display:none"><label>מספר ושם פרק חדש</label><div class="row"><input id="b-cn" class="num" style="width:70px" placeholder="50"><input id="b-cname" placeholder="שם הפרק"></div></div>
+   <div class="fld" style="grid-column:span 2"><label>תיאור הסעיף</label><input id="b-desc" placeholder="למשל: ריצוף אבן טבעית בחדרי רחצה"></div>
+   <div class="fld"><label>יחידה</label><select id="b-unit">${['מ"ר','מטר','יח\'','מ"ק','טון','ק"ג','קומפ\'','נק\'','שעה','ליטר'].map(u=>`<option>${u}</option>`).join('')}</select></div>
+   <div class="fld"><label>כמות</label><input id="b-q" class="num" style="width:100%" placeholder="אפשר להשאיר ריק"></div></div>
+   <button class="btn" style="margin-top:12px" onclick="addItem()">הוסף לכתב</button></div>
+  <details class="card" style="margin-top:16px"><summary style="cursor:pointer;font-weight:700">הנחות החישוב (משנים וכל הכתב מחושב מחדש)</summary><div class="grid g4" style="margin-top:12px">${prm}</div><button class="btn" style="margin-top:12px" onclick="saveParams()">שמור וחשב מחדש</button></details>`}
+window.after_boq=()=>applyFlt();
+function applyFlt(){document.querySelectorAll('tr[data-in]').forEach(r=>{let hide=!!COLL[r.dataset.in];if(!hide&&FLT!=='all'&&r.dataset.st){const st=r.dataset.st;hide=!(FLT===st||(FLT==='ok'&&(st==='ok'||st==='priced'||st==='part')))}if(!hide&&FLT!=='all'&&!r.dataset.st)hide=true;r.classList.toggle('hid',hide)})}
+function setFlt(k){FLT=k;render()}
+function toggleCh(c){COLL[c]=!COLL[c];$('#ar-'+c).textContent=COLL[c]?'◂':'▾';applyFlt()}
+async function bld(b){P=await api(`/projects/${P.id}/builder`,{method:'POST',body:b});render()}
+function setQty(i,v){bld({action:'qty',desc:P.boq[i].desc,q:v})}
+async function rmItem(i){const d=P.boq[i].desc;if((P.manual||[]).some(m=>m.desc===d))await bld({action:'rm_manual',desc:d});else await bld({action:'hide',desc:d});toast('הוסר מהכתב')}
+async function unhideAll(){for(const d of P.hidden)await api(`/projects/${P.id}/builder`,{method:'POST',body:{action:'unhide',desc:d}});render()}
+async function addItem(){const c=$('#b-ch').value,nw=c==='new';const b={action:'add',ch:nw?$('#b-cn').value:c,desc:$('#b-desc').value,unit:$('#b-unit').value,q:$('#b-q').value};if(nw)b.chname=$('#b-cname').value;
+  try{await bld(b);toast('הסעיף נוסף')}catch(e){toast(e.message)}}
 async function setPrice(i){await api(`/projects/${P.id}/prices`,{method:'POST',body:{items:{[i.dataset.c]:i.value}}});render()}
 async function remember(){await api(`/projects/${P.id}/prices`,{method:'POST',body:{items:{},remember:true}});toast('המחירים נשמרו בזיכרון המערכת ויוצעו בפרויקטים הבאים')}
 async function suggestAll(){const s=await api(`/projects/${P.id}/suggest`,{method:'POST'});const ks=Object.keys(s);if(!ks.length){toast('אין הצעות מתאימות בזיכרון עדיין');return}
@@ -170,7 +232,7 @@ async function materials(){
    <td><select onchange="ostat(${o.n},this.value)">${['טיוטה','נשלחה','סופקה חלקית','סופקה','בוטלה'].map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select></td><td><a class="btn sm sec" href="/api/projects/${P.id}/orders/${o.n}.xlsx">הורד</a></td></tr>`).join('');
   return `<h1>חומרים והזמנות</h1><p class="sub">כתב הכמויות מפורק לחומרים לפי מתכוני ביצוע, כולל פחת. בוחרים מה להזמין ומפיקים הזמנת רכש.</p>
   <div class="card"><div class="scroll"><table><tr><th></th><th>חומר</th><th>יח'</th><th>כמות להזמנה</th><th>מחיר</th><th>סה"כ</th></tr>${rows}</table></div>
-  <div class="row" style="margin-top:14px"><input id="sup" placeholder="שם ספק" style="max-width:220px"><input id="need" type="date" style="max-width:170px" title="תאריך אספקה"><input id="note" placeholder="הערה לספק" style="max-width:260px"><span class="sp"></span><b>${money(tot)}</b><button class="btn ok" onclick="mkOrder()">הפק הזמנת רכש</button></div></div>
+  <div class="row" style="margin-bottom:12px"><span class="sp"></span>${menu(`<button onclick="matCsv()">רשימת חומרים (CSV)</button><button onclick="window.print()">הדפסה / PDF</button>`)}</div><div class="row" style="margin-top:14px"><input id="sup" placeholder="שם ספק" style="max-width:220px"><input id="need" type="date" style="max-width:170px" title="תאריך אספקה"><input id="note" placeholder="הערה לספק" style="max-width:260px"><span class="sp"></span><b>${money(tot)}</b><button class="btn ok" onclick="mkOrder()">הפק הזמנת רכש</button></div></div>
   <div class="card" style="margin-top:16px"><h2>הזמנות שנוצרו</h2>${P.orders.length?`<table><tr><th>#</th><th>ספק</th><th>פריטים</th><th>אספקה</th><th>סטטוס</th><th></th></tr>${os}</table>`:'<div class="empty">עוד אין הזמנות</div>'}</div>`}
 async function setMp(m,v){await api(`/projects/${P.id}/prices`,{method:'POST',body:{materials:{[m]:v}}});render()}
 async function mkOrder(){const items=[...document.querySelectorAll('.ck')].filter(c=>c.checked).map(c=>{const m=P.materials[c.dataset.i];return{material:m.material,unit:m.unit,qty:$('#q'+c.dataset.i).value}});

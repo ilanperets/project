@@ -117,15 +117,53 @@ def run(pid:str):
         A=max(wall_m*P['wall_height']*2-op_m2,0)
         for ch,d in ((9,'טיח פנים וחוץ, הערכה: אורך קירות × גובה × 2 צדדים פחות פתחים'),(11,'צבע, הערכה: כמו שטח הטיח')):
             lines.append(dict(ch=ch,sub=1,desc=d,unit='מ"ר',q=round(A,1),st='חלקי',src='נגזר מאורך הקירות',need='גובה קירות מוגדר כהנחה; חסר היקף חדרים מדויק'))
-    present={s['type'] for s in sheets}
-    needed={e[4] for e in B.EXPECTED}
+    pr['lines']=lines; pr['asm']=assumptions; pr['log']=log
+    rebuild(pr); _save(pr)
+    return pr
+
+def rebuild(pr):
+    """BOQ = engine lines + manual items, with quantity overrides and hidden items; then materials and needs"""
+    P=BR.params(pr); sheets=pr['sheets']; lines=list(pr.get('lines',[]))
+    for m in pr.get('manual',[]): lines.append(dict(ch=m['ch'],sub=m.get('sub',1),desc=m['desc'],unit=m['unit'],q=m['q'],st='ידני',src='הוזן ידנית',need=''))
+    present={s['type'] for s in sheets}; needed={e[4] for e in B.EXPECTED}
     missing=sorted(t for t in needed if t not in present)
     unbuilt=sorted(t for t in present if t not in B.BUILT and t in needed or t=='unknown' and t in present)
-    rows=B.build(pr['name'],lines,present)
-    mats,used=BR.explode(rows,P)
-    for k in used: assumptions.append(dict(t=f"הנחה: {BR.DEFAULT_PARAMS[k]['label']} = {P[k]}",why=BR.DEFAULT_PARAMS[k]['why'],gives='פירוק לחומרים',how='עדכן בהגדרות הפרויקט'))
-    pr['boq']=rows; pr['materials']=mats; pr['needs']=B.needs(sheets,missing,unbuilt,assumptions); pr['log']=log; _save(pr)
-    return pr
+    rows=B.build(pr['name'],lines,present,pr.get('ov'),set(pr.get('hidden',[])),pr.get('chnames'))
+    mats,used=BR.explode(rows,P); asm=list(pr.get('asm',[]))
+    for k in used: asm.append(dict(t=f"הנחה: {BR.DEFAULT_PARAMS[k]['label']} = {P[k]}",why=BR.DEFAULT_PARAMS[k]['why'],gives='פירוק לחומרים',how='עדכן בהגדרות הפרויקט'))
+    pr['boq']=rows; pr['materials']=mats; pr['needs']=B.needs(sheets,missing,unbuilt,asm)
+
+@app.post('/api/projects/{pid}/builder')
+def builder(pid:str,body:dict):
+    """add / quantity override / hide / restore / rename chapter, without re-running the engines"""
+    pr=_load(pid); a=body.get('action')
+    if 'lines' not in pr: pr['lines']=[]
+    if a=='add':
+        if not body.get('desc') or not body.get('unit'): raise HTTPException(400,'חסר תיאור או יחידה')
+        pr.setdefault('manual',[]).append(dict(ch=int(body.get('ch') or 99),sub=int(body.get('sub') or 1),desc=body['desc'].strip(),unit=body['unit'].strip(),q=float(body['q']) if body.get('q') not in ('',None) else None))
+        if body.get('chname'): pr.setdefault('chnames',{})[str(int(body['ch']))]=body['chname']
+    elif a=='qty':
+        pr.setdefault('ov',{})[body['desc']]=float(body['q']) if body.get('q') not in ('',None) else None
+    elif a=='hide': pr.setdefault('hidden',[]).append(body['desc'])
+    elif a=='unhide': pr['hidden']=[d for d in pr.get('hidden',[]) if d!=body['desc']]
+    elif a=='rm_manual': pr['manual']=[m for m in pr.get('manual',[]) if m['desc']!=body['desc']]
+    else: raise HTTPException(400,'פעולה לא מוכרת')
+    rebuild(pr); _save(pr); return pr
+
+@app.post('/api/projects/{pid}/start')
+def start_empty(pid:str):
+    """start a BOQ without plans: only the expected items, to be filled by hand"""
+    pr=_load(pid); pr['lines']=pr.get('lines',[]); pr['asm']=[]; rebuild(pr); _save(pr); return pr
+
+@app.get('/api/projects/{pid}/sheets/{sid}/thumb.png')
+def thumb(pid:str,sid:str):
+    import fitz
+    if not re.fullmatch(r'[a-f0-9]{6}',sid): raise HTTPException(404,'')
+    src=os.path.join(_pdir(pid),'files',sid+'.pdf'); out=os.path.join(_pdir(pid),'files',sid+'.png')
+    if not os.path.exists(src): raise HTTPException(404,'')
+    if not os.path.exists(out):
+        pg=fitz.open(src)[0]; z=min(900/pg.rect.width,2.0); pg.get_pixmap(matrix=fitz.Matrix(z,z),alpha=False).save(out)
+    return FileResponse(out,media_type='image/png')
 
 @app.get('/api/projects/{pid}/export.xlsx')
 def export(pid:str):

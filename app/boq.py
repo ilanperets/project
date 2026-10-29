@@ -28,18 +28,27 @@ EXPECTED=[
 ]
 BUILT={'foundation_piles','floor_plan','elevation','electrical'}   # types that have an engine today
 
-def build(name,lines,present_types):
+def build(name,lines,present_types,ov=None,hidden=(),chnames=None):
+    ov=ov or {}; CHN=dict(CH); CHN.update({int(k):v for k,v in (chnames or {}).items()})
     items={}   # (ch,sub) -> list of dict
     for l in lines: items.setdefault((l['ch'],l.get('sub',1)),[]).append(dict(desc=l['desc'],unit=l['unit'],q=l['q'],st=l['st'],src=l['src'],need=l.get('need','')))
     for ch,sub,desc,unit,typ,need,_ in EXPECTED:
         if typ in present_types: why=f'יש גיליון מסוג "{TYPES[typ]}", המנוע לסוג זה טרם נבנה' if typ not in BUILT else need
         else: why=f'חסר גיליון מסוג "{TYPES[typ]}". {need}'
         items.setdefault((ch,sub),[]).append(dict(desc=desc,unit=unit,q=None,st='דורש השלמה',src=TYPES[typ],need=why))
+    for k in list(items):
+        its=[]
+        for it in items[k]:
+            if it['desc'] in hidden: continue
+            if it['desc'] in ov and ov[it['desc']] is not None: it=dict(it,q=ov[it['desc']],st='ידני',src='הוזן ידנית',need='')
+            its.append(it)
+        if its: items[k]=its
+        else: del items[k]
     rows=[dict(kind='ch',code='00.00.0000',desc=name)]
     for ch in sorted({k[0] for k in items}):
-        rows.append(dict(kind='ch',code=f'{ch:02d}.00.0000',desc=CH.get(ch,f'פרק {ch}')))
+        rows.append(dict(kind='ch',code=f'{ch:02d}.00.0000',desc=CHN.get(ch,f'פרק {ch}')))
         for sub in sorted(k[1] for k in items if k[0]==ch):
-            rows.append(dict(kind='sub',code=f'{ch:02d}.{sub:02d}.0000',desc=SUB.get((ch,sub),CH.get(ch,''))))
+            rows.append(dict(kind='sub',code=f'{ch:02d}.{sub:02d}.0000',desc=SUB.get((ch,sub),CHN.get(ch,''))))
             for i,it in enumerate(items[(ch,sub)],1):
                 rows.append(dict(kind='item',code=f'{ch:02d}.{sub:02d}.{i*10:04d}',desc=it['desc'],unit=it['unit'],q=it['q'],src=f"{it['st']} · {it['src']}",need=it['need'],st=it['st']))
     return rows
