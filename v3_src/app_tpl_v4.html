@@ -653,7 +653,7 @@ const SCREENS = {
   const chs=[...new Set(R.map(r=>r.ch))].sort();
   const cname=Object.fromEntries(CAT.map(c=>[c[0],c[1]]));
   const body=chs.map(c=>{const rs=R.filter(r=>r.ch===c);
-    return `<tr class="grp"><td colspan="6"><b>פרק ${bl(c)}</b> · ${(cname[c]||cname[c.split('–')[0]]||'')}</td></tr>`+rs.map(r=>`<tr class="hl"><td data-l="סעיף"><b>${bl(r.n)}</b></td><td data-l="כמות" class="n num">${r.q==null?'—':bl(f1(r.q))}</td><td data-l="יחידה">${r.u}</td><td data-l="מצב">${chip('s-'+cls[r.st][0],cls[r.st][1],ST[cls[r.st][0]][1])}</td><td data-l="מקור"><div class="note">${bl(r.src)}</div></td><td data-l="הערה"><div class="note">${bl(r.note)}</div></td></tr>`).join('')}).join('');
+    return `<tr class="grp"><td colspan="6">${/^\d/.test(c)?`<b>פרק ${bl(c)}</b> · ${(cname[c]||cname[c.split('–')[0]]||'')}`:`<b>${c}</b>`}</td></tr>`+rs.map(r=>`<tr class="hl"><td data-l="סעיף"><b>${bl(r.n)}</b></td><td data-l="כמות" class="n num">${r.q==null?'—':bl(f1(r.q))}</td><td data-l="יחידה">${r.u}</td><td data-l="מצב">${chip('s-'+cls[r.st][0],cls[r.st][1],ST[cls[r.st][0]][1])}</td><td data-l="מקור"><div class="note">${bl(r.src)}</div></td><td data-l="הערה"><div class="note">${bl(r.note)}</div></td></tr>`).join('')}).join('');
   const sh=VILLA.sheets.map(x=>`<tr><td data-l="גיליון"><b>${bl(x[0])}</b></td><td data-l="תוכן">${x[1]}</td><td data-l="קנ״מ">${bl(x[2])}</td><td data-l="מצב"><span class="tag">${x[3]}</span></td></tr>`).join('');
   const pct=Math.round((nm+pt*.5)/R.length*100);
   return `<div class="phead"><div><h1>וילה איבגי · כתב כמויות</h1><p>בית חדש, תיק היתר של FARBER INGA. כל שורה מסומנת לפי מה שנמדד באמת מהתוכניות ומה עדיין דורש השלמה. לא חובר למפלס.</p></div></div>
