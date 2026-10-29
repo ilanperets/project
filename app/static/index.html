@@ -100,12 +100,12 @@ async function api(path,opt={}){
   if(!r.ok){let m='שגיאה';try{m=(await r.json()).detail||m}catch(e){}throw new Error(m)}
   return r.json()}
 function toast(t){const e=$('#toast');e.innerHTML='<div class="toast">'+esc(t)+'</div>';setTimeout(()=>e.innerHTML='',3500)}
-const R=()=>{const h=location.hash.replace('#/','').split('/');return{pid:h[0]==='p'?h[1]:null,page:h[0]==='p'?(h[2]||'dash'):(h[0]==='spec'?'spec':'projects')}};
+const R=()=>{const h=location.hash.replace('#/','').split('/');return{pid:h[0]==='p'?h[1]:null,page:h[0]==='p'?(h[2]||'dash'):(['spec','engines','legacy'].includes(h[0])?h[0]:'projects')}};
 
 function side(){
   const {pid,page}=R();const l=(p,i,t)=>`<a href="#/p/${pid}/${p}" class="${page===p?'on':''}"><span>${i}</span>${t}</a>`;
   $('#side').innerHTML=`<div class="logo"><i>▦</i>כתבי כמויות</div><nav class="nav">
-  <a href="#/" class="${!pid&&page!=='spec'?'on':''}"><span>◫</span>לוח בקרה</a><a href="#/spec" class="${page==='spec'?'on':''}"><span>❖</span>ספר המפרט</a>
+  <a href="#/" class="${!pid&&page==='projects'?'on':''}"><span>◫</span>לוח בקרה</a><a href="#/spec" class="${page==='spec'?'on':''}"><span>❖</span>ספר המפרט</a><a href="#/engines" class="${page==='engines'?'on':''}"><span>⚙</span>מנועי חישוב</a><a href="#/legacy" class="${page==='legacy'?'on':''}"><span>▥</span>ספריית אימון</a>
   ${pid?`<div class="pname">${esc(P?.name||'')}</div><div class="sep">הפרויקט</div>
   ${l('dash','◉','לוח בקרה')}${l('plans','▤','תוכניות')}${l('boq','☰','כתב כמויות')}${l('materials','▣','חומרים והזמנות')}${l('bills','₪','חשבונות')}${l('brain','✦','המוח')}`:''}</nav>`}
 
@@ -113,7 +113,7 @@ async function render(){
   const {pid,page}=R();
   if(pid){try{P=await api('/projects/'+pid);SUM=await api(`/projects/${pid}/summary`)}catch(e){location.hash='#/';return}}else P=null;
   side();
-  const v={projects,dash,plans,boq,materials,bills,brain,spec}[page]||dash;
+  const v={projects,dash,plans,boq,materials,bills,brain,spec,engines,legacy}[page]||dash;
   $('#main').innerHTML='<div class="empty">טוען…</div>';
   $('#main').innerHTML=(pid?stepper(page):'')+await v();
   if(window['after_'+page])window['after_'+page]();
@@ -149,6 +149,7 @@ async function projects(){
   ${ps.length?`<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin-bottom:16px"><div class="card kpi"><div class="l">פרויקטים</div><div class="n">${ps.length}</div></div><div class="card kpi"><div class="l">שווי מתומחר</div><div class="n">${money(tot)}</div></div><div class="card kpi"><div class="l">חשבונות שהוגשו</div><div class="n">${money(billed)}</div></div><div class="card kpi"><div class="l">כיסוי כמויות</div><div class="n">${items?Math.round(meas/items*100):0}%</div></div></div>`:''}
   <div class="card row" style="margin-bottom:16px"><input id="pn" placeholder="שם פרויקט חדש" style="max-width:340px"><button class="btn" onclick="newProj()">+ פרויקט חדש</button>
    <span class="sp"></span><label class="btn sec">למד מחירים מקובץ אקסל קיים<input type="file" accept=".xlsx" hidden onchange="learnPrices(this)"></label></div>
+  <div class="card" style="margin-bottom:16px"><h2>איך זה עובד</h2><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">${[['1','מעלים תוכניות','גוררים PDF, המערכת מזהה כל גיליון'],['2','המערכת מודדת','כלונסאות, קירות, חדרים, גג, פתחים ועוד'],['3','כתב כמויות','פרקים וסעיפים עם יחידה ואופן מדידה'],['4','תמחור ובנאי','מחירים, תיקון כמויות, סעיפים חדשים'],['5','חומרים וחשבונות','הזמנות רכש, חשבונות חלקיים והצעות מחיר']].map(x=>`<div style="display:flex;gap:10px"><b style="width:30px;height:30px;border-radius:50%;background:var(--pri2);color:#fff;display:grid;place-items:center;flex:none">${x[0]}</b><div><b>${x[1]}</b><div class="sub" style="margin:0;font-size:13px">${x[2]}</div></div></div>`).join('')}</div></div>
   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(340px,1fr))">${ps.length?ps.map((p,i)=>{const s=sums[i],pm=s.items?Math.round(s.measured/s.items*100):0;return `<div class="card pcard" onclick="location.hash='#/p/${p.id}/dash'">${donut(pm,84)}<div class="sp"><b style="font-size:17px">${esc(p.name)}</b><div class="sub" style="margin:2px 0 8px">${s.sheets} גיליונות · ${s.items?s.measured+' מתוך '+s.items+' סעיפים':'עוד לא חושב'}</div><div class="row"><span class="tag t-ok">${money(s.total)}</span><span class="tag ${s.needs?'t-w':'t-ok'}">${s.needs} ממצאים</span></div></div><button class="btn sec sm" onclick="event.stopPropagation();delProj('${p.id}')">מחק</button></div>`}).join(''):'<div class="card empty">אין עדיין פרויקטים. פותחים אחד ומעלים תוכניות.</div>'}</div>`}
 async function newProj(){const n=$('#pn').value||'פרויקט חדש';const p=await api('/projects',{method:'POST',body:{name:n}});location.hash=`#/p/${p.id}/plans`}
 async function delProj(id){if(confirm('למחוק את הפרויקט וכל הקבצים שלו?')){await api('/projects/'+id,{method:'DELETE'});render()}}
@@ -179,7 +180,7 @@ async function dash(){
 /* ---------- plans ---------- */
 async function plans(){
   const cards=P.sheets.map(s=>`<div class="sh"><div class="im" onclick="lightbox('/api/projects/${P.id}/sheets/${s.sid}/thumb.png')"><img loading="lazy" src="/api/projects/${P.id}/sheets/${s.sid}/thumb.png" alt=""></div><div class="bd"><div class="fn" title="${esc(s.file)}">${esc(s.file)}</div>
-   <div class="row"><span class="tag ${s.confirmed||s.conf==='high'?'t-ok':s.conf==='med'?'t-w':'t-b'}">${s.confirmed?'אושר':s.conf==='high'?'זוהה בביטחון':s.conf==='med'?'זוהה, כדאי לאשר':'לא זוהה'}</span></div>
+   <div class="row"><span class="tag ${s.confirmed||s.conf==='high'||s.conf==='learned'?'t-ok':s.conf==='med'?'t-w':'t-b'}">${s.confirmed?'אושר':s.conf==='learned'?'זוהה לפי למידה':s.conf==='high'?'זוהה בביטחון':s.conf==='med'?'זוהה, כדאי לאשר':'לא זוהה'}</span></div>
    <select onchange="setSheet('${s.sid}',{type:this.value})">${Object.entries(TYPES).map(([k,t])=>`<option value="${k}" ${k===s.type?'selected':''}>${t}</option>`).join('')}</select>
    ${s.type==='floor_plan'?`<select onchange="setSheet('${s.sid}',{floor:this.value})"><option value="">באיזו קומה?</option>${[['ground','קומת קרקע'],['first','קומה א׳'],['second','קומה ב׳'],['roof','גג']].map(([k,t])=>`<option value="${k}" ${s.floor===k?'selected':''}>${t}</option>`).join('')}</select>`:''}</div></div>`).join('');
   const cnt={};P.sheets.forEach(s=>cnt[TYPES[s.type]]=(cnt[TYPES[s.type]]||0)+1);
@@ -292,6 +293,16 @@ async function spec(){
   <div class="scroll"><table><tr><th>פרק</th><th>סעיף</th><th>יח'</th><th>אופן המדידה</th><th>תוצאה</th><th>מקור</th><th>חישוב אוטומטי</th></tr>
   ${items.map(i=>`<tr><td class="code">${String(i.ch).padStart(2,'0')}</td><td><b>${esc(i.desc)}</b><div class="sub" style="margin:0;font-size:12px">${esc(d.chapters[i.ch])}</div></td><td>${esc(i.unit)}</td><td>${esc(i.method)}</td><td style="font-size:13px">${esc(i.result)}</td><td><span class="tag ${i.src==='v'?'t-ok':'t-w'}">${i.src==='v'?'מאומת':'לאימות'}</span></td><td>${i.eng?'<span class="tag t-ok">פעיל</span>':'<span class="tag t-b">עוד לא</span>'}</td></tr>`).join('')}</table></div></div>
   <p class="sub" style="margin-top:14px">שמות הפרקים לפי רשימת הפרקים של המפרט הכללי לעבודות בנייה. "מאומת" אומר שהכלל נמצא במסמך שפורסם. "לאימות" הוא כלל מקובל בענף שיש לבדוק מול נוסח הספר הכחול העדכני לפני הסתמכות בחשבון סופי.</p>`}
+
+/* ---------- engines & legacy ---------- */
+async function engines(){
+  const E=await api('/engines');const L={active:['t-ok','פעיל'],partial:['t-w','חלקי'],estimate:['t-w','הערכה'],todo:['t-b','עוד לא נבנה']};
+  const n=k=>E.filter(e=>e.st===k).length;
+  return `<h1>מנועי חישוב</h1><p class="sub">כל מנוע יודע למדוד סוג אלמנט מהתוכנית. המוח מראה מה כל מנוע עושה ומה חסר לו כדי להשתפר.</p>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-bottom:16px"><div class="card kpi"><div class="n">${n('active')}</div><div class="l">פעילים</div></div><div class="card kpi"><div class="n">${n('partial')+n('estimate')}</div><div class="l">חלקיים או הערכה</div></div><div class="card kpi"><div class="n">${n('todo')}</div><div class="l">עוד לא נבנו</div></div></div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(330px,1fr))">${E.map(e=>`<div class="card"><div class="row"><b style="font-size:17px">${esc(e.name)}</b><span class="sp"></span><span class="tag ${L[e.st][0]}">${L[e.st][1]}</span></div><div class="code" style="text-align:right;margin:4px 0">פרק ${esc(e.ch)}</div>
+  <div style="margin:8px 0;font-size:14px">${esc(e.does)}</div><div class="sub" style="margin:0;font-size:13px"><b>מה חסר לו:</b> ${esc(e.needs)}</div></div>`).join('')}</div>`}
+async function legacy(){return `<h1>ספריית אימון</h1><p class="sub">מסכי המערכת הקודמת (השוואות, זיון, ממצאים). עוברים בהדרגה לתוך המערכת הזו.</p><div class="card" style="padding:0;overflow:hidden"><iframe src="/legacy" style="width:100%;height:78vh;border:0;background:#fff"></iframe></div>`}
 
 /* ---------- brain ---------- */
 async function brain(){

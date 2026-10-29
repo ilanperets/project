@@ -1,6 +1,6 @@
 """Builds a hierarchical BOQ (NN.00.0000 chapter / NN.SS.0000 sub / NN.SS.IIII item) from engine lines,
 adds the items every project is expected to have (missing ones stay without quantity), and lists what the brain needs."""
-import datetime, openpyxl
+import datetime, openpyxl, openpyxl.worksheet.properties
 from openpyxl.styles import Font, PatternFill, Alignment
 from .classify import TYPES
 
@@ -89,6 +89,8 @@ def to_xlsx(rows,name,path,needs_list=(),prices=None):
     t.cell(r2,2,'סה"כ').font=F(bold=True); t.cell(r2,6,f'=SUM(F16:F{r2-1})').font=F(bold=True); t.cell(r2,6).number_format=NF
     for ws,w in ((a,[10.8,60.8,9.5,9.1,10.9,12.4,11.8,12.4,41.1]),(t,[10.8,60.8,9.6,9.1,11.8,12.4,41.1])):
         for col,x in zip('ABCDEFGHI',w): ws.column_dimensions[col].width=x
+    for ws in (a,t):
+        ws.page_setup.orientation='landscape'; ws.page_setup.fitToWidth=1; ws.page_setup.fitToHeight=0; ws.sheet_properties.pageSetUpPr=openpyxl.worksheet.properties.PageSetupProperties(fitToPage=True)
     a.freeze_panes='A2'; t.freeze_panes='A16'
     m=wb.create_sheet('מה חסר למערכת'); m.sheet_view.rightToLeft=True; m.append(['דחיפות','מה חסר','למה','מה זה משחרר','מה לעשות'])
     P={'high':'דחוף','med':'חשוב','low':'כשיהיה זמן'}

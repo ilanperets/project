@@ -108,7 +108,8 @@ def run(pid:str):
                 l,info=E.openings(path(s),scale); lines+=l; log.append(f"{s['file']}: פתחים {info}")
             elif t=='electrical':
                 l,info=E.rooms(path(s),scale)
-                for x in l: x['desc']+=f" (גיליון {s['file']})"
+                nel=sum(1 for t in sheets[:sheets.index(s)] if t['type']=='electrical')+1
+                for x in l: x['desc']+=f" (תוכנית חשמל {nel})"
                 lines+=l; log.append(f"{s['file']}: חללים {info}")
         except Exception as e: log.append(f"{s['file']}: שגיאה בחישוב: {str(e)[:100]}")
     P=BR.params(pr)
@@ -186,6 +187,28 @@ def set_params(pid:str,body:dict):
 from .spec import SPEC, CHAPTERS
 @app.get('/api/spec')
 def spec(): return dict(chapters={str(k):v for k,v in CHAPTERS.items()},items=SPEC)
+
+ENGINES=[
+ dict(k='piles',name='כלונסאות',ch='23',st='active',does='סופר כלונסאות לפי קוטר מתוכנית היסודות ומכייל את קנה המידה',needs='אורך כלונס (OCR של טבלת מפלסים) כדי לחשב בטון וזיון מדויקים'),
+ dict(k='walls',name='קירות',ch='04',st='partial',does='מודד אורך קירות לפי עובי מתוכנית קומה, לפי קומה',needs='הפרדה בין בלוק לבטון, וגובה קומה מהחתכים'),
+ dict(k='rooms',name='חללים וריצוף',ch='10',st='active',does='מזהה חדרים סגורים ומחשב שטח נטו',needs='פיצול חללים פתוחים ושמות חדרים'),
+ dict(k='roof',name='גג ואיטום',ch='05',st='active',does='שטח גג לפי קו המעקה החיצוני',needs='-'),
+ dict(k='openings',name='פתחים',ch='06',st='partial',does='סופר פתחים ושטחם מחזיתות',needs='פרט דלתות וחלונות לפי תגיות (OCR)'),
+ dict(k='lights',name='נקודות מאור',ch='08',st='partial',does='סופר גופי תאורה תקרתיים מתוכנית חשמל',needs='התאמת סמלים למקרא (תיוג דוגמאות) לשקעים ומפסקים'),
+ dict(k='plaster',name='טיח וצבע',ch='09, 11',st='estimate',does='הערכה מאורך קירות כפול גובה פחות פתחים',needs='היקף חדרים מדויק ושטחי תקרה'),
+ dict(k='concrete',name='בטון וזיון',ch='02',st='todo',does='-',needs='קריאת מידות וטבלאות זיון מגיליונות הקונסטרוקציה'),
+ dict(k='plumbing',name='אינסטלציה',ch='07',st='todo',does='-',needs='תוכנית אינסטלציה ודוגמאות לאימון'),
+ dict(k='hvac',name='מיזוג אוויר',ch='15',st='todo',does='-',needs='תוכנית מיזוג ודוגמאות לאימון'),
+ dict(k='site',name='פיתוח וחוץ',ch='40, 57',st='todo',does='-',needs='תוכנית פיתוח ודוגמאות לאימון'),
+]
+@app.get('/api/engines')
+def engines_list(): return ENGINES
+
+@app.get('/legacy')
+def legacy():
+    p=os.environ.get('KAMUYOT_LEGACY') or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'kamuyot_system_empty.html')
+    if not os.path.exists(p): raise HTTPException(404,'אין קובץ')
+    return FileResponse(p,media_type='text/html')
 
 @app.get('/api/params')
 def params_def(): return BR.DEFAULT_PARAMS
