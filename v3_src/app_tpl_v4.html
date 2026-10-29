@@ -303,6 +303,13 @@ td.r{text-align:end}
   .flow{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.frame .scan{display:none}}
+
+.in{width:96px;padding:6px 8px;border:1px solid var(--line-2);border-radius:8px;background:var(--surface);font:inherit;font-variant-numeric:tabular-nums;color:var(--ink);text-align:end}
+.in:focus{outline:2px solid var(--accent);outline-offset:0}.in.sm{width:64px}
+.bx{display:grid;gap:10px}.bx .r{display:grid;grid-template-columns:150px 1fr 96px;align-items:center;gap:10px;font-size:13px}
+.bx .tr{height:10px;background:var(--sunk);border-radius:99px;overflow:hidden}.bx .tr i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .25s}
+.sumbox{display:grid;gap:6px;font-variant-numeric:tabular-nums}.sumbox div{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line)}.sumbox div.t{font-weight:800;font-size:17px;border-bottom:0}
+@media print{.side,.top,.bnav,.noprint{display:none!important}.main{margin:0!important}.page{padding:0!important}.in{border:0;width:auto;background:none;padding:0}body{background:#fff}}
 </style>
 </head>
 <body>
@@ -494,6 +501,40 @@ let vSel=0, vz={s:1,x:0,y:0};
 /* ---------- screens ---------- */
 const kpi=(icon,k,v,u,s,extra='')=>`<div class="card kpi"><div class="row"><div class="ic">${ico(I[icon],18)}</div><div class="k">${k}</div></div><div class="v">${v}${u?`<small>${u}</small>`:''}</div><div class="s">${s}</div>${extra}</div>`;
 const bl = s => String(s).replace(/[A-Za-zØ0-9](?:[A-Za-zØ0-9\-–:\/×%…]|\.(?=\d))*/g,'<bdi dir="ltr">$&</bdi>');
+const BOQ={pid:'villa'};
+function boqRows(pid){
+  if(pid==='villa') return VILLA.rows.map(r=>({g:r.ch,n:r.n,u:r.u,q:r.q,src:r.src}));
+  return rowsOf(PBY[pid]).map(r=>({g:r.grp,n:r.n,u:r.u,q:(r.e==null?null:r.e),src:r.note||''}));
+}
+const boqGrp=(g,plain)=>{const m=String(g).match(/^(\d+)/);const nm=m?(Object.fromEntries(CAT.map(c=>[c[0],c[1]]))[m[1]]||''):'';return plain?(m?bl(g)+' · '+nm:g):(m?`<b>פרק ${bl(g)}</b> · ${nm}`:`<b>${g}</b>`)};
+function boqLoad(pid){let o={};try{o=JSON.parse(localStorage.getItem('boq:'+pid)||'{}')}catch(e){}return {r:o.r||{},ret:o.ret==null?0:o.ret,vat:o.vat==null?18:o.vat}}
+function boqSave(pid,cfg){try{localStorage.setItem('boq:'+pid,JSON.stringify(cfg))}catch(e){}}
+const nv=el=>{const v=parseFloat(el&&el.value);return isNaN(v)?0:v};
+function boqCalc(){
+  const tb=$('#btab'); if(!tb)return; const pid=BOQ.pid, cfg={r:{},ret:nv($('#ret')),vat:nv($('#vat'))};
+  const gs={}; let tot=0,cum=0,prev=0,priced=0,n=0;
+  tb.querySelectorAll('tbody tr[data-i]').forEach(tr=>{
+    const q=nv(tr.querySelector('[data-k=q]')),p=nv(tr.querySelector('[data-k=p]')),c=nv(tr.querySelector('[data-k=c]'))/100,v=nv(tr.querySelector('[data-k=v]'))/100;
+    const t=q*p; tr.querySelector('.tt').textContent=t?fmt(t):'0'; tr.querySelector('.cur').textContent=t?fmt(t*(c-v)):'0';
+    tot+=t;cum+=t*c;prev+=t*v;if(t>0)priced++;n++;gs[tr.dataset.g]=(gs[tr.dataset.g]||0)+t;
+    const o={};['q','p','c','v'].forEach(k=>{const el=tr.querySelector('[data-k='+k+']');if(el.value!=='')o[k]=parseFloat(el.value)});cfg.r[tr.dataset.i]=o;
+  });
+  const cur=cum-prev, ret=cur*cfg.ret/100, net=cur-ret, vat=net*cfg.vat/100;
+  const set=(id,v)=>{const e=$('#'+id);if(e)e.textContent=fmt(v)};
+  set('k1',tot);set('k2',cum);set('k3',cur);set('k4',priced);set('s1',cur);set('s2',-ret);set('s3',net);set('s4',vat);set('s5',net+vat);
+  $('#k1s').textContent=tot?'סכום כל הסעיפים המתומחרים':'הזן מחירי יחידה'; $('#k2s').textContent=tot?Math.round(cum/tot*100)+'% מהחוזה':'—'; $('#k4s').textContent=n?Math.round(priced/n*100)+'% מהכתב':'';
+  const keys=Object.keys(gs), mx=Math.max(1,...Object.values(gs));
+  [...document.querySelectorAll('#bars .r')].forEach((r,j)=>{const g=[...new Set([...tb.querySelectorAll('tbody tr[data-i]')].map(t=>t.dataset.g))][j];const v=gs[g]||0;$('#b'+j).style.width=(v/mx*100)+'%';$('#bv'+j).textContent=fmt(v)});
+  boqSave(pid,cfg);
+}
+function boqCsv(){
+  const out=[['פרק','סעיף','יחידה','כמות','מחיר יחידה','סה"כ','% מצטבר','% קודם','לחשבון זה']];
+  document.querySelectorAll('#btab tbody tr[data-i]').forEach(tr=>{const g=tr.dataset.g,v=k=>tr.querySelector('[data-k='+k+']').value;out.push([g,tr.querySelector('b').textContent,tr.children[1].textContent,v('q'),v('p'),tr.querySelector('.tt').textContent.replace(/,/g,''),v('c'),v('v'),tr.querySelector('.cur').textContent.replace(/,/g,'')])});
+  out.push([],['','סה"כ חוזה','','','',$('#k1').textContent.replace(/,/g,'')],['','חשבון נוכחי','','','',$('#k3').textContent.replace(/,/g,'')],['','לתשלום כולל מע"מ','','','',$('#s5').textContent.replace(/,/g,'')]);
+  const csv='\ufeff'+out.map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='kamuyot_'+BOQ.pid+'.csv';document.body.appendChild(a);a.click();a.remove();
+}
+document.addEventListener('input',e=>{if(e.target.closest&&e.target.closest('#btab, .sumbox'))boqCalc()});
 const SCREENS = {
  dash(){
   const gap=P.reduce((a,p)=>a+p.gap_total,0), under=P.reduce((a,p)=>a+p.under_total,0), tot=P.reduce((a,p)=>a+pTot(p),0);
@@ -662,6 +703,20 @@ const SCREENS = {
   <div class="card" style="align-self:start;position:sticky;top:84px"><div class="ch"><div><h3>תוכנית כלונסאות</h3><div class="small">27 כלונסאות (ירוק) וראשי עמודים (סגול), מתוך kon7-1</div></div></div><div class="cb"><img src="${IMGS.piles}" alt="תוכנית כלונסאות" style="width:100%;max-height:640px;object-fit:contain;border-radius:10px;border:1px solid var(--line)"></div></div></div>
   <div class="card mt"><div class="ch"><div><h3>מצב הגיליונות</h3><div class="small">מה כבר נקרא ומה ממתין</div></div></div><div class="cb" style="padding-top:8px"><table class="resp"><thead><tr><th>גיליון</th><th>תוכן</th><th>קנ״מ</th><th>מצב</th></tr></thead><tbody>${sh}</tbody></table></div></div>`;
  },
+ boq(){
+  const rows=boqRows(BOQ.pid), cfg=boqLoad(BOQ.pid);
+  const chs=[...new Set(rows.map(r=>r.g))];
+  const body=chs.map(g=>`<tr class="grp"><td colspan="8">${boqGrp(g)}</td></tr>`+rows.map((r,i)=>r.g!==g?'':`<tr data-i="${i}" data-g="${ta(g)}"><td data-l="סעיף"><b>${bl(r.n)}</b><div class="note">${bl(r.src||'')}</div></td><td data-l="יחידה">${r.u}</td><td data-l="כמות"><input class="in" type="number" step="any" data-k="q" value="${(cfg.r[i]&&cfg.r[i].q!=null)?cfg.r[i].q:(r.q==null?'':r.q)}" placeholder="—"></td><td data-l="מחיר יחידה ₪"><input class="in" type="number" step="any" min="0" data-k="p" value="${cfg.r[i]&&cfg.r[i].p!=null?cfg.r[i].p:''}" placeholder="0"></td><td data-l="סה״כ ₪" class="n num"><span class="tt">0</span></td><td data-l="% מצטבר"><input class="in sm" type="number" min="0" max="100" data-k="c" value="${cfg.r[i]&&cfg.r[i].c!=null?cfg.r[i].c:''}" placeholder="0"></td><td data-l="% קודם"><input class="in sm" type="number" min="0" max="100" data-k="v" value="${cfg.r[i]&&cfg.r[i].v!=null?cfg.r[i].v:''}" placeholder="0"></td><td data-l="לחשבון זה ₪" class="n num"><span class="cur">0</span></td></tr>`).join('')).join('');
+  return `<div class="phead"><div><h1>תמחור, חשבונות וייצוא</h1><p>מחירי היחידה הם שלך: הוזן מחיר, ויחושבו סכום החוזה, אחוזי ביצוע והחשבון החלקי. השינויים נשמרים בדפדפן. אפשר גם להשלים כמות ידנית לסעיף שעוד לא נמדד.</p></div>
+  <div class="noprint" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><select class="fsel" id="bpid" onchange="BOQ.pid=this.value;nav()">${[['villa','וילה איבגי'],['olga','גן אולגה'],['hofim','תיכון חופים']].map(([v,t])=>`<option value="${v}" ${v===BOQ.pid?'selected':''}>${t}</option>`).join('')}</select><button class="btn ghost" onclick="boqCsv()">ייצוא לאקסל (CSV)</button><button class="btn" onclick="print()">הדפסה / PDF</button></div></div>
+  <div class="grid g4"><div class="card kpi"><div class="row"><div class="ic">${ico(I.money,18)}</div><div class="k">סכום חוזה</div></div><div class="v"><span id="k1">0</span><small>₪</small></div><div class="s" id="k1s"></div></div>
+  <div class="card kpi"><div class="row"><div class="ic">${ico(I.layers,18)}</div><div class="k">בוצע מצטבר</div></div><div class="v"><span id="k2">0</span><small>₪</small></div><div class="s" id="k2s"></div></div>
+  <div class="card kpi"><div class="row"><div class="ic">${ico(I.doc,18)}</div><div class="k">חשבון נוכחי</div></div><div class="v"><span id="k3">0</span><small>₪</small></div><div class="s">מצטבר פחות קודם</div></div>
+  <div class="card kpi"><div class="row"><div class="ic">${ico(I.chap,18)}</div><div class="k">סעיפים מתומחרים</div></div><div class="v"><span id="k4">0</span><small>/ ${rows.length}</small></div><div class="s" id="k4s"></div></div></div>
+  <div class="grid g21 mt"><div class="card"><div class="ch"><div><h3>סכום לפי פרק</h3><div class="small">מתעדכן תוך כדי הקלדה</div></div></div><div class="cb"><div class="bx" id="bars">${chs.map((g,j)=>`<div class="r"><span>${boqGrp(g,true)}</span><div class="tr"><i id="b${j}" style="width:0"></i></div><b class="num" id="bv${j}" style="text-align:end">0</b></div>`).join('')}</div></div></div>
+  <div class="card"><div class="ch"><div><h3>חשבון חלקי</h3><div class="small">מס׳ חשבון, עכבון ומע״מ</div></div></div><div class="cb"><div class="sumbox"><div><span>עבור ביצוע החשבון</span><b id="s1">0</b></div><div><span>עכבון <input class="in sm" id="ret" type="number" min="0" max="100" value="${cfg.ret}">%</span><b id="s2">0</b></div><div><span>לפני מע״מ</span><b id="s3">0</b></div><div><span>מע״מ <input class="in sm" id="vat" type="number" min="0" max="100" value="${cfg.vat}">%</span><b id="s4">0</b></div><div class="t"><span>לתשלום</span><b id="s5">0</b></div></div></div></div></div>
+  <div class="card mt"><div class="ch"><div><h3>כתב כמויות מתומחר</h3><div class="small">סעיף ריק בכמות אינו נכלל בסכום</div></div></div><div class="cb" style="padding-top:8px"><table class="resp" id="btab"><thead><tr><th>סעיף</th><th>יחידה</th><th>כמות</th><th>מחיר יחידה ₪</th><th>סה״כ ₪</th><th>% מצטבר</th><th>% קודם</th><th>לחשבון זה ₪</th></tr></thead><tbody>${body}</tbody></table></div></div>`;
+ },
  new(){
   const sheets=[['תוכנית קומות ושטחים','אדריכלות','חדרים, שטחי ריצוף, טיח וצבע','part'],['חתכים וחזיתות','אדריכלות','גבהים, פתחים, טיח חוץ ואיטום','plan'],['תוכנית יסודות','קונסטרוקציה','בטון יסודות, ברזל, עפר','part'],['תוכניות תקרות וקורות','קונסטרוקציה','בטון, תבניות, ברזל','built'],['תוכנית גג','אדריכלות','שיפועים, איטום, מעקות','plan'],['תוכניות חשמל ותברואה','מערכות','נקודות, קווים, גופי תאורה','plan'],['פרטי נגרות, אלומיניום ומסגרות','אדריכלות','ספירה לפי תגיות','built'],['תוכנית פיתוח וגינון','חוץ','ריצוף חוץ, גדרות, עפר','plan']];
   return `<div class="phead"><div><h1>פרויקט חדש: וילה</h1><p>כך ייראה התהליך. ההעלאה עצמה תחובר אחרי שתאשר את הדמו, ובינתיים אפשר לשלוח את התוכניות אליי בצ'אט.</p></div></div>
@@ -701,7 +756,7 @@ function countUp(){
 
 /* ---------- command palette ---------- */
 const CMD = () => [
-  ...[['dash','לוח בקרה'],['chapters','פרקי הבנייה'],['engines','מנועי החישוב'],['villa','וילה איבגי: כתב כמויות'],['new','פרויקט חדש: וילה']].map(([h,t])=>({t,s:'מסך',h:'#'+h})),
+  ...[['dash','לוח בקרה'],['chapters','פרקי הבנייה'],['engines','מנועי החישוב'],['villa','וילה איבגי: כתב כמויות'],['boq','תמחור, חשבונות וייצוא'],['new','פרויקט חדש: וילה']].map(([h,t])=>({t,s:'מסך',h:'#'+h})),
   ...P.flatMap(p=>[['overview','סקירה'],['compare','השוואת כמויות'],['rebar','ברזל'],['plans','תוכניות'],['findings','ממצאים']].map(([t,l])=>({t:SHORT[p.id]+' · '+l,s:'פרויקט',h:`#p-${p.id}-${t}`}))),
   ...CAT.map(c=>({t:`פרק ${c[0]} · ${c[1]}`,s:'פרק',h:'#chapters'})),
   ...ALLROWS.map(r=>({t:`${r.n} (${SHORT[r.pid]})`,s:'סעיף',h:`#p-${r.pid}-compare`})),
@@ -734,8 +789,8 @@ function nav(keep){
   const m=h.match(/^p-(olga|hofim)-(overview|compare|rebar|plans|findings)$/);
   if(m){id='project';pid=m[1];tab=m[2];html=SCREENS.project(pid,tab)}
   else {id=SCREENS[h]&&h!=='project'?h:'dash';html=SCREENS[id]()}
-  const items=[['dash','לוח בקרה',I.dash,'#dash'],['chapters','פרקים',I.chap,'#chapters'],['engines','מנועים',I.eng,'#engines'],['villa','וילה איבגי',I.doc,'#villa'],['new','וילה חדשה',I.plus,'#new']];
-  const crumbs={dash:['לוח בקרה'],chapters:['פרקים'],engines:['מנועים'],new:['פרויקט חדש'],villa:['וילה איבגי']}[id]||[SHORT[pid],{overview:'סקירה',compare:'השוואת כמויות',rebar:'ברזל',plans:'תוכניות',findings:'ממצאים'}[tab]];
+  const items=[['dash','לוח בקרה',I.dash,'#dash'],['chapters','פרקים',I.chap,'#chapters'],['engines','מנועים',I.eng,'#engines'],['villa','וילה איבגי',I.doc,'#villa'],['boq','תמחור וחשבונות',I.money,'#boq'],['new','וילה חדשה',I.plus,'#new']];
+  const crumbs={dash:['לוח בקרה'],chapters:['פרקים'],engines:['מנועים'],new:['פרויקט חדש'],villa:['וילה איבגי'],boq:['תמחור וחשבונות']}[id]||[SHORT[pid],{overview:'סקירה',compare:'השוואת כמויות',rebar:'ברזל',plans:'תוכניות',findings:'ממצאים'}[tab]];
   $('#crumb').innerHTML=`<span>מנוע כמויות</span>${ico('<path d="M15 6l-6 6 6 6"/>',14,2)}`+crumbs.map((c,i)=>i===crumbs.length-1?`<b>${c}</b>`:`<span>${c}</span>${ico('<path d="M15 6l-6 6 6 6"/>',14,2)}`).join('');
   $('#side').innerHTML=`<div class="brand"><div class="logo"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/></svg></div><div><b>מנוע כמויות</b><span>מתוכניות לכתב כמויות</span></div></div>
    <nav class="nav">${items.map(i=>`<a href="${i[3]}" class="${i[0]===id?'on':''}">${ico(i[2],18)}${i[1]}</a>`).join('')}
@@ -747,7 +802,7 @@ function nav(keep){
   $('#page').innerHTML=html;
   document.querySelectorAll('table.resp td').forEach(td=>{td.innerHTML='<span class="v">'+td.innerHTML+'</span>'});
   if($('#tm')){ if(pid)tmP=pid; drawTM(); }
-  bindStage();
+  bindStage(); if(id==='boq')boqCalc();
   document.querySelectorAll('.fsel').forEach(s=>{try{const v=localStorage.getItem(s.dataset.k);if(v)s.value=v}catch(e){}});
   if(keep!==true){scrollTo(0,0);countUp()} else document.querySelectorAll('.cu').forEach(el=>{const v=parseFloat(el.dataset.v),d=el.dataset.d?+el.dataset.d:0;el.textContent=d?v.toFixed(d):fmt(v)});
 }
