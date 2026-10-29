@@ -310,6 +310,10 @@ td.r{text-align:end}
 .bx .tr{height:10px;background:var(--sunk);border-radius:99px;overflow:hidden}.bx .tr i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .25s}
 .sumbox{display:grid;gap:6px;font-variant-numeric:tabular-nums}.sumbox div{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line)}.sumbox div.t{font-weight:800;font-size:17px;border-bottom:0}
 @media print{.side,.top,.bnav,.noprint{display:none!important}.main{margin:0!important}.page{padding:0!important}.in{border:0;width:auto;background:none;padding:0}body{background:#fff}}
+.brain{border-color:#F3C98B;background:linear-gradient(180deg,#FFFBF3,var(--surface) 90px)}.bdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#E8892B;margin-inline-end:8px;box-shadow:0 0 0 4px rgba(232,137,43,.18)}
+.need{display:grid;grid-template-columns:86px 1fr;gap:12px;padding:11px 0;border-top:1px dashed var(--line)}.need:first-of-type{border-top:0}.pri{justify-self:start;font-size:12px;font-weight:800;padding:3px 10px;border-radius:99px;height:fit-content;text-align:center}
+.flow6{display:grid;grid-template-columns:repeat(6,1fr);gap:0}.flow6 .st{padding:16px;border-inline-start:1px solid var(--line);position:relative}.flow6 .st:first-child{border-inline-start:0}.flow6 .st i{font-style:normal;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;margin-bottom:10px}.flow6 .st.q i{background:#E8892B}.flow6 .st b{display:block;font-size:14px;margin-bottom:4px}.flow6 .st span{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+@media(max-width:1180px){.flow6{grid-template-columns:repeat(2,1fr)}.flow6 .st{border-inline-start:0;border-bottom:1px solid var(--line)}}
 </style>
 </head>
 <body>
@@ -501,6 +505,10 @@ let vSel=0, vz={s:1,x:0,y:0};
 /* ---------- screens ---------- */
 const kpi=(icon,k,v,u,s,extra='')=>`<div class="card kpi"><div class="row"><div class="ic">${ico(I[icon],18)}</div><div class="k">${k}</div></div><div class="v">${v}${u?`<small>${u}</small>`:''}</div><div class="s">${s}</div>${extra}</div>`;
 const bl = s => String(s).replace(/[A-Za-zØ0-9](?:[A-Za-zØ0-9\-–:\/×%…]|\.(?=\d))*/g,'<bdi dir="ltr">$&</bdi>');
+const PRI={high:['דחוף','#C2410C','#FFEDD5'],med:['חשוב','#8A6D00','#FFF1CC'],low:['כשיהיה זמן','#475569','#EEF2F7']};
+function brainCard(needs,live){
+  return `<div class="card brain"><div class="ch"><div><h3><span class="bdot"></span>המוח של המערכת: מה חסר לי</h3><div class="small">אני לא מנחש. מה שלא ידוע לי מופיע כאן, עם מה שצריך כדי להשלים אותו</div></div></div><div class="cb"><div id="brainlive">${live||''}</div>${needs.map(n=>`<div class="need"><span class="pri" style="color:${PRI[n.p][1]};background:${PRI[n.p][2]}">${PRI[n.p][0]}</span><div><b>${bl(n.t)}</b><div class="note">${bl(n.why)}</div><div class="note">משחרר: ${bl(n.gives)} · <b>מה לעשות:</b> ${bl(n.how)}</div></div></div>`).join('')}</div></div>`;
+}
 const BOQ={pid:'villa'};
 function boqRows(pid){
   if(pid==='villa') return VILLA.rows.map(r=>({g:r.ch,n:r.n,u:r.u,q:r.q,src:r.src}));
@@ -525,6 +533,7 @@ function boqCalc(){
   $('#k1s').textContent=tot?'סכום כל הסעיפים המתומחרים':'הזן מחירי יחידה'; $('#k2s').textContent=tot?Math.round(cum/tot*100)+'% מהחוזה':'—'; $('#k4s').textContent=n?Math.round(priced/n*100)+'% מהכתב':'';
   const keys=Object.keys(gs), mx=Math.max(1,...Object.values(gs));
   [...document.querySelectorAll('#bars .r')].forEach((r,j)=>{const g=[...new Set([...tb.querySelectorAll('tbody tr[data-i]')].map(t=>t.dataset.g))][j];const v=gs[g]||0;$('#b'+j).style.width=(v/mx*100)+'%';$('#bv'+j).textContent=fmt(v)});
+  const un=[...tb.querySelectorAll('tbody tr[data-i]')].filter(tr=>nv(tr.querySelector('[data-k=q]'))>0&&!nv(tr.querySelector('[data-k=p]'))); const nq=[...tb.querySelectorAll('tbody tr[data-i]')].filter(tr=>!nv(tr.querySelector('[data-k=q]'))).length; const ue=$('#unp'); if(ue)ue.innerHTML=`<b>${un.length}</b> סעיפים עם כמות אבל בלי מחיר: ${un.slice(0,3).map(t=>bl(t.querySelector('b').textContent)).join(' · ')}${un.length>3?' ועוד…':''}<br><b>${nq}</b> סעיפים בלי כמות. הם לא נכללים בסכום, ומופיעים בהמשך.`;
   boqSave(pid,cfg);
 }
 function boqCsv(){
@@ -699,6 +708,7 @@ const SCREENS = {
   const pct=Math.round((nm+pt*.5)/R.length*100);
   return `<div class="phead"><div><h1>וילה איבגי · כתב כמויות</h1><p>בית חדש, תיק היתר של FARBER INGA. כל שורה מסומנת לפי מה שנמדד באמת מהתוכניות ומה עדיין דורש השלמה. לא חובר למפלס.</p></div></div>
   <div class="grid g4">${kpi('layers','כלונסאות שנספרו','27','','21 בקוטר 50 · 6 בקוטר 60')}${kpi('chap','שורות בכתב',R.length,'',`${nm} נמדד · ${pt} חלקי · ${nd} דורש השלמה`)}${kpi('eng','כיסוי משוקלל',pct,'%','נמדד מלא ועוד חצי על חלקי')}${kpi('doc','קבצים בתיק',23,'','ללא מחיצות פנים של אדריכל')}</div>
+  <div class="mt">${brainCard(VILLA.needs)}</div>
   <div class="grid g21 mt"><div class="card"><div class="ch"><div><h3>כתב כמויות לפי פרקים</h3><div class="small">מספרים נמדדו מוקטורים בתוכניות. מקום ריק פירושו שעדיין לא נמדד</div></div></div><div class="cb" style="padding-top:8px"><table class="resp"><thead><tr><th>סעיף</th><th>כמות</th><th>יחידה</th><th>מצב</th><th>מקור</th><th>הערה</th></tr></thead><tbody>${body}</tbody></table></div></div>
   <div class="card" style="align-self:start;position:sticky;top:84px"><div class="ch"><div><h3>תוכנית כלונסאות</h3><div class="small">27 כלונסאות (ירוק) וראשי עמודים (סגול), מתוך kon7-1</div></div></div><div class="cb"><img src="${IMGS.piles}" alt="תוכנית כלונסאות" style="width:100%;max-height:640px;object-fit:contain;border-radius:10px;border:1px solid var(--line)"></div></div></div>
   <div class="card mt"><div class="ch"><div><h3>מצב הגיליונות</h3><div class="small">מה כבר נקרא ומה ממתין</div></div></div><div class="cb" style="padding-top:8px"><table class="resp"><thead><tr><th>גיליון</th><th>תוכן</th><th>קנ״מ</th><th>מצב</th></tr></thead><tbody>${sh}</tbody></table></div></div>`;
@@ -713,14 +723,18 @@ const SCREENS = {
   <div class="card kpi"><div class="row"><div class="ic">${ico(I.layers,18)}</div><div class="k">בוצע מצטבר</div></div><div class="v"><span id="k2">0</span><small>₪</small></div><div class="s" id="k2s"></div></div>
   <div class="card kpi"><div class="row"><div class="ic">${ico(I.doc,18)}</div><div class="k">חשבון נוכחי</div></div><div class="v"><span id="k3">0</span><small>₪</small></div><div class="s">מצטבר פחות קודם</div></div>
   <div class="card kpi"><div class="row"><div class="ic">${ico(I.chap,18)}</div><div class="k">סעיפים מתומחרים</div></div><div class="v"><span id="k4">0</span><small>/ ${rows.length}</small></div><div class="s" id="k4s"></div></div></div>
+  ${BOQ.pid==='villa'?`<div class="mt">${brainCard(VILLA.needs.slice(0,3),'<div class="note" id="unp" style="margin-bottom:6px"></div>')}</div>`:`<div class="mt">${brainCard([],'<div class="note" id="unp"></div>')}</div>`}
   <div class="grid g21 mt"><div class="card"><div class="ch"><div><h3>סכום לפי פרק</h3><div class="small">מתעדכן תוך כדי הקלדה</div></div></div><div class="cb"><div class="bx" id="bars">${chs.map((g,j)=>`<div class="r"><span>${boqGrp(g,true)}</span><div class="tr"><i id="b${j}" style="width:0"></i></div><b class="num" id="bv${j}" style="text-align:end">0</b></div>`).join('')}</div></div></div>
   <div class="card"><div class="ch"><div><h3>חשבון חלקי</h3><div class="small">מס׳ חשבון, עכבון ומע״מ</div></div></div><div class="cb"><div class="sumbox"><div><span>עבור ביצוע החשבון</span><b id="s1">0</b></div><div><span>עכבון <input class="in sm" id="ret" type="number" min="0" max="100" value="${cfg.ret}">%</span><b id="s2">0</b></div><div><span>לפני מע״מ</span><b id="s3">0</b></div><div><span>מע״מ <input class="in sm" id="vat" type="number" min="0" max="100" value="${cfg.vat}">%</span><b id="s4">0</b></div><div class="t"><span>לתשלום</span><b id="s5">0</b></div></div></div></div></div>
   <div class="card mt"><div class="ch"><div><h3>כתב כמויות מתומחר</h3><div class="small">סעיף ריק בכמות אינו נכלל בסכום</div></div></div><div class="cb" style="padding-top:8px"><table class="resp" id="btab"><thead><tr><th>סעיף</th><th>יחידה</th><th>כמות</th><th>מחיר יחידה ₪</th><th>סה״כ ₪</th><th>% מצטבר</th><th>% קודם</th><th>לחשבון זה ₪</th></tr></thead><tbody>${body}</tbody></table></div></div>`;
  },
  new(){
   const sheets=[['תוכנית קומות ושטחים','אדריכלות','חדרים, שטחי ריצוף, טיח וצבע','part'],['חתכים וחזיתות','אדריכלות','גבהים, פתחים, טיח חוץ ואיטום','plan'],['תוכנית יסודות','קונסטרוקציה','בטון יסודות, ברזל, עפר','part'],['תוכניות תקרות וקורות','קונסטרוקציה','בטון, תבניות, ברזל','built'],['תוכנית גג','אדריכלות','שיפועים, איטום, מעקות','plan'],['תוכניות חשמל ותברואה','מערכות','נקודות, קווים, גופי תאורה','plan'],['פרטי נגרות, אלומיניום ומסגרות','אדריכלות','ספירה לפי תגיות','built'],['תוכנית פיתוח וגינון','חוץ','ריצוף חוץ, גדרות, עפר','plan']];
-  return `<div class="phead"><div><h1>פרויקט חדש: וילה</h1><p>כך ייראה התהליך. ההעלאה עצמה תחובר אחרי שתאשר את הדמו, ובינתיים אפשר לשלוח את התוכניות אליי בצ'אט.</p></div></div>
-  <div class="drop"><div class="sheetico"><i></i><u></u></div><div><h3 style="font-size:19px">גרור לכאן קבצי PDF של הווילה</h3><p style="margin:6px 0 12px;color:var(--ink-2);max-width:60ch">עדיף PDF וקטורי ישר מהמתכנן ולא סריקה. אם יש כתב כמויות או אומדן, אפשר להעלות גם אותו להשוואה.</p><span class="btn ghost" style="opacity:.75">${ico('<path d="M12 16V4M6 10l6-6 6 6M4 20h16"/>',16,2.2)}בחירת קבצים (דמו)</span></div></div>
+  return `<div class="phead"><div><h1>פרויקט חדש: הזרימה</h1><p>כך עובד כל פרויקט חדש. המערכת עושה לבד את מה שהיא יודעת, ושואלת אותך כשחסר לה נתון. כך נראית הווילה האמיתית שכבר עברה את השלבים 1–4.</p></div></div>
+  <div class="card"><div class="flow6"><div class="st"><i>1</i><b>מעלים תוכניות</b><span>PDF וקטורי או DWG מהמתכנן, ואם יש גם כתב כמויות</span></div><div class="st"><i>2</i><b>המערכת מזהה</b><span>סוג גיליון, קנ״מ, שכבות ואזור התוכנית. בווילה: 23 קבצים</span></div><div class="st"><i>3</i><b>מחשבת כמויות</b><span>לפי יחידת מידה ותיאור, בכל פרק שיש לו מנוע</span></div><div class="st q"><i>4</i><b>המוח שואל</b><span>מה חסר, למה, ומה לעשות. בווילה: ${VILLA.needs.length} שאלות פתוחות</span></div><div class="st"><i>5</i><b>מתמחרים</b><span>מחירי יחידה שלך, ואחוזי ביצוע לכל סעיף</span></div><div class="st"><i>6</i><b>חשבון וייצוא</b><span>חשבון חלקי עם עכבון ומע״מ, CSV להדפסה ו-PDF</span></div></div></div>
+  <div class="mt">${brainCard(VILLA.needs)}</div>
+  <div class="mt" style="display:flex;gap:10px"><a class="btn" href="#villa">לכתב הכמויות של הווילה</a><a class="btn ghost" href="#boq">לתמחור וחשבונות</a></div>
+  <div class="drop mt"><div class="sheetico"><i></i><u></u></div><div><h3 style="font-size:19px">גרור לכאן קבצי PDF של הווילה</h3><p style="margin:6px 0 12px;color:var(--ink-2);max-width:60ch">עדיף PDF וקטורי ישר מהמתכנן ולא סריקה. אם יש כתב כמויות או אומדן, אפשר להעלות גם אותו להשוואה.</p><span class="btn ghost" style="opacity:.75">${ico('<path d="M12 16V4M6 10l6-6 6 6M4 20h16"/>',16,2.2)}בחירת קבצים (דמו)</span></div></div>
   <div class="card mt"><div class="ch"><div><h3>מה המנוע יעשה עם כל סוג גיליון בווילה</h3><div class="small">כל שורה תלויה במנוע ובמידת הבשלות שלו היום</div></div></div><div class="cb" style="padding-top:8px"><table class="resp"><thead><tr><th>גיליון</th><th>דיסציפלינה</th><th>מה ייצא ממנו</th><th>מנוע</th></tr></thead><tbody>${sheets.map(s=>`<tr class="hl"><td data-l="גיליון"><b>${s[0]}</b></td><td data-l="דיסציפלינה"><span class="tag">${s[1]}</span></td><td data-l="תוצאה">${s[2]}</td><td data-l="מנוע">${stChip(s[3])}</td></tr>`).join('')}</tbody></table></div></div>`;
  }
 };
