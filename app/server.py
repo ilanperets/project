@@ -2,7 +2,8 @@ import json, os, re, shutil, time, uuid
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from . import classify as C, engines as E, boq as B
+from . import classify as C, engines as E, boq as B, brain as BR
+import datetime
 
 ROOT=os.environ.get('KAMUYOT_DATA',os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'data'))
 PROJ=os.path.join(ROOT,'projects'); os.makedirs(PROJ,exist_ok=True)
@@ -18,7 +19,9 @@ def _pdir(pid):
 def _load(pid):
     p=os.path.join(_pdir(pid),'project.json')
     if not os.path.exists(p): raise HTTPException(404,'פרויקט לא נמצא')
-    return json.load(open(p,encoding='utf-8'))
+    pr=json.load(open(p,encoding='utf-8'))
+    for k,v in (('materials',[]),('prices',{}),('mprices',{}),('params',{}),('bills',[]),('orders',[]),('quotes',[]),('needs',[]),('log',[])): pr.setdefault(k,v)
+    return pr
 def _save(pr): json.dump(pr,open(os.path.join(_pdir(pr['id']),'project.json'),'w',encoding='utf-8'),ensure_ascii=False)
 
 @app.get('/api/health')
@@ -35,7 +38,7 @@ def projects():
 @app.post('/api/projects')
 def create(body:dict):
     pid=uuid.uuid4().hex[:8]; os.makedirs(os.path.join(_pdir(pid),'files'))
-    pr=dict(id=pid,name=(body.get('name') or 'פרויקט חדש').strip()[:80],scale=None,sheets=[],boq=None,needs=[],log=[]); _save(pr); return pr
+    pr=dict(id=pid,name=(body.get('name') or 'פרויקט חדש').strip()[:80],scale=None,sheets=[],boq=None,needs=[],log=[],materials=[],prices={},mprices={},params={},bills=[],orders=[],quotes=[]); _save(pr); return pr
 
 @app.get('/api/projects/{pid}')
 def get(pid:str): return _load(pid)
@@ -108,19 +111,144 @@ def run(pid:str):
                 for x in l: x['desc']+=f" (גיליון {s['file']})"
                 lines+=l; log.append(f"{s['file']}: חללים {info}")
         except Exception as e: log.append(f"{s['file']}: שגיאה בחישוב: {str(e)[:100]}")
+    P=BR.params(pr)
+    wall_m=sum(l['q'] for l in lines if l['ch']==4 and l['unit']=='מטר'); op_m2=sum(l['q'] for l in lines if l['ch']==6 and l['unit']=='מ"ר')
+    if wall_m:
+        A=max(wall_m*P['wall_height']*2-op_m2,0)
+        for ch,d in ((9,'טיח פנים וחוץ, הערכה: אורך קירות × גובה × 2 צדדים פחות פתחים'),(11,'צבע, הערכה: כמו שטח הטיח')):
+            lines.append(dict(ch=ch,sub=1,desc=d,unit='מ"ר',q=round(A,1),st='חלקי',src='נגזר מאורך הקירות',need='גובה קירות מוגדר כהנחה; חסר היקף חדרים מדויק'))
     present={s['type'] for s in sheets}
     needed={e[4] for e in B.EXPECTED}
     missing=sorted(t for t in needed if t not in present)
     unbuilt=sorted(t for t in present if t not in B.BUILT and t in needed or t=='unknown' and t in present)
     rows=B.build(pr['name'],lines,present)
-    pr['boq']=rows; pr['needs']=B.needs(sheets,missing,unbuilt,assumptions); pr['log']=log; _save(pr)
-    return dict(boq=rows,needs=pr['needs'],log=log,scale=scale)
+    mats,used=BR.explode(rows,P)
+    for k in used: assumptions.append(dict(t=f"הנחה: {BR.DEFAULT_PARAMS[k]['label']} = {P[k]}",why=BR.DEFAULT_PARAMS[k]['why'],gives='פירוק לחומרים',how='עדכן בהגדרות הפרויקט'))
+    pr['boq']=rows; pr['materials']=mats; pr['needs']=B.needs(sheets,missing,unbuilt,assumptions); pr['log']=log; _save(pr)
+    return pr
 
 @app.get('/api/projects/{pid}/export.xlsx')
 def export(pid:str):
     pr=_load(pid)
     if not pr.get('boq'): raise HTTPException(400,'עוד לא חושב כתב')
     out=os.path.join(_pdir(pid),'boq.xlsx'); B.to_xlsx(pr['boq'],pr['name'],out,pr['needs']); return FileResponse(out,filename='kamuyot_boq.xlsx')
+
+
+
+# ---------- pricing, memory, bills, orders ----------
+MEM=os.path.join(ROOT,'prices_memory.json')
+def _mem():
+    try: return json.load(open(MEM,encoding='utf-8'))
+    except Exception: return []
+
+@app.post('/api/projects/{pid}/params')
+def set_params(pid:str,body:dict):
+    pr=_load(pid); pr['params']={k:float(v) for k,v in body.items() if k in BR.DEFAULT_PARAMS}; _save(pr); return run(pid) if pr.get('boq') else pr
+
+@app.get('/api/params')
+def params_def(): return BR.DEFAULT_PARAMS
+
+@app.post('/api/projects/{pid}/prices')
+def set_prices(pid:str,body:dict):
+    pr=_load(pid); pr.setdefault('prices',{}).update({k:float(v) for k,v in (body.get('items') or {}).items() if v not in ('',None)})
+    pr.setdefault('mprices',{}).update({k:float(v) for k,v in (body.get('materials') or {}).items() if v not in ('',None)})
+    if body.get('remember'):
+        mem=_mem(); idx={(m['desc'],m['unit']):m for m in mem}
+        for r in pr['boq'] or []:
+            if r['kind']=='item' and r['code'] in pr['prices']: idx[(r['desc'],r['unit'])]=dict(desc=r['desc'],unit=r['unit'],price=pr['prices'][r['code']])
+        json.dump(list(idx.values()),open(MEM,'w',encoding='utf-8'),ensure_ascii=False)
+    _save(pr); return pr
+
+@app.post('/api/projects/{pid}/suggest')
+def suggest(pid:str):
+    pr=_load(pid); mem=_mem(); out={}
+    for r in pr['boq'] or []:
+        if r['kind']=='item' and r['code'] not in pr['prices']:
+            s=BR.suggest(r['desc'],r['unit'],mem)
+            if s: out[r['code']]=s
+    return out
+
+@app.post('/api/prices/import')
+async def import_prices(file:UploadFile=File(...)):
+    """learn prices from any BOQ xlsx: rows with description, unit and price"""
+    import openpyxl, io
+    wb=openpyxl.load_workbook(io.BytesIO(await file.read()),data_only=True); mem={(m['desc'],m['unit']):m for m in _mem()}; n=0
+    for ws in wb:
+        for row in ws.iter_rows(values_only=True):
+            c=[x for x in row]
+            for i in range(len(c)-3):
+                d,u,q,p=c[i+1] if i+1<len(c) else None,c[i+2] if i+2<len(c) else None,c[i+3] if i+3<len(c) else None,c[i+4] if i+4<len(c) else None
+                if isinstance(d,str) and len(d)>8 and isinstance(u,str) and len(u.strip())<8 and isinstance(p,(int,float)) and p>0:
+                    mem[(d.strip(),u.strip())]=dict(desc=d.strip(),unit=u.strip(),price=float(p)); n+=1; break
+    json.dump(list(mem.values()),open(MEM,'w',encoding='utf-8'),ensure_ascii=False); return dict(learned=n,total=len(mem))
+
+@app.get('/api/projects/{pid}/summary')
+def summary(pid:str):
+    pr=_load(pid); rows=pr.get('boq') or []; items=[r for r in rows if r['kind']=='item']
+    P=BR.params(pr); tot=BR.totals(rows,pr['prices'])
+    by={}
+    for r in rows:
+        if r['kind']=='ch': cur=r['desc']; by[cur]=dict(total=0,items=0,measured=0,priced=0)
+        elif r['kind']=='item' and rows.index(r)>0:
+            b=by[cur]; b['items']+=1; b['measured']+= 1 if r.get('q') else 0
+            if r.get('q') and pr['prices'].get(r['code']): b['priced']+=1; b['total']+=r['q']*pr['prices'][r['code']]
+    by.pop(pr['name'],None)
+    billed=sum(b['total'] for b in pr['bills']) if pr['bills'] else 0
+    return dict(name=pr['name'],sheets=len(pr['sheets']),items=len(items),measured=sum(1 for r in items if r.get('q')),priced=sum(1 for r in items if r.get('q') and pr['prices'].get(r['code'])),total=tot,chapters=by,bills=len(pr['bills']),billed=billed,orders=len(pr['orders']),needs=len(pr['needs']))
+
+@app.post('/api/projects/{pid}/bills')
+def new_bill(pid:str,body:dict):
+    """body: {pct:{code:cumulative_pct}}"""
+    pr=_load(pid); P=BR.params(pr); prev=pr['bills'][-1]['pct'] if pr['bills'] else {}
+    cum={k:float(v) for k,v in body.get('pct',{}).items()}
+    for k,v in prev.items(): cum.setdefault(k,v)
+    b=BR.bill(pr['boq'],pr['prices'],cum,prev,P); b.update(n=len(pr['bills'])+1,date=str(datetime.date.today()),pct=cum,total_this=b['this'])
+    pr['bills'].append(dict(n=b['n'],date=b['date'],pct=cum,total=b['total'],this=b['this'],retention=b['retention'],vat=b['vat'],net=b['net'])); _save(pr); return b
+
+@app.get('/api/projects/{pid}/bills/{n}')
+def get_bill(pid:str,n:int):
+    pr=_load(pid); P=BR.params(pr); i=n-1
+    if i<0 or i>=len(pr['bills']): raise HTTPException(404,'חשבון לא נמצא')
+    prev=pr['bills'][i-1]['pct'] if i else {}; b=BR.bill(pr['boq'],pr['prices'],pr['bills'][i]['pct'],prev,P); b.update(n=n,date=pr['bills'][i]['date']); return b
+
+@app.post('/api/projects/{pid}/orders')
+def new_order(pid:str,body:dict):
+    pr=_load(pid)
+    items=[dict(material=i['material'],unit=i['unit'],qty=float(i['qty']),price=pr['mprices'].get(i['material'])) for i in body.get('items',[]) if float(i.get('qty',0))>0]
+    if not items: raise HTTPException(400,'לא נבחרו חומרים')
+    o=dict(n=len(pr['orders'])+1,supplier=(body.get('supplier') or 'ספק לא צוין').strip(),needed=body.get('needed',''),note=body.get('note',''),date=str(datetime.date.today()),status='טיוטה',items=items)
+    pr['orders'].append(o); _save(pr); return o
+
+@app.post('/api/projects/{pid}/orders/{n}')
+def order_status(pid:str,n:int,body:dict):
+    pr=_load(pid); o=next((x for x in pr['orders'] if x['n']==n),None)
+    if not o: raise HTTPException(404,'הזמנה לא נמצאה')
+    if body.get('status') in ('טיוטה','נשלחה','סופקה חלקית','סופקה','בוטלה'): o['status']=body['status']
+    _save(pr); return o
+
+@app.get('/api/projects/{pid}/quote.xlsx')
+def quote(pid:str):
+    pr=_load(pid)
+    if not pr.get('boq'): raise HTTPException(400,'עוד לא חושב כתב')
+    rows=[dict(r) for r in pr['boq']]
+    import copy
+    out=os.path.join(_pdir(pid),'quote.xlsx'); B.to_xlsx(rows,pr['name'],out,pr['needs'],prices=pr['prices']); return FileResponse(out,filename='kamuyot_quote.xlsx')
+
+@app.get('/api/projects/{pid}/orders/{n}.xlsx')
+def order_xlsx(pid:str,n:int):
+    import openpyxl
+    from openpyxl.styles import Font
+    pr=_load(pid); o=next((x for x in pr['orders'] if x['n']==n),None)
+    if not o: raise HTTPException(404,'הזמנה לא נמצאה')
+    wb=openpyxl.Workbook(); ws=wb.active; ws.sheet_view.rightToLeft=True; ws.title='הזמנה'
+    ws.append([f"הזמנת רכש {n} - {pr['name']}"]); ws['A1'].font=Font(bold=True,size=16); ws.append(['ספק',o['supplier']]); ws.append(['תאריך אספקה נדרש',o['needed']]); ws.append(['הערה',o['note']]); ws.append([])
+    ws.append(['חומר',"יח'",'כמות','מחיר','סה"כ'])
+    for c in ws[6]: c.font=Font(bold=True)
+    for i in o['items']:
+        r=ws.max_row+1; ws.append([i['material'],i['unit'],i['qty'],i['price'] or 0,f'=C{r}*D{r}'])
+    ws.append(['','','','סה"כ',f'=SUM(E7:E{ws.max_row})'])
+    for col,w in zip('ABCDE',[40,10,12,12,14]): ws.column_dimensions[col].width=w
+    out=os.path.join(_pdir(pid),f'order{n}.xlsx'); wb.save(out); return FileResponse(out,filename=f'order{n}.xlsx')
 
 STATIC=os.path.join(os.path.dirname(os.path.abspath(__file__)),'static')
 if os.path.isdir(STATIC): app.mount('/',StaticFiles(directory=STATIC,html=True),name='ui')

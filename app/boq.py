@@ -53,7 +53,8 @@ def needs(sheets,missing_types,unbuilt_types,assumptions):
     for a in assumptions: out.append(dict(p='med',t=a['t'],why=a['why'],gives=a.get('gives','דיוק הכמויות'),how=a['how']))
     return out
 
-def to_xlsx(rows,name,path,needs_list=()):
+def to_xlsx(rows,name,path,needs_list=(),prices=None):
+    prices=prices or {}
     NF='#,###,##0.00;[Red]\\-#,###,##0.00'; F=lambda **k:Font(name='Arial',size=k.pop('size',11),**k)
     HF=PatternFill('solid',fgColor='D9D9D9'); MISS=PatternFill('solid',fgColor='FDE2E2'); PART=PatternFill('solid',fgColor='FFF4D1'); CHF=PatternFill('solid',fgColor='EEF3FA')
     wb=openpyxl.Workbook(); a=wb.active; a.title='יצוא כתב כמויות'; a.sheet_view.rightToLeft=True
@@ -73,8 +74,9 @@ def to_xlsx(rows,name,path,needs_list=()):
                 if k=='ch':
                     for c in ws[rr]: c.fill=CHF
         else:
-            a.append([r['code'],r['desc'],' '+r['unit'],r['q'],0,f'=E{ra}*D{ra}',0,f'=G{ra}*D{ra}',r['src']+(f" · חסר: {r['need']}" if r.get('need') else '')])
-            t.cell(r2,1,r['code']); t.cell(r2,2,r['desc']); t.cell(r2,3,' '+r['unit']); t.cell(r2,4,r['q']); t.cell(r2,6,f'=E{r2}*D{r2}')
+            pz=prices.get(r['code'],0)
+            a.append([r['code'],r['desc'],' '+r['unit'],r['q'],pz,f'=E{ra}*D{ra}',0,f'=G{ra}*D{ra}',r['src']+(f" · חסר: {r['need']}" if r.get('need') else '')])
+            t.cell(r2,1,r['code']); t.cell(r2,2,r['desc']); t.cell(r2,3,' '+r['unit']); t.cell(r2,4,r['q']); t.cell(r2,5,prices.get(r['code'],0)); t.cell(r2,6,f'=E{r2}*D{r2}')
             for col in (5,6,7,8): a.cell(ra,col).number_format=NF
             for col in (5,6): t.cell(r2,col).number_format=NF
             for ws,rr in ((a,ra),(t,r2)): ws.cell(rr,2).alignment=Alignment(wrap_text=True,vertical='top')
