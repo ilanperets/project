@@ -24,9 +24,15 @@ def build(name,lines,present_types,ov=None,hidden=(),chnames=None):
     for l in lines:
         sp=_spec_for(l['ch'],l['desc'],l['unit']); l['method']=sp['method'] if sp else ''; l['vsrc']=sp['src'] if sp else ''
     for l in lines: items.setdefault((l['ch'],l.get('sub',1)),[]).append(dict(desc=l['desc'],unit=l['unit'],q=l['q'],st=l['st'],src=l['src'],need=l.get('need',''),method=l.get('method',''),vsrc=l.get('vsrc','')))
-    have={l['ch'] for l in lines}
+    covered={l['desc'] for l in lines}
+    for l in lines: covered.update(l.get('cover') or [])
+    for pre,L in (('קירות',['קירות בלוקים בעובי 10 ס"מ','קירות בלוקים בעובי 15 ס"מ','קירות בלוקים בעובי 20 ס"מ']),):
+        if any(l['desc'].startswith(pre) and l['ch']==4 for l in lines): covered.update(L)
+    if any(l['ch']==5 and l['desc'].startswith('איטום גג') for l in lines): covered.add('איטום גגות ומרפסות')
+    if any(l['ch']==10 and l['desc'].startswith('ריצוף') for l in lines): covered.add('ריצוף אריחים')
+    if any(l['ch']==23 and 'כלונסאות' in l['desc'] for l in lines): covered.add('כלונסאות קדוחים ויצוקים באתר')
     for ch,sub,desc,unit,typ,need,sp in EXPECTED:
-        if sp['eng'] and ch in have: continue
+        if desc in covered: continue
         if typ in present_types: why=f'יש גיליון מסוג "{TYPES[typ]}", המנוע לסוג זה טרם נבנה' if typ not in BUILT else need
         else: why=f'חסר גיליון מסוג "{TYPES[typ]}". {need}'
         items.setdefault((ch,sub),[]).append(dict(desc=desc,unit=unit,q=None,st='דורש השלמה',src=TYPES[typ],need=why,method=sp['method'],vsrc=sp['src']))

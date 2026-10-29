@@ -2,13 +2,18 @@ import json, os, re, shutil, time, uuid
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from . import classify as C, engines as E, boq as B, brain as BR
+from . import classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP
 import datetime
 
 ROOT=os.environ.get('KAMUYOT_DATA',os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'data'))
 PROJ=os.path.join(ROOT,'projects'); os.makedirs(PROJ,exist_ok=True)
 RULES=os.path.join(ROOT,'rules.json')
 MEM=os.path.join(ROOT,'prices_memory.json')
+SYMF=os.path.join(ROOT,'symbols.json'); LMAPF=os.path.join(ROOT,'layermap.json')
+def _jl(p,d):
+    try: return json.load(open(p,encoding='utf-8'))
+    except Exception: return d
+def _js(p,v): os.makedirs(ROOT,exist_ok=True); json.dump(v,open(p,'w',encoding='utf-8'),ensure_ascii=False)
 app=FastAPI(title='מערכת כתבי כמויות')
 
 def _rules():
@@ -49,8 +54,9 @@ def reset(body:dict):
         try: os.remove(MEM)
         except OSError: pass
     if body.get('rules'):
-        try: os.remove(RULES)
-        except OSError: pass
+        for f in (RULES,SYMF,LMAPF):
+            try: os.remove(f)
+            except OSError: pass
     return dict(ok=True)
 
 @app.get('/api/projects/{pid}')
@@ -102,6 +108,7 @@ def run(pid:str):
         scale=50; assumptions.append(dict(t='קנה מידה 1:50 הונח',why='לא נמצאה תוכנית כלונסאות לכיול. כל המדידות נשענות על ההנחה הזו',how='אשר קנה מידה, או העלה תוכנית יסודות'))
     pr['scale']=scale
     fps=[s for s in sheets if s['type']=='floor_plan']
+    slab_areas=[]; labels=_jl(SYMF,{}); lmap=_jl(LMAPF,{})
     for s in fps:
         if not s['floor']: assumptions.append(dict(t=f"באיזו קומה גיליון \"{s['file']}\"?",why='אי אפשר לקרוא את שם הקומה מהגיליון (טקסט וקטורי)',gives='תיאור הסעיפים ואיטום גג',how='בחר קומה בטבלת הגיליונות'))
     for s in sheets:
@@ -113,9 +120,14 @@ def run(pid:str):
                 fl=FLOOR.get(s['floor'],'קומה לא מסומנת')
                 if s['floor']=='roof':
                     l,info=E.roof(path(s),scale); lines+=l; log.append(f"{s['file']}: גג {info}")
+                    if info.get('area_m2'): slab_areas.append(info['area_m2'])
                     l,info=E.walls(path(s),scale,'מעקות גג'); lines+=l
                 else:
                     l,info=E.walls(path(s),scale,fl); lines+=l; log.append(f"{s['file']}: קירות {info}")
+                    try:
+                        _,ri=E.roof(path(s),scale)
+                        if ri.get('area_m2'): slab_areas.append(ri['area_m2'])
+                    except Exception: pass
                     if info.get('extra_plan'): assumptions.append(dict(t=f"בגיליון \"{s['file']}\" זוהו שתי תוכניות דומות",why='נבחרה הגדולה מביניהן',how='אשר שזו הנכונה'))
             elif t=='elevation':
                 l,info=E.openings(path(s),scale); lines+=l; log.append(f"{s['file']}: פתחים {info}")
@@ -124,13 +136,22 @@ def run(pid:str):
                 nel=sum(1 for t in sheets[:sheets.index(s)] if t['type']=='electrical')+1
                 for x in l: x['desc']+=f" (תוכנית חשמל {nel})"
                 lines+=l; log.append(f"{s['file']}: חללים {info}")
+                if labels:
+                    sl,si=SY.count(path(s),labels); lines+=sl; log.append(f"{s['file']}: סמלי חשמל {si}")
         except Exception as e: log.append(f"{s['file']}: שגיאה בחישוב: {str(e)[:100]}")
+        for layer,m in (lmap.get(t) or {}).items():
+            try:
+                q=MP.measure(path(s),scale,layer,m['mode'])
+                if q: lines.append(dict(ch=int(m['ch']),sub=int(m.get('sub',1)),desc=m['desc'],unit=m['unit'],q=q,st='נמדד',src=f"מיפוי שכבה {layer} ({s['file'][:18]})",need='',cover=[m['desc']]))
+            except Exception as e: log.append(f"{s['file']}: שגיאת מיפוי שכבה {layer}: {str(e)[:60]}")
     P=BR.params(pr)
-    wall_m=sum(l['q'] for l in lines if l['ch']==4 and l['unit']=='מטר'); op_m2=sum(l['q'] for l in lines if l['ch']==6 and l['unit']=='מ"ר')
-    if wall_m:
-        A=max(wall_m*P['wall_height']*2-op_m2,0)
-        for ch,d in ((9,'טיח פנים וחוץ, הערכה: אורך קירות × גובה × 2 צדדים פחות פתחים'),(11,'צבע, הערכה: כמו שטח הטיח')):
-            lines.append(dict(ch=ch,sub=1,desc=d,unit='מ"ר',q=round(A,1),st='חלקי',src='נגזר מאורך הקירות',need='גובה קירות מוגדר כהנחה; חסר היקף חדרים מדויק'))
+    lines+=DV.derive(lines,slab_areas,P)
+    merged={}
+    for l in lines:
+        k=(l['ch'],l.get('sub',1),l['desc'],l['unit'])
+        if k in merged and l['q'] is not None and merged[k]['q'] is not None: merged[k]['q']=round(merged[k]['q']+l['q'],2)
+        else: merged[k]=l
+    lines=list(merged.values())
     pr['lines']=lines; pr['asm']=assumptions; pr['log']=log
     rebuild(pr); _save(pr)
     return pr
@@ -207,12 +228,11 @@ ENGINES=[
  dict(k='rooms',name='חללים וריצוף',ch='10',st='active',does='מזהה חדרים סגורים ומחשב שטח נטו',needs='פיצול חללים פתוחים ושמות חדרים'),
  dict(k='roof',name='גג ואיטום',ch='05',st='active',does='שטח גג לפי קו המעקה החיצוני',needs='-'),
  dict(k='openings',name='פתחים',ch='06',st='partial',does='סופר פתחים ושטחם מחזיתות',needs='פרט דלתות וחלונות לפי תגיות (OCR)'),
- dict(k='lights',name='נקודות מאור',ch='08',st='partial',does='סופר גופי תאורה תקרתיים מתוכנית חשמל',needs='התאמת סמלים למקרא (תיוג דוגמאות) לשקעים ומפסקים'),
  dict(k='plaster',name='טיח וצבע',ch='09, 11',st='estimate',does='הערכה מאורך קירות כפול גובה פחות פתחים',needs='היקף חדרים מדויק ושטחי תקרה'),
- dict(k='concrete',name='בטון וזיון',ch='02',st='todo',does='-',needs='קריאת מידות וטבלאות זיון מגיליונות הקונסטרוקציה'),
- dict(k='plumbing',name='אינסטלציה',ch='07',st='todo',does='-',needs='תוכנית אינסטלציה ודוגמאות לאימון'),
- dict(k='hvac',name='מיזוג אוויר',ch='15',st='todo',does='-',needs='תוכנית מיזוג ודוגמאות לאימון'),
- dict(k='site',name='פיתוח וחוץ',ch='40, 57',st='todo',does='-',needs='תוכנית פיתוח ודוגמאות לאימון'),
+ dict(k='concrete',name='בטון, תבניות וזיון',ch='02',st='estimate',does='נגזר: קירות בטון, תקרות לפי שטח ועובי שהונח, כלונסאות לפי אורך שהונח, ותבניות וזיון משקל לפי ק"ג למ"ק',needs='מידות אמיתיות וטבלאות זיון מגיליונות הקונסטרוקציה (OCR)'),
+ dict(k='symbols',name='ספריית סמלי חשמל',ch='08',st='partial',does='מקבץ סמלים לפי צורה. מסמנים כל צורה פעם אחת (תאורה, שקע, מפסק...) והיא נספרת בכל תוכנית חשמל',needs='סימון הצורות על ידך. כל תיוג נשמר ומשפר את הדיוק'),
+ dict(k='mapper',name='מיפוי שכבות כללי',ch='כל הפרקים',st='active',does='כל שכבה בכל תוכנית PDF מדידה לפי אורך, שטח או ספירה ומשויכת לסעיף. מתאים לאינסטלציה, מיזוג, פיתוח וכל תוכנית עם שכבות',needs='לבחור שכבה וסעיף פעם אחת. ההוראה נשמרת לפי סוג גיליון'),
+ dict(k='plumbing',name='אינסטלציה, מיזוג ופיתוח',ch='07, 15, 40, 57',st='partial',does='עובד דרך מיפוי שכבות ברגע שיש תוכנית מהסוג הזה',needs='תוכניות לדוגמה להכרת השכבות ולאימון זיהוי אוטומטי'),
 ]
 @app.get('/api/engines')
 def engines_list(): return ENGINES
@@ -222,6 +242,48 @@ def legacy():
     p=os.environ.get('KAMUYOT_LEGACY') or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'kamuyot_system_empty.html')
     if not os.path.exists(p): raise HTTPException(404,'אין קובץ')
     return FileResponse(p,media_type='text/html')
+
+@app.get('/api/projects/{pid}/sheets/{sid}/symbols')
+def sheet_symbols(pid:str,sid:str):
+    if not re.fullmatch(r'[a-f0-9]{6}',sid): raise HTTPException(404,'')
+    p=os.path.join(_pdir(pid),'files',sid+'.pdf')
+    if not os.path.exists(p): raise HTTPException(404,'')
+    labels=_jl(SYMF,{}); g=SY.groups(p)
+    return dict(labels=SY.LABEL_NAMES,groups=[dict(g=x,label=labels.get(x['sig'])) for x in g if x['n']>=2][:40],total=sum(x['n'] for x in g),labelled=sum(x['n'] for x in g if labels.get(x['sig'])))
+
+@app.get('/api/projects/{pid}/sheets/{sid}/crop.png')
+def sheet_crop(pid:str,sid:str,x:float,y:float,w:float,h:float):
+    if not re.fullmatch(r'[a-f0-9]{6}',sid): raise HTTPException(404,'')
+    p=os.path.join(_pdir(pid),'files',sid+'.pdf'); out=os.path.join(_pdir(pid),'files',f'{sid}_{int(x)}_{int(y)}.png')
+    if not os.path.exists(p): raise HTTPException(404,'')
+    if not os.path.exists(out): SY.crop_png(p,x,y,w,h,out)
+    return FileResponse(out,media_type='image/png')
+
+@app.post('/api/symbols')
+def label_symbol(body:dict):
+    lab=_jl(SYMF,{})
+    if body.get('label') and body['label'] in SY.LABEL_NAMES: lab[body['sig']]=body['label']
+    else: lab.pop(body.get('sig'),None)
+    _js(SYMF,lab); return dict(ok=True,n=len(lab))
+
+@app.get('/api/projects/{pid}/sheets/{sid}/layers')
+def sheet_layers(pid:str,sid:str):
+    pr=_load(pid); s=next((x for x in pr['sheets'] if x['sid']==sid),None)
+    if not s: raise HTTPException(404,'')
+    cache=os.path.join(_pdir(pid),'files',sid+'.layers.json'); sc=pr.get('scale') or 50
+    st=_jl(cache,None)
+    if not st or st.get('scale')!=sc:
+        st=dict(scale=sc,layers=MP.stats(os.path.join(_pdir(pid),'files',sid+'.pdf'),sc)); _js(cache,st)
+    return dict(scale=sc,type=s['type'],layers=st['layers'],map=_jl(LMAPF,{}).get(s['type'],{}))
+
+@app.post('/api/layermap')
+def layermap(body:dict):
+    m=_jl(LMAPF,{}); t=m.setdefault(body['type'],{})
+    if body.get('remove'): t.pop(body['layer'],None)
+    else:
+        if not body.get('desc') or body.get('mode') not in ('length','area','count','circles'): raise HTTPException(400,'חסר תיאור או שיטת מדידה')
+        t[body['layer']]=dict(desc=body['desc'].strip(),ch=int(body.get('ch') or 99),sub=int(body.get('sub') or 1),unit=body.get('unit') or 'מטר',mode=body['mode'])
+    _js(LMAPF,m); return dict(ok=True)
 
 @app.get('/api/params')
 def params_def(): return BR.DEFAULT_PARAMS

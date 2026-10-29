@@ -124,7 +124,7 @@ async function render(){
   const {pid,page}=R();
   if(pid){try{P=await api('/projects/'+pid);SUM=await api(`/projects/${pid}/summary`)}catch(e){location.hash='#/';return}}else P=null;
   side();
-  const v={projects,dash,plans,boq,materials,bills,brain,spec,engines,legacy}[page]||dash;
+  const v={projects,dash,plans,boq,materials,bills,brain,spec,engines,legacy,sheet}[page]||dash;
   $('#main').innerHTML='<div class="empty">טוען…</div>';
   $('#main').innerHTML=(pid?stepper(page):'')+await v();
   if(window['after_'+page])window['after_'+page]();
@@ -202,7 +202,8 @@ async function plans(){
   const cards=P.sheets.map(s=>`<div class="sh"><div class="im" onclick="lightbox('/api/projects/${P.id}/sheets/${s.sid}/thumb.png')"><img loading="lazy" src="/api/projects/${P.id}/sheets/${s.sid}/thumb.png" alt=""></div><div class="bd"><div class="fn" title="${esc(s.file)}">${esc(s.file)}</div>
    <div class="row"><span class="tag ${s.confirmed||s.conf==='high'||s.conf==='learned'?'t-ok':s.conf==='med'?'t-w':'t-b'}">${s.confirmed?'אושר':s.conf==='learned'?'זוהה לפי למידה':s.conf==='high'?'זוהה בביטחון':s.conf==='med'?'זוהה, כדאי לאשר':'לא זוהה'}</span></div>
    <select onchange="setSheet('${s.sid}',{type:this.value})">${Object.entries(TYPES).map(([k,t])=>`<option value="${k}" ${k===s.type?'selected':''}>${t}</option>`).join('')}</select>
-   ${s.type==='floor_plan'?`<select onchange="setSheet('${s.sid}',{floor:this.value})"><option value="">באיזו קומה?</option>${[['ground','קומת קרקע'],['first','קומה א׳'],['second','קומה ב׳'],['roof','גג']].map(([k,t])=>`<option value="${k}" ${s.floor===k?'selected':''}>${t}</option>`).join('')}</select>`:''}</div></div>`).join('');
+   ${s.type==='floor_plan'?`<select onchange="setSheet('${s.sid}',{floor:this.value})"><option value="">באיזו קומה?</option>${[['ground','קומת קרקע'],['first','קומה א׳'],['second','קומה ב׳'],['roof','גג']].map(([k,t])=>`<option value="${k}" ${s.floor===k?'selected':''}>${t}</option>`).join('')}</select>`:''}
+   <a class="btn sec sm" href="#/p/${P.id}/sheet/${s.sid}">${s.type==='electrical'?'סמלי חשמל ומיפוי שכבות':'מיפוי שכבות למדידה'}</a></div></div>`).join('');
   const cnt={};P.sheets.forEach(s=>cnt[TYPES[s.type]]=(cnt[TYPES[s.type]]||0)+1);
   return `<h1>תוכניות</h1><p class="sub">גוררים את כל הקבצים של הפרויקט. המערכת מזהה כל גיליון, מנפה כפולים ולומדת מכל תיקון שלך.</p>
   <label class="drop" id="drop"><div class="big">⇪</div><b style="font-size:19px">גרור לכאן קבצי PDF</b><div class="sub" style="margin:6px 0 0">או לחץ לבחירה. אפשר להעלות הרבה קבצים יחד, גם בהמשך.</div><div class="prog" id="prog" style="display:none"><b></b></div><div id="pst" class="sub" style="margin:8px 0 0"></div><input type="file" id="fi" multiple accept=".pdf" hidden></label>
@@ -313,6 +314,37 @@ async function spec(){
   <div class="scroll"><table><tr><th>פרק</th><th>סעיף</th><th>יח'</th><th>אופן המדידה</th><th>תוצאה</th><th>מקור</th><th>חישוב אוטומטי</th></tr>
   ${items.map(i=>`<tr><td class="code">${String(i.ch).padStart(2,'0')}</td><td><b>${esc(i.desc)}</b><div class="sub" style="margin:0;font-size:12px">${esc(d.chapters[i.ch])}</div></td><td>${esc(i.unit)}</td><td>${esc(i.method)}</td><td style="font-size:13px">${esc(i.result)}</td><td><span class="tag ${i.src==='v'?'t-ok':'t-w'}">${i.src==='v'?'מאומת':'לאימות'}</span></td><td>${i.eng?'<span class="tag t-ok">פעיל</span>':'<span class="tag t-b">עוד לא</span>'}</td></tr>`).join('')}</table></div></div>
   <p class="sub" style="margin-top:14px">שמות הפרקים לפי רשימת הפרקים של המפרט הכללי לעבודות בנייה. "מאומת" אומר שהכלל נמצא במסמך שפורסם. "לאימות" הוא כלל מקובל בענף שיש לבדוק מול נוסח הספר הכחול העדכני לפני הסתמכות בחשבון סופי.</p>`}
+
+/* ---------- sheet: symbols + layer mapping ---------- */
+let SPECITEMS=null;
+async function sheet(){
+  const sid=location.hash.split('/')[4];const s=P.sheets.find(x=>x.sid===sid);if(!s)return '<div class="empty">הגיליון לא נמצא</div>';
+  if(!SPECITEMS)SPECITEMS=(await api('/spec')).items;
+  const isE=s.type==='electrical';let sym='';
+  if(isE){const d=await api(`/projects/${P.id}/sheets/${sid}/symbols`);
+    sym=`<div class="card" style="margin-bottom:16px"><h2>סמלי חשמל בתוכנית</h2><p class="sub" style="margin:-6px 0 12px">המערכת מצאה ${d.total} סמלים וקיבצה אותם לפי צורה. סמן מה כל צורה היא פעם אחת, והיא תספור אותה בכל תוכנית חשמל (כרגע סווגו ${d.labelled} מתוך ${d.total}).</p>
+    <div class="sheets" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">${d.groups.map(x=>`<div class="sh"><div class="im" style="aspect-ratio:1;cursor:default;padding:6px"><img src="/api/projects/${P.id}/sheets/${sid}/crop.png?x=${x.g.x}&y=${x.g.y}&w=${x.g.w}&h=${x.g.h}"></div><div class="bd"><div class="row"><b style="font-size:20px">${x.g.n}</b><span class="sub" style="margin:0;font-size:12px">מופעים</span></div>
+    <select data-sig="${esc(x.g.sig)}" onchange="labelSym(this)"><option value="">לא מסווג</option>${Object.entries(d.labels).map(([k,t])=>`<option value="${k}" ${x.label===k?'selected':''}>${t}</option>`).join('')}</select></div></div>`).join('')}</div></div>`}
+  return `<h1>${bl(s.file)}</h1><p class="sub">${esc(TYPES[s.type])} · הוראות המדידה שתלמד כאן נשמרות ויופעלו אוטומטית על כל גיליון מאותו סוג, גם בפרויקטים הבאים.</p>
+  <div class="row" style="margin-bottom:14px"><a class="btn sec sm" href="#/p/${P.id}/plans">← חזרה לתוכניות</a></div>${sym}
+  <div class="card"><h2>מיפוי שכבות לסעיפי כתב</h2><p class="sub" style="margin:-6px 0 12px">כל שכבה בתוכנית אפשר למדוד לפי אורך, שטח או ספירה ולשייך לסעיף. הנתונים מחושבים לפי קנה מידה 1:${P.scale||50}.</p><div id="layers" class="empty">טוען שכבות… (עד כחצי דקה בגיליון כבד)</div></div>`}
+window.after_sheet=async()=>{const sid=location.hash.split('/')[4];const e=document.getElementById('layers');if(!e)return;
+  try{const d=await api(`/projects/${P.id}/sheets/${sid}/layers`);const mp=d.map;
+  e.className='';e.innerHTML=`<div class="scroll"><table><tr><th>שכבה</th><th>פריטים</th><th>אורך (מ')</th><th>שטח (מ"ר)</th><th>עיגולים</th><th>סמלים</th><th>שייך לסעיף</th></tr>${d.layers.slice(0,60).map((l,i)=>{const m=mp[l.layer];return `<tr><td><b style="direction:ltr;display:inline-block">${esc(l.layer)}</b></td><td>${l.n}</td><td>${l.length_m}</td><td>${l.area_m2}</td><td>${l.circles}</td><td>${l.symbols}</td>
+   <td>${m?`<span class="tag t-ok">${esc(m.desc)} · ${m.mode==='length'?'אורך':m.mode==='area'?'שטח':m.mode==='circles'?'עיגולים':'סמלים'}</span> <button class="x" onclick="rmMap('${d.type}','${esc(l.layer).replace(/'/g,"\\'")}')">✕</button>`:`<button class="btn sm sec" onclick="mapLayer(${i})">מפה</button>`}</td></tr>`}).join('')}</table></div>`;window.LAYERS=d}catch(x){e.textContent='שגיאה: '+x.message}};
+function mapLayer(i){const l=window.LAYERS.layers[i];const opts=SPECITEMS.map((it,k)=>`<option value="${k}">${String(it.ch).padStart(2,'0')} · ${esc(it.desc)} (${esc(it.unit)})</option>`).join('');
+  const d=document.createElement('div');d.className='lb';d.style.cursor='default';
+  d.innerHTML=`<div class="card" style="max-width:520px;width:100%" onclick="event.stopPropagation()"><h2>מיפוי שכבה: <span style="direction:ltr;display:inline-block">${esc(l.layer)}</span></h2>
+  <div class="fld" style="margin:10px 0"><label>סעיף בכתב</label><select id="mp-i">${opts}<option value="x">+ סעיף חופשי…</option></select></div>
+  <div class="fld" id="mp-f" style="display:none;margin:10px 0"><label>תיאור וסעיף חופשי (פרק, יחידה)</label><input id="mp-d" placeholder="תיאור"><div class="row" style="margin-top:6px"><input id="mp-c" class="num" placeholder="פרק" style="width:80px"><input id="mp-u" class="num" placeholder="יחידה" style="width:100px"></div></div>
+  <div class="fld" style="margin:10px 0"><label>איך למדוד</label><select id="mp-m"><option value="length">אורך הקווים (מטר)</option><option value="area">שטח צורות סגורות (מ"ר)</option><option value="count">ספירת סמלים (יחידות)</option><option value="circles">ספירת עיגולים (יחידות)</option></select></div>
+  <div class="row" style="margin-top:14px"><button class="btn" onclick="saveMap(${i})">שמור</button><button class="btn sec" onclick="this.closest('.lb').remove()">ביטול</button></div></div>`;
+  d.onclick=()=>d.remove();document.body.appendChild(d);$('#mp-i').onchange=e=>{$('#mp-f').style.display=e.target.value==='x'?'block':'none'}}
+async function saveMap(i){const l=window.LAYERS.layers[i],v=$('#mp-i').value;let it;
+  if(v==='x')it={desc:$('#mp-d').value,ch:$('#mp-c').value,unit:$('#mp-u').value};else{const s=SPECITEMS[v];it={desc:s.desc,ch:s.ch,sub:s.sub,unit:s.unit}}
+  try{await api('/layermap',{method:'POST',body:{type:window.LAYERS.type,layer:l.layer,mode:$('#mp-m').value,...it}});document.querySelector('.lb')?.remove();toast('נשמר. יחושב בהרצה הבאה של הכתב');render()}catch(e){toast(e.message)}}
+async function rmMap(t,l){await api('/layermap',{method:'POST',body:{type:t,layer:l,remove:true}});render()}
+async function labelSym(sel){await api('/symbols',{method:'POST',body:{sig:sel.dataset.sig,label:sel.value}});toast('נשמר. הסמל יספר בהרצה הבאה')}
 
 /* ---------- engines & legacy ---------- */
 async function engines(){

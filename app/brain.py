@@ -5,6 +5,7 @@ import math, re
 DEFAULT_PARAMS={
  'wall_height':dict(v=2.8,label='גובה קירות (מ\')',why='משמש להמרת מטרים של קיר לשטח בלוקים, טיח וצבע. לא נקרא אוטומטית מהחתכים'),
  'pile_length':dict(v=10.0,label='אורך כלונס ממוצע (מ\')',why='משמש לחישוב נפח בטון וזיון בכלונסאות. הערך האמיתי נמצא בטבלת המפלסים'),
+ 'slab_thickness':dict(v=0.20,label='עובי תקרה (מ\')',why='משמש לנפח בטון תקרות. הערך האמיתי בתוכנית הקונסטרוקציה'),
  'waste_block':dict(v=0.05,label='פחת בלוקים',why='פחת ממוצע בביצוע'),
  'waste_tile':dict(v=0.08,label='פחת אריחים',why='פחת חיתוכים ושבר'),
  'waste_concrete':dict(v=0.05,label='פחת בטון',why='פחת שפיכה'),
@@ -33,6 +34,7 @@ def recipe(item,P):
         else:
             blk='בלוק 10' if 'עד 12' in d else ('בלוק 15' if '12-17' in d else 'בלוק 20')
             out+=[(blk,"יח'",A*12.5*(1+P['waste_block']),['wall_height']),('מלט','ק"ג',A*9,['wall_height']),('חול לבניה','מ"ק',A*0.03,['wall_height'])]
+    elif d.startswith('בטון מזוין') or d.startswith('בטון רזה'): pass
     elif d.startswith('איטום'):
         out+=[('יריעת ביטומן 4 מ"מ',"גליל",q*0.24,[]),('פריימר ביטומני','ליטר',q*0.3,[])]
     elif d.startswith('ריצוף'):
