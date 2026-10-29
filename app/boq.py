@@ -4,38 +4,32 @@ import datetime, openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
 from .classify import TYPES
 
-CH={1:'עבודות עפר',2:'עבודות בטון יצוק באתר',4:'עבודות בניה',5:'עבודות איטום',6:'עבודות נגרות ומסגרות',7:'מערכות תברואה',8:'מתקני חשמל',9:'עבודות טיח',10:'עבודות ריצוף וחיפוי',11:'עבודות צביעה',13:'עבודות גבס ותקרות (מספר פרק להשלמה)',23:'כלונסאות',30:'ריהוט וציוד מורכב בבניין',40:'פיתוח נופי וגדרות'}
-SUB={(1,1):'חפירה ומילוי',(2,1):'בטון יצוק באתר',(4,1):'קירות',(5,1):'איטום',(6,1):'דלתות וחלונות',(7,1):'קבועות תברואה',(7,2):'צנרת מים וביוב',(8,1):'גופי תאורה ונקודות',(9,1):'טיח',(10,1):'ריצוף',(11,1):'צבע',(13,1):'תקרות',(23,1):'כלונסאות קדוחים',(30,1):'מקבעים',(40,1):'גדרות, שער ופיתוח'}
-# (chapter, sub, description, unit, needed sheet type, what is needed, engine key that covers it)
-EXPECTED=[
- (1,1,'חפירה לראשי כלונסאות ולקורות יסוד, כולל פינוי עודפי חפירה','מ"ק','section','מפלסים ומידות ראשי הכלונסאות',None),
- (2,1,'בטון ראשי כלונסאות ויסודות, לפי תוכנית יסודות','מ"ק','foundation_piles','מידות וגבהים מהפרטים',None),
- (2,1,'בטון בקירות ועמודים','מ"ק','structure_plan','מיפוי שכבות בגיליונות הקונסטרוקציה',None),
- (2,1,'תקרות ורצפות בטון מזוין, לפי תוכניות תקרה','מ"ר','structure_plan','מיפוי שכבות בגיליונות התקרה',None),
- (2,1,'מוטות פלדה מצולעים ורשתות מרותכות לזיון הבטון','טון','structure_plan','OCR של טבלאות הזיון',None),
- (4,1,'גובה קומה וגובה תקרה (נתון לחישוב שטחי קירות)',"קומפ'",'section','מפלסים בחתכים (OCR) או הזנה ידנית',None),
- (5,1,'איטום רצפת חדרים רטובים ומרפסות. המדידה נטו בין מחיצות, לפי שטח הריצוף','מ"ר','floor_plan','זיהוי חדרים רטובים בתוכנית אדריכלות',None),
- (6,1,'דלתות וחלונות לפי פרטי דלתות וחלונות',"יח'",'openings_details','ספירה לפי תגיות',None),
- (7,1,'כלים סניטריים',"יח'",'plumbing','תוכנית אינסטלציה או שכבת כלים סניטריים',None),
- (7,2,'קווי מים וביוב','מטר','plumbing','תוכנית אינסטלציה',None),
- (8,1,'נקודות חשמל לפי סוג (שקעים, מפסקים, גופי תאורה)',"נק'",'electrical','התאמת סמלים למקרא (תיוג דוגמאות)',None),
- (9,1,'טיח פנים וחוץ, לפי שטחי קירות בניכוי פתחים','מ"ר','floor_plan','היקף חדר כפול גובה פחות פתחים',None),
- (11,1,'צבע פנים, לפי שטחי קירות ותקרות','מ"ר','floor_plan','כמו בטיח',None),
- (13,1,'תקרות גבס ומונמכות','מ"ר','floor_plan','סימוני תקרה',None),
- (23,1,'אורך כלונסאות כולל','מטר','foundation_piles','טבלת מפלסים (OCR) או הזנת אורך',None),
- (30,1,'ריהוט קבוע ונגרות פנים',"יח'",'floor_plan','שכבת ריהוט או רשימת פריטים',None),
- (40,1,'גדרות, שער וריצוף חוץ לפי תוכנית פיתוח','מטר','site','תוכנית פיתוח',None),
-]
-BUILT={'foundation_piles','floor_plan','elevation','electrical'}   # types that have an engine today
+from .spec import SPEC, CHAPTERS as CH
+from .brain import toks
+SUB={(2,2):'תבניות וזיון',(4,2):'אלמנטים משולבים',(6,2):'מעקות ומסגרות',(7,2):'צנרת',(8,2):'תעלות וכבלים',(8,3):'לוחות',(10,2):'חיפוי קירות',(40,2):'אדמה וגינון'}
+def _sub(ch,sub): return SUB.get((ch,sub),'סעיפים ראשיים' if sub==1 else 'סעיפים נוספים')
+EXPECTED=[(s['ch'],s['sub'],s['desc'],s['unit'],s['plan'],'לקבלת הכמות: '+s['method'],s) for s in SPEC]
+BUILT={'foundation_piles','floor_plan','elevation','electrical'}
+def _spec_for(ch,desc,unit):
+    T=toks(desc);best=None
+    for s in SPEC:
+        if s['ch']!=ch: continue
+        j=len(T&toks(s['desc']))/max(len(T|toks(s['desc'])),1)+(0.15 if s['unit']==unit else 0)
+        if not best or j>best[0]: best=(j,s)
+    return best[1] if best and best[0]>=0.15 else None   # types that have an engine today
 
 def build(name,lines,present_types,ov=None,hidden=(),chnames=None):
     ov=ov or {}; CHN=dict(CH); CHN.update({int(k):v for k,v in (chnames or {}).items()})
     items={}   # (ch,sub) -> list of dict
-    for l in lines: items.setdefault((l['ch'],l.get('sub',1)),[]).append(dict(desc=l['desc'],unit=l['unit'],q=l['q'],st=l['st'],src=l['src'],need=l.get('need','')))
-    for ch,sub,desc,unit,typ,need,_ in EXPECTED:
+    for l in lines:
+        sp=_spec_for(l['ch'],l['desc'],l['unit']); l['method']=sp['method'] if sp else ''; l['vsrc']=sp['src'] if sp else ''
+    for l in lines: items.setdefault((l['ch'],l.get('sub',1)),[]).append(dict(desc=l['desc'],unit=l['unit'],q=l['q'],st=l['st'],src=l['src'],need=l.get('need',''),method=l.get('method',''),vsrc=l.get('vsrc','')))
+    have={l['ch'] for l in lines}
+    for ch,sub,desc,unit,typ,need,sp in EXPECTED:
+        if sp['eng'] and ch in have: continue
         if typ in present_types: why=f'יש גיליון מסוג "{TYPES[typ]}", המנוע לסוג זה טרם נבנה' if typ not in BUILT else need
         else: why=f'חסר גיליון מסוג "{TYPES[typ]}". {need}'
-        items.setdefault((ch,sub),[]).append(dict(desc=desc,unit=unit,q=None,st='דורש השלמה',src=TYPES[typ],need=why))
+        items.setdefault((ch,sub),[]).append(dict(desc=desc,unit=unit,q=None,st='דורש השלמה',src=TYPES[typ],need=why,method=sp['method'],vsrc=sp['src']))
     for k in list(items):
         its=[]
         for it in items[k]:
@@ -48,9 +42,9 @@ def build(name,lines,present_types,ov=None,hidden=(),chnames=None):
     for ch in sorted({k[0] for k in items}):
         rows.append(dict(kind='ch',code=f'{ch:02d}.00.0000',desc=CHN.get(ch,f'פרק {ch}')))
         for sub in sorted(k[1] for k in items if k[0]==ch):
-            rows.append(dict(kind='sub',code=f'{ch:02d}.{sub:02d}.0000',desc=SUB.get((ch,sub),CHN.get(ch,''))))
+            rows.append(dict(kind='sub',code=f'{ch:02d}.{sub:02d}.0000',desc=_sub(ch,sub)))
             for i,it in enumerate(items[(ch,sub)],1):
-                rows.append(dict(kind='item',code=f'{ch:02d}.{sub:02d}.{i*10:04d}',desc=it['desc'],unit=it['unit'],q=it['q'],src=f"{it['st']} · {it['src']}",need=it['need'],st=it['st']))
+                rows.append(dict(kind='item',code=f'{ch:02d}.{sub:02d}.{i*10:04d}',desc=it['desc'],unit=it['unit'],q=it['q'],src=f"{it['st']} · {it['src']}",need=it['need'],st=it['st'],method=it.get('method',''),vsrc=it.get('vsrc','')))
     return rows
 
 def needs(sheets,missing_types,unbuilt_types,assumptions):

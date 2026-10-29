@@ -91,12 +91,12 @@ async function api(path,opt={}){
   if(!r.ok){let m='שגיאה';try{m=(await r.json()).detail||m}catch(e){}throw new Error(m)}
   return r.json()}
 function toast(t){const e=$('#toast');e.innerHTML='<div class="toast">'+esc(t)+'</div>';setTimeout(()=>e.innerHTML='',3500)}
-const R=()=>{const h=location.hash.replace('#/','').split('/');return{pid:h[0]==='p'?h[1]:null,page:h[0]==='p'?(h[2]||'dash'):'projects'}};
+const R=()=>{const h=location.hash.replace('#/','').split('/');return{pid:h[0]==='p'?h[1]:null,page:h[0]==='p'?(h[2]||'dash'):(h[0]==='spec'?'spec':'projects')}};
 
 function side(){
   const {pid,page}=R();const l=(p,i,t)=>`<a href="#/p/${pid}/${p}" class="${page===p?'on':''}"><span>${i}</span>${t}</a>`;
   $('#side').innerHTML=`<div class="logo"><i>▦</i>כתבי כמויות</div><nav class="nav">
-  <a href="#/" class="${!pid?'on':''}"><span>◫</span>פרויקטים</a>
+  <a href="#/" class="${!pid&&page!=='spec'?'on':''}"><span>◫</span>פרויקטים</a><a href="#/spec" class="${page==='spec'?'on':''}"><span>❖</span>ספר המפרט</a>
   ${pid?`<div class="pname">${esc(P?.name||'')}</div><div class="sep">הפרויקט</div>
   ${l('dash','◉','לוח בקרה')}${l('plans','▤','תוכניות')}${l('boq','☰','כתב כמויות')}${l('materials','▣','חומרים והזמנות')}${l('bills','₪','חשבונות')}${l('brain','✦','המוח')}`:''}</nav>`}
 
@@ -104,7 +104,7 @@ async function render(){
   const {pid,page}=R();
   if(pid){try{P=await api('/projects/'+pid);SUM=await api(`/projects/${pid}/summary`)}catch(e){location.hash='#/';return}}else P=null;
   side();
-  const v={projects,dash,plans,boq,materials,bills,brain}[page]||dash;
+  const v={projects,dash,plans,boq,materials,bills,brain,spec}[page]||dash;
   $('#main').innerHTML='<div class="empty">טוען…</div>';
   $('#main').innerHTML=(pid?stepper(page):'')+await v();
   if(window['after_'+page])window['after_'+page]();
@@ -184,7 +184,7 @@ async function boq(){
     if(r.kind==='ch'){cur=r.code.slice(0,2);return `<tr class="ch" data-ch="${cur}" onclick="toggleCh('${cur}')"><td class="code">${r.code}</td><td colspan="7"><span id="ar-${cur}">${COLL[cur]?'◂':'▾'}</span> ${esc(r.desc)}</td></tr>`}
     if(r.kind==='sub')return `<tr class="sub" data-in="${cur}"><td class="code">${r.code}</td><td colspan="7">${esc(r.desc)}</td></tr>`;
     const q=r.q,p=pr[r.code],tot=q&&p?q*p:null,st=q==null?'miss':r.st==='חלקי'?'part':p?'priced':'ok';
-    return `<tr class="${man.has(r.desc)||r.st==='ידני'?'m':''}" data-in="${cur}" data-st="${st}"><td class="code">${r.code}</td><td>${esc(r.desc)}${r.need?`<div class="sub" style="margin:0;font-size:12px">${esc(r.need)}</div>`:''}<span class="sug" id="s-${r.code}"></span></td><td>${esc(r.unit)}</td>
+    return `<tr class="${man.has(r.desc)||r.st==='ידני'?'m':''}" data-in="${cur}" data-st="${st}"><td class="code">${r.code}</td><td>${esc(r.desc)}${r.need?`<div class="sub" style="margin:0;font-size:12px">${esc(r.need)}</div>`:''}${r.method?`<div class="sub" style="margin:2px 0 0;font-size:12px">אופן המדידה: ${esc(r.method)} ${r.vsrc==='v'?'<span class="tag t-ok">מאומת</span>':'<span class="tag t-w">לאימות</span>'}</div>`:''}<span class="sug" id="s-${r.code}"></span></td><td>${esc(r.unit)}</td>
     <td style="white-space:nowrap"><input class="num" style="width:90px" value="${q??''}" placeholder="כמות" onchange="setQty(${i},this.value)">${r.st==='חלקי'?' <span class="tag t-w">חלקי</span>':r.st==='ידני'?' <span class="tag t-ok">ידני</span>':q==null?' <span class="tag t-b">חסר</span>':''}</td>
     <td><input class="num" data-c="${r.code}" value="${p??''}" placeholder="מחיר" ${q==null?'disabled':''} onchange="setPrice(this)"></td><td><b>${tot!=null?money(tot):''}</b></td><td style="font-size:12px;color:var(--mut)">${esc(r.src)}</td>
     <td><button class="x" title="${man.has(r.desc)?'מחק סעיף':'הסתר סעיף'}" onclick="rmItem(${i})">✕</button></td></tr>`}).join('');
@@ -251,6 +251,20 @@ async function bills(){
   <div class="card" style="margin-top:16px"><h2>חשבונות שהוגשו</h2>${P.bills.length?`<table><tr><th>חשבון</th><th>תאריך</th><th>לחשבון זה</th><th>עיכבון</th><th>מע"מ</th><th>סה"כ לתשלום</th></tr>${list}</table>`:'<div class="empty">עוד לא הוגש חשבון</div>'}</div>`}
 async function mkBill(){const pct={};document.querySelectorAll('[data-b]').forEach(i=>pct[i.dataset.b]=i.value);
   const b=await api(`/projects/${P.id}/bills`,{method:'POST',body:{pct}});toast(`חשבון ${b.n}: ${money(b.total)} לתשלום`);render()}
+
+/* ---------- spec book ---------- */
+let SPECQ='',SPECCH='';
+async function spec(){
+  const d=await api('/spec');const q=SPECQ.trim();
+  const items=d.items.filter(i=>(!SPECCH||String(i.ch)===SPECCH)&&(!q||(i.desc+i.method+i.unit).includes(q)));
+  const used=[...new Set(d.items.map(i=>i.ch))];
+  const eng=d.items.filter(i=>i.eng).length,ver=d.items.filter(i=>i.src==='v').length;
+  return `<h1>ספר המפרט</h1><p class="sub">בסיס הידע של המערכת: פרקים, סעיפים, יחידות מידה ואופן המדידה. כך המערכת יודעת מה למדוד מהתוכנית ואיך להציג את התוצאה.</p>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:16px"><div class="card kpi"><div class="n">${Object.keys(d.chapters).length}</div><div class="l">פרקים ברשימה הרשמית</div></div><div class="card kpi"><div class="n">${d.items.length}</div><div class="l">סעיפים עם יחידה ואופן מדידה</div></div><div class="card kpi"><div class="n">${ver}</div><div class="l">כללים שאומתו ממקור שפורסם</div></div><div class="card kpi"><div class="n">${eng}</div><div class="l">סעיפים שהמערכת כבר מחשבת מהתוכנית</div></div></div>
+  <div class="card"><div class="row" style="margin-bottom:12px"><input id="sq" placeholder="חיפוש סעיף, יחידה או אופן מדידה" value="${esc(SPECQ)}" style="max-width:340px" onchange="SPECQ=this.value;render()"><select style="max-width:280px" onchange="SPECCH=this.value;render()"><option value="">כל הפרקים</option>${used.map(c=>`<option value="${c}" ${String(c)===SPECCH?'selected':''}>${String(c).padStart(2,'0')} · ${esc(d.chapters[c])}</option>`).join('')}</select></div>
+  <div class="scroll"><table><tr><th>פרק</th><th>סעיף</th><th>יח'</th><th>אופן המדידה</th><th>תוצאה</th><th>מקור</th><th>חישוב אוטומטי</th></tr>
+  ${items.map(i=>`<tr><td class="code">${String(i.ch).padStart(2,'0')}</td><td><b>${esc(i.desc)}</b><div class="sub" style="margin:0;font-size:12px">${esc(d.chapters[i.ch])}</div></td><td>${esc(i.unit)}</td><td>${esc(i.method)}</td><td style="font-size:13px">${esc(i.result)}</td><td><span class="tag ${i.src==='v'?'t-ok':'t-w'}">${i.src==='v'?'מאומת':'לאימות'}</span></td><td>${i.eng?'<span class="tag t-ok">פעיל</span>':'<span class="tag t-b">עוד לא</span>'}</td></tr>`).join('')}</table></div></div>
+  <p class="sub" style="margin-top:14px">שמות הפרקים לפי רשימת הפרקים של המפרט הכללי לעבודות בנייה. "מאומת" אומר שהכלל נמצא במסמך שפורסם. "לאימות" הוא כלל מקובל בענף שיש לבדוק מול נוסח הספר הכחול העדכני לפני הסתמכות בחשבון סופי.</p>`}
 
 /* ---------- brain ---------- */
 async function brain(){

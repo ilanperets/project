@@ -5,7 +5,7 @@ import collections, hashlib, json, os, pymupdf as fitz
 TYPES={
  'foundation_piles':'תוכנית יסודות וכלונסאות','structure_plan':'תוכנית קונסטרוקציה (תקרה, קורות, גג)','structure_other':'קונסטרוקציה: פרטים ומדרגות',
  'floor_plan':'תוכנית קומה','elevation':'חזיתות','section':'חתכים','site':'תוכנית פיתוח','details':'פרטי בנייה','openings_details':'פרטי דלתות וחלונות',
- 'electrical':'תוכנית חשמל','plumbing':'תוכנית אינסטלציה','unknown':'לא זוהה'}
+ 'electrical':'תוכנית חשמל','plumbing':'תוכנית אינסטלציה','hvac':'תוכנית מיזוג אוויר','unknown':'לא זוהה'}
 
 def file_hash(path):
     return hashlib.sha1(open(path,'rb').read()).hexdigest()

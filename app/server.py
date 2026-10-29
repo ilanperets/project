@@ -183,6 +183,10 @@ def _mem():
 def set_params(pid:str,body:dict):
     pr=_load(pid); pr['params']={k:float(v) for k,v in body.items() if k in BR.DEFAULT_PARAMS}; _save(pr); return run(pid) if pr.get('boq') else pr
 
+from .spec import SPEC, CHAPTERS
+@app.get('/api/spec')
+def spec(): return dict(chapters={str(k):v for k,v in CHAPTERS.items()},items=SPEC)
+
 @app.get('/api/params')
 def params_def(): return BR.DEFAULT_PARAMS
 
