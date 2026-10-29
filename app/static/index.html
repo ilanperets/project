@@ -73,6 +73,15 @@ tr.ch{cursor:pointer}tr.hid{display:none}tr.m td{background:color-mix(in srgb,va
 .fld{display:grid;gap:4px}.fld label{font-size:12px;color:var(--mut);font-weight:600}
 @media(max-width:1024px){.steps a{flex-direction:column;gap:4px;justify-content:center;padding:8px 2px;font-size:12px;text-align:center}}
 @media print{.steps,.menu,.chips,.builder,.x{display:none!important}.scroll{max-height:none!important;overflow:visible}body{background:#fff}}
+
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:0;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#0f2a73,#2f55d4);color:#fff;margin-bottom:16px}
+.hero .im{background:#fff;padding:14px;display:grid;place-items:center;min-height:260px}.hero .im img{max-width:100%;max-height:300px;object-fit:contain}
+.hero .tx{padding:26px 30px}.hero .big{font-size:46px;font-weight:800;letter-spacing:-1px;margin:6px 0}.hero .st{display:flex;gap:28px;margin-top:18px;flex-wrap:wrap}.hero .st b{display:block;font-size:24px}.hero .st span{font-size:12px;opacity:.8}
+.hero .pill{display:inline-block;background:#ffffff26;padding:4px 12px;border-radius:20px;font-size:12px;margin-bottom:8px}
+.tm{position:relative;height:340px;border-radius:12px;overflow:hidden;background:var(--line)}.tm div{position:absolute;padding:8px 10px;color:#fff;font-size:12px;line-height:1.3;overflow:hidden;border:2px solid var(--card);border-radius:6px;cursor:pointer}.tm div b{display:block;font-size:13px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:10px}.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-inline-end:5px;vertical-align:-1px}
+.donut{display:block}.pcard{display:flex;gap:16px;align-items:center;cursor:pointer}.pcard:hover{border-color:var(--pri2)}
+@media(max-width:1024px){.hero{grid-template-columns:1fr}.hero .big{font-size:36px}}
 @media print{.side,.btn{display:none}.app{display:block}}
 </style>
 </head>
@@ -96,7 +105,7 @@ const R=()=>{const h=location.hash.replace('#/','').split('/');return{pid:h[0]==
 function side(){
   const {pid,page}=R();const l=(p,i,t)=>`<a href="#/p/${pid}/${p}" class="${page===p?'on':''}"><span>${i}</span>${t}</a>`;
   $('#side').innerHTML=`<div class="logo"><i>▦</i>כתבי כמויות</div><nav class="nav">
-  <a href="#/" class="${!pid&&page!=='spec'?'on':''}"><span>◫</span>פרויקטים</a><a href="#/spec" class="${page==='spec'?'on':''}"><span>❖</span>ספר המפרט</a>
+  <a href="#/" class="${!pid&&page!=='spec'?'on':''}"><span>◫</span>לוח בקרה</a><a href="#/spec" class="${page==='spec'?'on':''}"><span>❖</span>ספר המפרט</a>
   ${pid?`<div class="pname">${esc(P?.name||'')}</div><div class="sep">הפרויקט</div>
   ${l('dash','◉','לוח בקרה')}${l('plans','▤','תוכניות')}${l('boq','☰','כתב כמויות')}${l('materials','▣','חומרים והזמנות')}${l('bills','₪','חשבונות')}${l('brain','✦','המוח')}`:''}</nav>`}
 
@@ -120,16 +129,27 @@ document.addEventListener('click',()=>document.querySelectorAll('.menu.open').fo
 function csv(rows,name){const t='\ufeff'+rows.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download=name;a.click()}
 function boqCsv(){csv([['מספר','תיאור','יחידה','כמות','מחיר','סהכ'],...P.boq.map(r=>r.kind==='item'?[r.code,r.desc,r.unit,r.q??'',P.prices[r.code]??'',r.q&&P.prices[r.code]?r.q*P.prices[r.code]:'']:[r.code,r.desc,'','','',''])],'boq.csv')}
 function matCsv(){csv([['חומר','יחידה','כמות','מחיר','סהכ'],...P.materials.map(m=>[m.material,m.unit,m.qty,P.mprices[m.material]??'',P.mprices[m.material]?m.qty*P.mprices[m.material]:''])],'materials.csv')}
+function treemap(items,w,hh){ // items: [{k,w,c,t,s}] slice-and-dice by weight, largest first
+  const out=[];const tot=items.reduce((a,i)=>a+i.w,0)||1;
+  (function lay(arr,x,y,W,H,vert){if(!arr.length)return;if(arr.length===1){out.push({...arr[0],x,y,W,H});return}
+    const sum=arr.reduce((a,i)=>a+i.w,0);let acc=0,k=0;while(k<arr.length-1&&acc+arr[k].w<sum/2)acc+=arr[k++].w;k=Math.max(k,1);
+    const A=arr.slice(0,k),B=arr.slice(k),sa=A.reduce((a,i)=>a+i.w,0)/sum;
+    if(vert){lay(A,x,y,W*sa,H,!vert);lay(B,x+W*sa,y,W*(1-sa),H,!vert)}else{lay(A,x,y,W,H*sa,!vert);lay(B,x,y+H*sa,W,H*(1-sa),!vert)}})(items.sort((a,b)=>b.w-a.w),0,0,100,100,true);
+  return out}
+const covCol=c=>c>=1?'#15803d':c>=.5?'#2f55d4':c>0?'#7c9cff':'#94a3b8';
+const donut=(v,sz=96)=>{const r=sz/2-9,C=2*Math.PI*r;return `<svg class="donut" width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}"><circle cx="${sz/2}" cy="${sz/2}" r="${r}" fill="none" stroke="var(--line)" stroke-width="10"/><circle cx="${sz/2}" cy="${sz/2}" r="${r}" fill="none" stroke="var(--pri2)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C*v/100} ${C}" transform="rotate(-90 ${sz/2} ${sz/2})"/><text x="50%" y="53%" text-anchor="middle" dominant-baseline="middle" font-weight="800" font-size="${sz/4.2}" fill="var(--ink)">${v}%</text></svg>`};
 const ring=(v,l)=>`<div class="row"><div class="ring" style="--v:${v}"><i>${v}%</i></div><div class="l">${l}</div></div>`;
 function lightbox(src){const d=document.createElement('div');d.className='lb';d.innerHTML=`<img src="${src}">`;d.onclick=()=>d.remove();document.body.appendChild(d)}
 
 /* ---------- projects ---------- */
 async function projects(){
-  const ps=await api('/projects');
-  return `<h1>הפרויקטים שלי</h1><p class="sub">מעלים תוכניות, המערכת מזהה, מודדת ובונה כתב כמויות.</p>
+  const ps=await api('/projects');const sums=await Promise.all(ps.map(p=>api(`/projects/${p.id}/summary`)));
+  const tot=sums.reduce((a,s)=>a+s.total,0),billed=sums.reduce((a,s)=>a+s.billed,0),items=sums.reduce((a,s)=>a+s.items,0),meas=sums.reduce((a,s)=>a+s.measured,0);
+  return `<h1>לוח בקרה</h1><p class="sub">כל הפרויקטים שלך במבט אחד. מעלים תוכניות, המערכת מזהה, מודדת ובונה כתב כמויות.</p>
+  ${ps.length?`<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin-bottom:16px"><div class="card kpi"><div class="l">פרויקטים</div><div class="n">${ps.length}</div></div><div class="card kpi"><div class="l">שווי מתומחר</div><div class="n">${money(tot)}</div></div><div class="card kpi"><div class="l">חשבונות שהוגשו</div><div class="n">${money(billed)}</div></div><div class="card kpi"><div class="l">כיסוי כמויות</div><div class="n">${items?Math.round(meas/items*100):0}%</div></div></div>`:''}
   <div class="card row" style="margin-bottom:16px"><input id="pn" placeholder="שם פרויקט חדש" style="max-width:340px"><button class="btn" onclick="newProj()">+ פרויקט חדש</button>
    <span class="sp"></span><label class="btn sec">למד מחירים מקובץ אקסל קיים<input type="file" accept=".xlsx" hidden onchange="learnPrices(this)"></label></div>
-  <div class="grid">${ps.length?ps.map(p=>`<div class="card proj" onclick="location.hash='#/p/${p.id}/dash'"><div><b>${esc(p.name)}</b><div class="sub" style="margin:0">${p.sheets} גיליונות · ${p.has_boq?'יש כתב כמויות':'עוד לא חושב'}</div></div><div class="row"><button class="btn sec sm" onclick="event.stopPropagation();delProj('${p.id}')">מחק</button><span>←</span></div></div>`).join(''):'<div class="card empty">אין עדיין פרויקטים. פותחים אחד ומעלים תוכניות.</div>'}</div>`}
+  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(340px,1fr))">${ps.length?ps.map((p,i)=>{const s=sums[i],pm=s.items?Math.round(s.measured/s.items*100):0;return `<div class="card pcard" onclick="location.hash='#/p/${p.id}/dash'">${donut(pm,84)}<div class="sp"><b style="font-size:17px">${esc(p.name)}</b><div class="sub" style="margin:2px 0 8px">${s.sheets} גיליונות · ${s.items?s.measured+' מתוך '+s.items+' סעיפים':'עוד לא חושב'}</div><div class="row"><span class="tag t-ok">${money(s.total)}</span><span class="tag ${s.needs?'t-w':'t-ok'}">${s.needs} ממצאים</span></div></div><button class="btn sec sm" onclick="event.stopPropagation();delProj('${p.id}')">מחק</button></div>`}).join(''):'<div class="card empty">אין עדיין פרויקטים. פותחים אחד ומעלים תוכניות.</div>'}</div>`}
 async function newProj(){const n=$('#pn').value||'פרויקט חדש';const p=await api('/projects',{method:'POST',body:{name:n}});location.hash=`#/p/${p.id}/plans`}
 async function delProj(id){if(confirm('למחוק את הפרויקט וכל הקבצים שלו?')){await api('/projects/'+id,{method:'DELETE'});render()}}
 async function learnPrices(i){const f=new FormData();f.append('file',i.files[0]);try{const r=await api('/prices/import',{method:'POST',body:f});toast(`נלמדו ${r.learned} מחירים (סה"כ בזיכרון: ${r.total})`)}catch(e){toast(e.message)}}
@@ -137,17 +157,24 @@ async function learnPrices(i){const f=new FormData();f.append('file',i.files[0])
 /* ---------- dashboard ---------- */
 async function dash(){
   const s=SUM,pm=s.items?Math.round(s.measured/s.items*100):0,pp=s.items?Math.round(s.priced/s.items*100):0;
-  const chs=Object.entries(s.chapters);
-  const top=(P.needs||[]).filter(n=>n.p==='high').slice(0,3);
-  return `<h1>${esc(s.name)}</h1><p class="sub">מצב הפרויקט במבט אחד</p>
-  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">
-      <div class="card kpi">${ring(pm,`סעיפים עם כמות<br>${s.measured} מתוך ${s.items}`)}</div>
-   <div class="card kpi">${ring(pp,'סעיפים מתומחרים')}</div>
-   <div class="card kpi"><div class="n">${money(s.total)}</div><div class="l">שווי כתב כמויות מתומחר</div></div></div>
-  <div class="grid g2" style="margin-top:16px"><div class="card"><h2>התקדמות לפי פרקים</h2>
-   ${s.items?chs.map(([n,c])=>`<div style="margin:12px 0"><div class="row"><span>${esc(n)}</span><span class="sp"></span><span class="tag ${c.measured===c.items?'t-ok':c.measured?'t-w':'t-b'}">${c.measured}/${c.items} סעיפים</span><b>${money(c.total)}</b></div><div class="bar"><b style="width:${c.items?c.measured/c.items*100:0}%"></b></div></div>`).join(''):'<div class="empty">עוד לא חושב כתב. עוברים ללשונית תוכניות ומריצים.</div>'}</div>
-   <div class="grid"><div class="card brain"><div class="ic">✦</div><div><b>המוח אומר</b>${top.length?`<ul>${top.map(n=>`<li>${esc(n.t)}</li>`).join('')}</ul>`:'<div style="margin-top:6px">'+(s.items?'אין חסרים דחופים.':'העלה תוכניות ואני אתחיל לעבוד.')+'</div>'}<a href="#/p/${P.id}/brain" style="color:#fde68a">לכל ${s.needs} הפריטים ←</a></div></div>
-   <div class="card"><h2>כסף</h2><div class="row"><div><div class="l sub" style="margin:0">חשבונות שהוגשו</div><b style="font-size:22px">${s.bills}</b></div><span class="sp"></span><div><div class="sub" style="margin:0">הזמנות חומר</div><b style="font-size:22px">${s.orders}</b></div></div></div></div></div>`}
+  const chs=Object.entries(s.chapters),top=(P.needs||[]);
+  const img=(P.sheets.find(x=>x.type==='foundation_piles')||P.sheets.find(x=>x.type==='floor_plan')||P.sheets[0]);
+  const tm=treemap(chs.map(([n,c])=>({k:n,w:Math.max(c.items,1)+(c.total?Math.sqrt(c.total)/20:0),c:c.items?c.measured/c.items:0,t:c.total,s:`${c.measured}/${c.items}`})),100,100);
+  const miss=s.items-s.measured;
+  return `<div class="hero"><div class="im">${img?`<img src="/api/projects/${P.id}/sheets/${img.sid}/thumb.png" alt="">`:'<div class="empty">אין עדיין תוכניות</div>'}</div>
+   <div class="tx"><span class="pill">${s.sheets} גיליונות · ${s.items} סעיפים בכתב</span><div style="font-size:15px;opacity:.85">${esc(s.name)}</div><div class="big">${money(s.total)}</div><div style="opacity:.85">שווי כתב הכמויות המתומחר עד כה</div>
+   <div class="st"><div><b>${s.measured}</b><span>סעיפים עם כמות</span></div><div><b>${miss}</b><span>עדיין חסרים</span></div><div><b>${s.priced}</b><span>מתומחרים</span></div></div></div></div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:16px">
+   <div class="card kpi"><div class="row">${donut(pm)}<div><div class="l">כיסוי כמויות</div><b>${s.measured} מתוך ${s.items}</b></div></div></div>
+   <div class="card kpi"><div class="row">${donut(pp)}<div><div class="l">כיסוי תמחור</div><b>${s.priced} מתוך ${s.items}</b></div></div></div>
+   <div class="card kpi"><div class="l">חשבונות</div><div class="n">${s.bills}</div><div class="l">הוגשו · סה"כ ${money(s.billed)}</div></div>
+   <div class="card kpi"><div class="l">הזמנות חומר</div><div class="n">${s.orders}</div><div class="l">${P.materials.length} חומרים בפירוק</div></div></div>
+  <div class="grid g2"><div class="card"><h2>מפת כיסוי לפי פרקים</h2><div class="sub" style="margin:-6px 0 12px">גודל התיבה לפי מספר סעיפים. הצבע לפי כמה כבר נמדד.</div>
+   ${chs.length?`<div class="tm">${tm.map(i=>`<div onclick="location.hash='#/p/${P.id}/boq'" style="left:${i.x}%;top:${i.y}%;width:${i.W}%;height:${i.H}%;background:${covCol(i.c)}"><b>${esc(i.k.replace(/^עבודות /,''))}</b>${i.s} סעיפים${i.t?` · ${money(i.t)}`:''}</div>`).join('')}</div>
+   <div class="legend"><span><i style="background:#15803d"></i>נמדד במלואו</span><span><i style="background:#2f55d4"></i>מעל חצי</span><span><i style="background:#7c9cff"></i>חלקי</span><span><i style="background:#94a3b8"></i>עוד לא נמדד</span></div>`:'<div class="empty">עוד לא חושב כתב</div>'}</div>
+   <div class="card"><h2>התקדמות לפי פרקים</h2>${chs.map(([n,c])=>`<div style="margin:11px 0"><div class="row"><span style="font-size:13px">${esc(n)}</span><span class="sp"></span><b style="font-size:13px">${money(c.total)}</b></div><div class="bar"><b style="width:${c.items?c.measured/c.items*100:0}%"></b></div></div>`).join('')||'<div class="empty">-</div>'}</div></div>
+  <div class="card" style="margin-top:16px"><div class="row"><h2 style="margin:0">ממצאים לטיפול</h2><span class="sp"></span><a class="btn sec sm" href="#/p/${P.id}/brain">לכל הממצאים</a></div>
+   ${top.length?`<table style="margin-top:8px"><tr><th>דחיפות</th><th>מה חסר</th><th>למה</th><th>מה לעשות</th></tr>${top.slice(0,6).map(n=>`<tr><td><span class="tag ${n.p==='high'?'t-b':'t-w'}">${n.p==='high'?'דחוף':'חשוב'}</span></td><td><b>${esc(n.t)}</b></td><td style="font-size:13px">${esc(n.why)}</td><td style="font-size:13px">${esc(n.how)}</td></tr>`).join('')}</table>`:'<div class="empty">אין ממצאים פתוחים</div>'}</div>`}
 
 /* ---------- plans ---------- */
 async function plans(){
