@@ -8,6 +8,7 @@ import datetime
 ROOT=os.environ.get('KAMUYOT_DATA',os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'data'))
 PROJ=os.path.join(ROOT,'projects'); os.makedirs(PROJ,exist_ok=True)
 RULES=os.path.join(ROOT,'rules.json')
+MEM=os.path.join(ROOT,'prices_memory.json')
 app=FastAPI(title='מערכת כתבי כמויות')
 
 def _rules():
@@ -39,6 +40,18 @@ def projects():
 def create(body:dict):
     pid=uuid.uuid4().hex[:8]; os.makedirs(os.path.join(_pdir(pid),'files'))
     pr=dict(id=pid,name=(body.get('name') or 'פרויקט חדש').strip()[:80],scale=None,sheets=[],boq=None,needs=[],log=[],materials=[],prices={},mprices={},params={},bills=[],orders=[],quotes=[]); _save(pr); return pr
+
+@app.post('/api/reset')
+def reset(body:dict):
+    """wipe all projects; optionally also the learned price memory and classification rules"""
+    shutil.rmtree(PROJ,ignore_errors=True); os.makedirs(PROJ,exist_ok=True)
+    if body.get('memory'):
+        try: os.remove(MEM)
+        except OSError: pass
+    if body.get('rules'):
+        try: os.remove(RULES)
+        except OSError: pass
+    return dict(ok=True)
 
 @app.get('/api/projects/{pid}')
 def get(pid:str): return _load(pid)
