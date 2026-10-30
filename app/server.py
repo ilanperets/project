@@ -26,7 +26,7 @@ def _load(pid):
     p=os.path.join(_pdir(pid),'project.json')
     if not os.path.exists(p): raise HTTPException(404,'פרויקט לא נמצא')
     pr=json.load(open(p,encoding='utf-8'))
-    for k,v in (('materials',[]),('prices',{}),('mprices',{}),('params',{}),('bills',[]),('orders',[]),('sq',{}),('pref',{}),('quotes',[]),('needs',[]),('log',[]),('events',[]),('pending',[]),('stale',False),('checks',{}),('version',1),('status','received'),('client',''),('measurer',''),('reviewer',''),('due',''),('created',''),('updated',''),('changes',None),('delivered_at','')): pr.setdefault(k,v)
+    for k,v in (('materials',[]),('prices',{}),('mprices',{}),('params',{}),('bills',[]),('orders',[]),('sq',{}),('pref',{}),('quotes',[]),('needs',[]),('log',[]),('events',[]),('pending',[]),('stale',False),('checks',{}),('version',1),('status','received'),('client',''),('measurer',''),('reviewer',''),('due',''),('created',''),('updated',''),('changes',None),('delivered_at',''),('variations',[]),('bill_draft',{})): pr.setdefault(k,v)
     return pr
 def _ev(pr,t): pr.setdefault('events',[]).append(dict(t=t,at=datetime.datetime.now().isoformat(timespec='minutes'))); pr['events']=pr['events'][-40:]
 def _save(pr):
@@ -501,20 +501,90 @@ def summary(pid:str):
       trust=dict(measured=sum(1 for r in items if r.get('q') is not None and r.get('st')=='נמדד'),manual=sum(1 for r in items if r.get('q') is not None and r.get('st')=='ידני'),est=sum(1 for r in items if r.get('q') is not None and r.get('st') not in ('נמדד','ידני')),missing=sum(1 for r in items if r.get('q') is None)),
       thumb_sid=next((x['sid'] for t in ('floor_plan','foundation_piles') for x in pr['sheets'] if x['type']==t),(pr['sheets'][0]['sid'] if pr['sheets'] else None)),checks=_checks(pr),changes=pr.get('changes'),events=pr.get('events',[])[-8:],high=sum(1 for n in pr['needs'] if n['p']=='high'))
 
+def _bill_rows(pr):
+    """BOQ items plus approved variations as extra items (code V<id>), and their prices"""
+    rows=list(pr['boq']); prices=dict(pr['prices'])
+    for v in pr.get('variations',[]):
+        if v.get('status')=='מאושר': rows.append(dict(kind='item',code='V'+str(v['id']),desc='תוספת: '+v['desc'],unit=v['unit'],q=float(v['q']))); prices['V'+str(v['id'])]=float(v['price'])
+    return rows,prices
+def _bill_summary(pr):
+    return dict(rates=dict(retention=BR.params(pr)['retention'],vat=BR.params(pr)['vat']))
+@app.get('/api/projects/{pid}/bill_state')
+def bill_state(pid:str):
+    pr=_load(pid); rows,prices=_bill_rows(pr)
+    return dict(rows=[r for r in rows if r['kind']=='item' and r.get('q') and prices.get(r['code'])],prices=prices,chapters={r['code'][:2]:r['desc'] for r in rows if r['kind']=='ch'},bills=pr['bills'],draft=pr.get('bill_draft',{}),variations=pr.get('variations',[]),**_bill_summary(pr))
+@app.put('/api/projects/{pid}/bill_draft')
+def bill_draft(pid:str,body:dict):
+    pr=_load(pid); pr['bill_draft']=dict(pct={k:float(v) for k,v in (body.get('pct') or {}).items()},period=body.get('period',''),mode=body.get('mode','pct')); _save(pr); return dict(ok=True)
 @app.post('/api/projects/{pid}/bills')
 def new_bill(pid:str,body:dict):
-    """body: {pct:{code:cumulative_pct}}"""
+    """body: {pct:{code:cumulative_pct}, period}"""
     pr=_load(pid); P=BR.params(pr); prev=pr['bills'][-1]['pct'] if pr['bills'] else {}
     cum={k:float(v) for k,v in body.get('pct',{}).items()}
     for k,v in prev.items(): cum.setdefault(k,v)
-    b=BR.bill(pr['boq'],pr['prices'],cum,prev,P); b.update(n=len(pr['bills'])+1,date=str(datetime.date.today()),pct=cum,total_this=b['this'])
-    pr['bills'].append(dict(n=b['n'],date=b['date'],pct=cum,total=b['total'],this=b['this'],retention=b['retention'],vat=b['vat'],net=b['net'])); _save(pr); return b
-
+    for k,v in cum.items():
+        if v>100.0001 or v<float(prev.get(k,0))-0.0001: raise HTTPException(400,f'אחוז לא תקין בסעיף {k}: {v}%. האחוז המצטבר חייב להיות בין האחוז הקודם ל-100')
+    rows,prices=_bill_rows(pr)
+    b=BR.bill(rows,prices,cum,prev,P); n=len(pr['bills'])+1; b.update(n=n,date=str(datetime.date.today()),pct=cum,total_this=b['this'])
+    pr['bills'].append(dict(n=n,date=b['date'],period=body.get('period',''),status='הוגש',pct=cum,total=b['total'],this=b['this'],retention=b['retention'],vat=b['vat'],net=b['net'],cum=b['cum'])); pr['bill_draft']={}
+    _ev(pr,f'חשבון חלקי {n} הוגש'); _save(pr); return b
+@app.post('/api/projects/{pid}/bills/{n}/status')
+def bill_status(pid:str,n:int,body:dict):
+    pr=_load(pid); st=body.get('status')
+    if st not in ('הוגש','אושר','שולם'): raise HTTPException(400,'סטטוס לא מוכר')
+    if not 1<=n<=len(pr['bills']): raise HTTPException(404,'חשבון לא נמצא')
+    b=pr['bills'][n-1]; b['status']=st; b['paid']=str(datetime.date.today()) if st=='שולם' else ''; _ev(pr,f'חשבון {n}: {st}'); _save(pr); return b
+@app.post('/api/projects/{pid}/bills/{n}/reopen')
+def bill_reopen(pid:str,n:int):
+    pr=_load(pid)
+    if n!=len(pr['bills']): raise HTTPException(400,'אפשר לפתוח לתיקון רק את החשבון האחרון')
+    b=pr['bills'][-1]
+    if b.get('status')=='שולם': raise HTTPException(400,'חשבון ששולם אינו ניתן לתיקון')
+    pr['bills'].pop(); pr['bill_draft']=dict(pct=b['pct'],period=b.get('period',''),mode='pct'); _ev(pr,f'חשבון {n} נפתח לתיקון'); _save(pr); return dict(ok=True)
 @app.get('/api/projects/{pid}/bills/{n}')
 def get_bill(pid:str,n:int):
     pr=_load(pid); P=BR.params(pr); i=n-1
     if i<0 or i>=len(pr['bills']): raise HTTPException(404,'חשבון לא נמצא')
-    prev=pr['bills'][i-1]['pct'] if i else {}; b=BR.bill(pr['boq'],pr['prices'],pr['bills'][i]['pct'],prev,P); b.update(n=n,date=pr['bills'][i]['date']); return b
+    rows,prices=_bill_rows(pr)
+    prev=pr['bills'][i-1]['pct'] if i else {}; b=BR.bill(rows,prices,pr['bills'][i]['pct'],prev,P); b.update(n=n,date=pr['bills'][i]['date'],status=pr['bills'][i].get('status','הוגש'),period=pr['bills'][i].get('period','')); return b
+@app.get('/api/projects/{pid}/bills/{n}/export.xlsx')
+def bill_xlsx(pid:str,n:int):
+    import openpyxl
+    from openpyxl.styles import Font,PatternFill,Alignment
+    b=get_bill(pid,n); pr=_load(pid); wb=openpyxl.Workbook(); ws=wb.active; ws.title=f'חשבון {n}'; ws.sheet_view.rightToLeft=True
+    ws.append([f'חשבון חלקי מס\' {n}',pr['name']]); ws.append(['תאריך',b['date'],'תקופה',b.get('period','')]); ws.append([])
+    ws.append(['מספר','סעיף','יחידה','כמות בחוזה','מחיר','קודם %','מצטבר %','לחשבון זה']);
+    for c in ws[ws.max_row]: c.font=Font(bold=True,color='FFFFFF'); c.fill=PatternFill('solid',fgColor='0D43A0')
+    for l in b['lines']:
+        if l['cum_pct']!=l['prev_pct']: ws.append([l['code'],l['desc'],l['unit'],l['q'],l['price'],l['prev_pct'],l['cum_pct'],l['this']])
+    ws.append([]); 
+    for k,v in (('ביצוע בחשבון זה',b['this']),('עיכבון',-b['retention']),('לפני מע"מ',b['net']),('מע"מ',b['vat']),('לתשלום',b['total'])): ws.append(['','','','','','','',k,v][-2:] if False else ['','','','','','',k,v])
+    for col,w in zip('ABCDEFGH',[12,48,8,12,10,9,10,14]): ws.column_dimensions[col].width=w
+    out=os.path.join(_pdir(pid),f'bill{n}.xlsx'); wb.save(out); return FileResponse(out,filename=f'bill-{n}.xlsx')
+@app.get('/api/projects/{pid}/bills/{n}/report.pdf')
+def bill_pdf(pid:str,n:int):
+    from . import report as RP
+    b=get_bill(pid,n); pr=_load(pid); e=RP._e
+    rows=''.join(f"<tr><td>{e(l['code'])}</td><td>{e(l['desc'])}</td><td class='num'>{RP._nf(l['q'])} {e(l['unit'])}</td><td class='num'>{RP._nf(l['price'],0)}</td><td class='num'>{RP._nf(l['prev_pct'],0)}%</td><td class='num'>{RP._nf(l['cum_pct'],0)}%</td><td class='num'><b>{RP._nf(l['this'],0)}</b></td></tr>" for l in b['lines'] if l['cum_pct']!=l['prev_pct'])
+    tot=''.join(f"<tr><td>{k}</td><td class='num'><b>{RP._nf(v,0)}</b></td></tr>" for k,v in (('ביצוע בחשבון זה',b['this']),('עיכבון',-b['retention']),('לפני מע\"מ',b['net']),('מע\"מ',b['vat']),('לתשלום',b['total'])))
+    html=f"<!doctype html><html lang='he' dir='rtl'><meta charset='utf-8'><style>{RP.CSS}</style><body><div class='cover' style='padding:0'><div class='band' style='padding:12mm 12mm'><h1>חשבון חלקי מס' {n}</h1><div class='sub'>{e(pr['name'])} · {e(b['date'])} {e(b.get('period',''))}</div></div></div><table><tr><th>מספר</th><th>סעיף</th><th>כמות</th><th>מחיר</th><th>קודם</th><th>מצטבר</th><th>לחשבון זה</th></tr>{rows}</table><h2>סיכום</h2><table class='kv' style='width:50%'>{tot}</table></body></html>"
+    out=os.path.join(_pdir(pid),f'bill{n}.pdf'); RP.to_pdf(html,out); return FileResponse(out,media_type='application/pdf',filename=f'bill-{n}.pdf')
+@app.post('/api/projects/{pid}/variations')
+def add_variation(pid:str,body:dict):
+    pr=_load(pid); vs=pr['variations']; i=max([v['id'] for v in vs],default=0)+1
+    v=dict(id=i,desc=(body.get('desc') or '').strip()[:120],unit=body.get('unit') or "יח'",q=float(body.get('q') or 0),price=float(body.get('price') or 0),note=body.get('note',''),status='ממתין',date=str(datetime.date.today()))
+    if not v['desc'] or v['q']<=0: raise HTTPException(400,'חסר תיאור או כמות')
+    vs.append(v); _save(pr); return v
+@app.post('/api/projects/{pid}/variations/{vid}')
+def set_variation(pid:str,vid:int,body:dict):
+    pr=_load(pid); v=next((x for x in pr['variations'] if x['id']==vid),None)
+    if not v: raise HTTPException(404,'לא נמצא')
+    if body.get('delete'):
+        if any(('V'+str(vid)) in b['pct'] for b in pr['bills']): raise HTTPException(400,'התוספת כבר נכללת בחשבון שהוגש')
+        pr['variations']=[x for x in pr['variations'] if x['id']!=vid]
+    else:
+        if body.get('status') in ('ממתין','מאושר','נדחה'): v['status']=body['status']
+    _save(pr); return dict(ok=True)
 
 def _ostatus(o):
     it=o['items']; d=sum(min(float(i.get('delivered') or 0),i['qty']) for i in it)
