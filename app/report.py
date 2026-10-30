@@ -118,7 +118,8 @@ table{width:100%;border-collapse:collapse}th{background:#EEF3FA;text-align:right
 .card .hd{border-bottom:1px solid #D3DBE8}tr:nth-child(even) td{background:#FAFBFD}
 '''
 
-def build(pr,files_dir,params=None,maxw=1100):
+def build(pr,files_dir,params=None,maxw=1100,opts=None):
+    o=dict(plans=1,watch=1,crops=1,missing=1,params=0,chs=None,only=0); o.update(opts or {})
     rows=pr.get('boq') or []
     sheets=pr['sheets']; out=[]
     cnt=collections.Counter(r['st'] if r.get('q') is not None else 'חסר' for r in rows if r['kind']=='item')
@@ -134,14 +135,14 @@ def build(pr,files_dir,params=None,maxw=1100):
         elif rw['kind']=='item' and rw.get('trace'):
             for tr_ in rw['trace'].get('rows',[]):
                 for lc in tr_.get('locs') or []: used[lc['sid']].add((cur,rw['desc'][:26]))
-    out.append("<h2 class='pb'>על אילו תוכניות הסתמכנו</h2><p class='mu'>כל גיליון שהועלה, מה זוהה בו ובאילו פרקים הוא שימש. גיליון בלי שימוש לא השפיע על אף כמות.</p>")
-    for i,s in enumerate(sheets):
+    if o['plans']: out.append("<h2 class='pb'>על אילו תוכניות הסתמכנו</h2><p class='mu'>כל גיליון שהועלה, מה זוהה בו ובאילו פרקים הוא שימש. גיליון בלי שימוש לא השפיע על אף כמות.</p>")
+    for i,s in enumerate(sheets if o['plans'] else []):
         p=os.path.join(files_dir,s['sid']+'.pdf'); t=thumb(p) if os.path.exists(p) else ''
         u=used.get(s['sid'],set()); chs_=sorted({c for c,_ in u})
         chips=''.join(f"<span class='chip'>{_e(c)}</span>" for c in chs_) or "<span class='tag t-w'>לא שימש לחישוב</span>"
         out.append(f"<div class='sh'><img src='data:image/jpeg;base64,{t}'><div class='m'><b>גיליון {i+1} · {_e(TYPES.get(s.get('type'),s.get('type') or 'לא זוהה'))}</b><br><small>{_e(_fn(s['file']))}{(' · קומה '+_e(s['floor'])) if s.get('floor') else ''}</small><div class='u'>{chips}</div><small>{len(u)} סעיפים נשענים על הגיליון</small></div></div>")
     out.append("<h2 class='pb'>טבלת גיליונות</h2><table><tr><th>#</th><th>גיליון</th><th>סוג שזוהה</th><th>קומה</th></tr>"+''.join(f"<tr><td>{i+1}</td><td>{_e(_fn(s['file']))}</td><td>{_e(s.get('type'))}</td><td>{_e(s.get('floor') or '')}</td></tr>" for i,s in enumerate(sheets))+"</table>")
-    if params:
+    if params and o['params']:
         out.append("<h2>פרמטרים והנחות</h2><table>"+''.join(f"<tr><td>{_e(k)}</td><td class='num'>{_e(v)}</td></tr>" for k,v in params)+"</table>")
     # chapter summary
     chs=[]; cur=None
@@ -151,18 +152,20 @@ def build(pr,files_dir,params=None,maxw=1100):
     out.append("<h2>סיכום לפי פרקים</h2><table><tr><th>פרק</th><th>שם</th><th>סעיפים</th><th>עם חישוב מפורט</th><th>חלקיים</th><th>חסרים</th></tr>"+''.join(f"<tr><td>{c['code']}</td><td>{_e(c['name'])}</td><td>{len(c['items'])}</td><td>{sum(1 for i in c['items'] if i.get('trace'))}</td><td>{sum(1 for i in c['items'] if i.get('q') is not None and i['st']=='חלקי')}</td><td>{sum(1 for i in c['items'] if i.get('q') is None)}</td></tr>" for c in chs if c['items'])+"</table>")
     later=[]
     for c in chs:
-        meas=[i for i in c['items'] if i.get('q') is not None]; miss=[i for i in c['items'] if i.get('q') is None]
+        if o['chs'] is not None and c['code'] not in o['chs']: continue
+        meas=[i for i in c['items'] if i.get('q') is not None]; miss=[i for i in c['items'] if i.get('q') is None] if o['missing'] and not o['only'] else []
         if not meas and not miss: continue
         if not meas: later.append((c,miss)); continue
         out.append(f"<div class='pb'></div><div class='chb'>פרק {c['code']} · {_e(c['name'])} <small>· {len(meas)} סעיפים נמדדו, {len(miss)} ללא כמות</small></div>")
         cw=cautions(c['name'],c['items'])
-        if cw: out.append("<div class='watch'><b>מה כדאי לשים לב בפרק זה / מה אולי לא חושב</b><ul>"+''.join(f"<li>{_e(x)}</li>" for x in cw)+"</ul></div>")
+        if cw and o['watch']: out.append("<div class='watch'><b>מה כדאי לשים לב בפרק זה / מה אולי לא חושב</b><ul>"+''.join(f"<li>{_e(x)}</li>" for x in cw)+"</ul></div>")
         for it in meas:
             st=it['st']; tg='t-ok' if st=='נמדד' else 't-w'; tr=it.get('trace')
             body=''
             if it.get('method'): body+=f"<div><small>אופן המדידה לפי המפרט</small><div>{_e(it['method'])}{' <span class=\"tag t-ok\">כלל מאומת</span>' if it.get('vsrc')=='v' else ' <span class=\"tag t-w\">כלל לאימות</span>'}</div></div>"
             if tr:
                 imgs,numbered=item_images(pr,files_dir,tr,maxw)
+                if not o['crops']: imgs=[]
                 body+=f"<div class='fx'><b>נוסחה:</b> {_e(tr.get('formula',''))}</div>"
                 body+="<table><tr><th>#</th><th>אלמנט</th><th>מידות (מ')</th><th>כמות</th><th>מקור והערה</th></tr>"
                 for r,nums in numbered:
@@ -182,7 +185,7 @@ def build(pr,files_dir,params=None,maxw=1100):
             out.append(f"<div class='card'><div class='hd'><div><small>{_e(it['code'])}</small><h3>{_e(it.get('full') or it['desc'])}</h3><span class='tag {tg}'>{_e(st)}</span></div><div class='q'>{_nf(it['q'])} <small>{_e(it['unit'])}</small></div></div><div class='bd'>{body}</div></div>")
         if miss:
             out.append("<h3 style='margin:10px 0 4px'>סעיפים בלי כמות בפרק זה</h3><table class='miss'><tr><th>סעיף</th><th>תיאור</th><th>למה חסר</th></tr>"+''.join(f"<tr><td>{_e(i['code'])}</td><td>{_e(i['desc'])}</td><td>{_e(i.get('need',''))}</td></tr>" for i in miss)+"</table>")
-    if later:
+    if later and o['missing'] and not o['only']:
         out.append("<h2 class='pb'>פרקים שלא חושבו</h2><p class='mu'>לפרקים אלה אין כמויות כי חסרים הגיליונות הנדרשים. בכל שורה מצוין איזה גיליון חסר.</p>")
         for c,miss in later:
             out.append(f"<h3 style='margin:12px 0 4px'>פרק {c['code']} · {_e(c['name'])}</h3><table class='miss'><tr><th>סעיף</th><th>תיאור</th><th>למה חסר</th></tr>"+''.join(f"<tr><td>{_e(i['code'])}</td><td>{_e(i['desc'])}</td><td>{_e(i.get('need',''))}</td></tr>" for i in miss)+"</table>")

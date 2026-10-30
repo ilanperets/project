@@ -278,11 +278,11 @@ def rebuild(pr):
     pr['boq']=rows; pr['materials']=mats; pr['needs']=B.needs(sheets,missing,unbuilt,asm)
 
 @app.get('/api/projects/{pid}/report.pdf')
-def report_pdf(pid:str):
+def report_pdf(pid:str,plans:int=1,watch:int=1,crops:int=1,missing:int=1,prm:int=0,ch:str='',only:str=''):
     from . import report as RP
     pr=_load(pid); fd=os.path.join(_pdir(pid),'files'); P=BR.params(pr)
     params=[(BR.DEFAULT_PARAMS[k]['label'],P[k]) for k in ('wall_height','deduct_limit','wp_upturn','room_scale','waste_tile') if k in P]
-    out=os.path.join(_pdir(pid),'report.pdf'); RP.to_pdf(RP.build(pr,fd,params),out)
+    out=os.path.join(_pdir(pid),'report.pdf'); RP.to_pdf(RP.build(pr,fd,params,opts=dict(plans=plans,watch=watch,crops=crops,missing=missing,params=prm,chs=(ch.split(',') if ch else None),only=1 if only=='measured' else 0)),out)
     return FileResponse(out,media_type='application/pdf',filename='דוח-חישוב.pdf')
 
 @app.get('/api/projects/{pid}/preflight')
@@ -362,10 +362,10 @@ def _filter_rows(rows,ch='',only='',missing='show'):
     return out
 
 @app.get('/api/projects/{pid}/export.xlsx')
-def export(pid:str,ch:str='',only:str='',missing:str='show',hide:str=''):
+def export(pid:str,ch:str='',only:str='',missing:str='show',hide:str='',full:int=0):
     pr=_load(pid)
     if not pr.get('boq'): raise HTTPException(400,'עוד לא חושב כתב')
-    out=os.path.join(_pdir(pid),'boq.xlsx'); B.to_xlsx(_filter_rows(pr['boq'],ch,only,missing),pr['name'],out,pr['needs'],prices=pr['prices'],hide=hide.split(','),ctx=dict(pr=pr,files_dir=os.path.join(_pdir(pid),'files')),meta=dict(client=pr.get('client',''),version='v%s'%pr.get('version',1),measurer=pr.get('measurer',''),reviewer=pr.get('reviewer',''),status=pr.get('status',''))); return FileResponse(out,filename='kamuyot_boq.xlsx')
+    out=os.path.join(_pdir(pid),'boq.xlsx'); B.to_xlsx(_filter_rows(pr['boq'],ch,only,missing),pr['name'],out,pr['needs'],prices=pr['prices'],hide=hide.split(','),ctx=(dict(pr=pr,files_dir=os.path.join(_pdir(pid),'files')) if full else None),meta=dict(client=pr.get('client',''),version='v%s'%pr.get('version',1),measurer=pr.get('measurer',''),reviewer=pr.get('reviewer',''),status=pr.get('status',''))); return FileResponse(out,filename='kamuyot_boq.xlsx')
 
 
 
