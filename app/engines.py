@@ -1,11 +1,13 @@
 """Quantity engines. Each takes a PDF path + scale and returns a list of lines:
 {kind, ch, sub, desc, unit, q, st: נמדד|חלקי, src, need}. They only report what is measured from the drawing."""
-import collections, math, numpy as np, cv2, pymupdf as fitz
+import collections, math, os, numpy as np, cv2, pymupdf as fitz
 from skimage.morphology import skeletonize
 from shapely.geometry import box
 from shapely.ops import unary_union
 
 PT_MM=25.4/72
+def _loc(path,x0,y0,x1,y1,label=''):
+    return dict(sid=os.path.basename(path)[:-4],r=[round(x0,1),round(y0,1),round(x1,1),round(y1,1)],label=label)
 def _page(path): return fitz.open(path)[0]
 
 # ---------------- scale calibration from pile diameters ----------------
@@ -32,14 +34,15 @@ def calibrate_scale(path):
     return best[1],best[0],len(cs)
 
 def piles(path,scale):
-    pg=_page(path); cs=_pile_circles(pg); cnt=collections.Counter()
+    pg=_page(path); cs=_pile_circles(pg); cnt=collections.Counter(); boxes=collections.defaultdict(list)
     for c in cs:
         d=c[3]*PT_MM*scale/10
         near=min(PILE_D,key=lambda x:abs(x-d))
-        if abs(d-near)<=near*0.08 and d>=25: cnt[near]+=1
+        if abs(d-near)<=near*0.08 and d>=25: cnt[near]+=1; h=c[3]/2+2; boxes[near].append(_loc(path,c[1]-h,c[2]-h,c[1]+h,c[2]+h,f'Ø{near}'))
     lines=[]
     for d,n in sorted(cnt.items()):
-        lines.append(dict(ch=23,sub=1,desc=f'כלונסאות קדוחים ויצוקים באתר בקוטר {d} ס"מ, לפי תוכנית יסודות',unit="יח'",q=n,st='נמדד',src='תוכנית יסודות: ספירת עיגולים בשכבות כלונסאות',need='אורך כל כלונס כתוב בטבלת מפלסים (דורש OCR או הזנה)'))
+        lines.append(dict(ch=23,sub=1,desc=f'כלונסאות קדוחים ויצוקים באתר בקוטר {d} ס"מ, לפי תוכנית יסודות',unit="יח'",q=n,st='נמדד',src='תוכנית יסודות: ספירת עיגולים בשכבות כלונסאות',need='אורך כל כלונס כתוב בטבלת מפלסים (דורש OCR או הזנה)',
+            trace=dict(formula='ספירת עיגולים בשכבות הכלונסאות שקוטרם (לפי קנה המידה) תואם קוטר תקני, בסטייה עד 8%',rows=[dict(el=f'כלונסאות Ø{d}',dims=f'קוטר מדוד לפי 1:{scale}',val=n,src='שכבות fl00 בתוכנית היסודות',note='',locs=boxes[d])],checks=[dict(ok=True,t=f'קנה המידה 1:{scale} אומת מול קטרים תקניים של הכלונסאות'),dict(ok=False,t='אורך הכלונסאות לא נקרא (כתוב בטבלת מפלסים)')],params={})))
     return lines,dict(circles=len(cs),by_diameter=dict(cnt))
 
 # ---------------- clusters ----------------
@@ -107,7 +110,10 @@ def roof(path,scale):
     cn,_=cv2.findContours(c,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
     if not cn: return [],{}
     big=max(cn,key=cv2.contourArea); a=cv2.contourArea(big)*4/1e4; per=cv2.arcLength(big,True)*0.02
-    return [dict(ch=5,sub=1,desc='איטום גג, מדידה לפי קו חיצוני של המעקה',unit='מ"ר',q=round(a,1),st='חלקי',src='תוכנית גג: שטח סגור בשכבת WL',need='כולל עובי המעקה. לא כולל גגות נמוכים ומרפסות')],dict(area_m2=round(a,1),perimeter_m=round(per,1))
+    bx,by,bw,bh=cv2.boundingRect(big); sp=(PT_MM*scale/10)/2.0
+    return [dict(ch=5,sub=1,desc='איטום גג, מדידה לפי קו חיצוני של המעקה',unit='מ"ר',q=round(a,1),st='חלקי',src='תוכנית גג: שטח סגור בשכבת WL',need='כולל עובי המעקה. לא כולל גגות נמוכים ומרפסות',
+        trace=dict(formula='שטח הצורה הסגורה שמגדירה שכבת הקירות WL (קו חיצוני של הגג)',rows=[dict(el='גג',dims=f'היקף {per:.1f} מ\'',val=round(a,1),src='שכבת WL, מילוי הצורה החיצונית',note='',locs=[_loc(path,reg.x0+bx/sp,reg.y0+by/sp,reg.x0+(bx+bw)/sp,reg.y0+(by+bh)/sp,'גג')])],
+        checks=[dict(ok=(a>=20 and per*per/a<=40),t=f'בדיקת סבירות: היקף² ÷ שטח = {per*per/a:.0f} (עד 40 סביר)')],params={}))],dict(area_m2=round(a,1),perimeter_m=round(per,1))
 
 def openings(path,scale):
     pg=_page(path); K=PT_MM*scale/1000; boxes=[]
@@ -115,12 +121,13 @@ def openings(path,scale):
         if dr.get('layer')=='hazit 1-0.05':
             r=dr['rect']; boxes.append(box(r.x0-.5,r.y0-.5,r.x1+.5,r.y1+.5))
     if not boxes: return [],{}
-    u=unary_union(boxes); gs=list(u.geoms) if hasattr(u,'geoms') else [u]; n=0;a=0.0
+    u=unary_union(boxes); gs=list(u.geoms) if hasattr(u,'geoms') else [u]; n=0;a=0.0; orows=[]
     for g in gs:
         x0,y0,x1,y1=g.bounds; w=(x1-x0)*K;h=(y1-y0)*K
-        if w>=0.3 and h>=0.3: n+=1;a+=w*h
+        if w>=0.3 and h>=0.3: n+=1;a+=w*h; orows.append(dict(el=f'פתח {n}',dims=f'{w:.2f} × {h:.2f}',val=round(w*h,2),src='מסגרות בשכבת הפתחים',note='',locs=[_loc(path,x0,y0,x1,y1,f'פתח {n}')]))
     if not n: return [],{}
-    return [dict(ch=6,sub=1,desc='פתחים (חלונות ודלתות) לפי חזיתות',unit="יח'",q=n,st='חלקי',src='חזיתות: מסגרות בשכבת הפתחים',need=f'סה"כ שטח פתחים {a:.1f} מ"ר. יתכן שחזיתות נוספות לא נקראו')],dict(n=n,area_m2=round(a,1))
+    return [dict(ch=6,sub=1,desc='פתחים (חלונות ודלתות) לפי חזיתות',unit="יח'",q=n,st='חלקי',src='חזיתות: מסגרות בשכבת הפתחים',need=f'סה"כ שטח פתחים {a:.1f} מ"ר. יתכן שחזיתות נוספות לא נקראו',
+        trace=dict(formula='כל קבוצת מסגרות מחוברת בשכבת הפתחים נספרת כפתח אחד. שטח = רוחב × גובה לפי קנה המידה',rows=orows,checks=[dict(ok=False,t='נקראה חזית אחת בלבד. חזיתות נוספות בגיליון עלולות להכפיל או להשלים את המספר')],params={}))],dict(n=n,area_m2=round(a,1))
 
 def rooms(path,scale):
     pg=_page(path); cl=_cluster_layer(pg,'WL')

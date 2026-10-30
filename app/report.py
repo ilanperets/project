@@ -44,6 +44,46 @@ def item_images(pr,files_dir,tr,maxw=1100):
         except Exception: pass
     return imgs,numbered
 
+CAUTION=[
+ (('עפר','חפירה'),['כמויות עפר תלויות במפלסים ובחתכים; בלי חתך קרקע לא חושבו חפירה, מילוי והובלה','בדקו אם נדרשת חפירה מעבר לקו הבניין (שיפועי חפירה, עבודה סביב היסודות)']),
+ (('בטון','יציקה','שלד'),['זיון, תבניות והרמות בקומות לא נקראים אוטומטית מכל הגיליונות; בדקו מול תוכניות הקונסטרוקציה','אורכי כלונסאות כתובים בטבלאות ולכן מצריכים הזנה','פתחים קטנים בתקרות, חריצים ושרוולים לא הופחתו']),
+ (('בניה','בנייה','בלוקים','קירות'),['הפחתת פתחים נעשית רק לפתחים שזוהו בחזיתות; פתחים שלא מופיעים בחזית לא הופחתו','בדקו עובי קירות מול חתכים, וקירות קלים/גבס בנפרד']),
+ (('איטום','בידוד'),['שטחי איטום כוללים את הגג בלבד; מרפסות, גגות נמוכים ומרתפים נדרשים לבדיקה','גובה העלאת האיטום בקירות (מעקות, פרפט) לפי פרמטר ולא תמיד לפי חתך']),
+ (('טיח',),['טיח חוץ מוערך לפי היקף × גובה; זהו אומדן עד שתיבנה מדידת חזיתות','טיח פנים מחושב משטחי החללים; יש לוודא שאין חללים חסרים']),
+ (('ריצוף','חיפוי','קרמיקה','אריח'),['שטח נטו של חללים סגורים; חללים שלא נקראו אינם בסכום','אריחים ללא פחת; פחת וחיתוכים נוספים בהזמנה','חיפוי קירות: פתחים מעל הסף שנקבע מופחתים, מתחתיו לא']),
+ (('צבע',),['בדקו שטחי תקרות וקירות מול טיח, ושכבות/גוונים שונים']),
+ (('אינסטלציה','סניטרי','כלים','מים','ביוב'),['נקודות מים ביוב נגזרות מכלים שזוהו; צנרת ואורכי קווים לא נמדדים עדיין','זיהוי הכלים מבוסס על ספריית סמלים; סמל חדש דורש תיוג פעם אחת']),
+ (('חשמל','תאורה','תקשורת'),['ספירת גופי תאורה ומפסקים חלקית: גופים קטנים ושקעים מסוימים עלולים לא להיספר','כבילה ולוחות חשמל לא נמדדו']),
+ (('אלומיניום','נגרות','דלתות','חלונות','פתחים','מסגרות'),['פתחים נספרו לפי חזיתות שנקראו; חזיתות חסרות יובילו לחסר','מידות לפי תוכנית פתחים/חזית ולא לפי מידות ייצור']),
+ (('פיתוח','חוץ','גינון','גדרות'),['עבודות פיתוח דורשות תוכנית פיתוח; בלעדיה לא חושבו']),
+]
+def cautions(name,items):
+    out=[]
+    for ks,ls in CAUTION:
+        if any(k in name for k in ks): out+=ls
+    part=[i for i in items if i.get('q') is not None and i['st']=='חלקי']
+    miss=[i for i in items if i.get('q') is None]
+    if part: out.append(f'{len(part)} סעיפים חלקיים בפרק: '+', '.join(i['desc'][:28] for i in part[:4])+(' ...' if len(part)>4 else ''))
+    if miss: out.append(f'{len(miss)} סעיפים בלי כמות (ראו טבלה בסוף הפרק)')
+    for i in items:
+        if i.get('need') and i.get('q') is not None: out.append(f"{i['desc'][:30]}: {i['need'][:110]}")
+    seen=set(); res=[]
+    for o in out:
+        if o not in seen: seen.add(o); res.append(o)
+    return res[:9]
+
+def _fn(f):
+    n=f[9:].strip('_')
+    return '' if n.replace('_','').replace('.pdf','').isdigit() or len(n.replace('_',''))<6 else n[:70]
+
+def thumb(path,w=240):
+    try:
+        pg=fitz.open(path)[0]; z=w/pg.rect.width if pg.rotation%180==0 else w/pg.rect.height
+        pm=pg.get_pixmap(matrix=fitz.Matrix(z,z),alpha=False); bio=io.BytesIO()
+        Image.frombytes('RGB',(pm.width,pm.height),pm.samples).save(bio,'JPEG',quality=70)
+        return base64.b64encode(bio.getvalue()).decode()
+    except Exception: return ''
+
 def _e(x): return html.escape(str(x if x is not None else ''))
 def _nf(v,d=2):
     try: return f'{float(v):,.{d}f}'.rstrip('0').rstrip('.') if d else f'{float(v):,.0f}'
@@ -63,15 +103,44 @@ table{width:100%;border-collapse:collapse}th{background:#EEF3FA;text-align:right
 .img{margin-top:8px}.img img{width:100%;max-height:155mm;object-fit:contain;border:1px solid #D3DBE8;border-radius:4px;background:#fff}.img small{display:block;margin-top:2px}
 .nb{display:inline-block;min-width:17px;height:17px;border-radius:9px;color:#fff;font-size:9.5px;font-weight:700;text-align:center;line-height:17px;margin-left:3px}
 .miss td:first-child{width:75px}.pb{page-break-before:always}.kv td:first-child{width:140px;color:#6A7690}
+
+.cover{padding:0}.band{background:linear-gradient(135deg,#0D2A5C,#0D43A0);color:#fff;border-radius:12px;padding:30mm 14mm 14mm;margin-bottom:10mm}
+.band h1{color:#fff;font-size:34px}.band .sub{color:#CFE0FF;font-size:16px}
+.tiles{display:flex;gap:8px;margin:10px 0}.tile{flex:1;border:1px solid #D3DBE8;border-radius:10px;padding:10px;text-align:center;background:#F9FBFE}
+.tile b{display:block;font-size:24px;color:#0D2A5C}.tile span{color:#6A7690;font-size:10px}
+.chb{background:#0D43A0;color:#fff;border-radius:8px;padding:8px 12px;margin:0 0 10px;font-size:16px;font-weight:700;page-break-after:avoid}
+.chb small{color:#CFE0FF;font-weight:400}
+.watch{border:1px solid #F0D58A;background:#FFF9E6;border-radius:8px;padding:8px 12px;margin:0 0 12px;page-break-inside:avoid}
+.watch b{color:#8A6200}.watch ul{margin:4px 0 0;padding-right:18px}.watch li{margin:2px 0}
+.sh{display:flex;gap:10px;border:1px solid #D3DBE8;border-radius:8px;padding:8px;margin:0 0 8px;page-break-inside:avoid}
+.sh img{width:120px;height:85px;object-fit:contain;border:1px solid #D3DBE8;border-radius:4px;background:#fff}
+.sh .m{flex:1}.sh .u{margin-top:3px}.chip{display:inline-block;background:#EEF3FA;color:#0D43A0;border-radius:9px;padding:0 7px;margin-left:3px;font-size:10px}
+.card .hd{border-bottom:1px solid #D3DBE8}tr:nth-child(even) td{background:#FAFBFD}
 '''
 
 def build(pr,files_dir,params=None,maxw=1100):
     rows=pr.get('boq') or []
     sheets=pr['sheets']; out=[]
-    out.append(f"<div class='cover'><h1>דוח חישוב כמויות</h1><div class='sub'>{_e(pr['name'])}</div><p class='mu'>הדוח מפרט לכל סעיף איך חושבה הכמות, על מה היא מבוססת ובאיזה מקום בתוכנית. כל הכמויות הן נטו, מותקן, בלי תוספת פחת, אלא אם נאמר אחרת בסעיף. אין בדוח מחירים.</p>")
     cnt=collections.Counter(r['st'] if r.get('q') is not None else 'חסר' for r in rows if r['kind']=='item')
-    out.append(f"<table class='kv' style='margin-top:18px'><tr><td>גרסה</td><td>{_e(pr.get('version',1))}</td></tr><tr><td>סעיפים בכתב</td><td>{sum(cnt.values())}</td></tr><tr><td>נמדדו</td><td>{cnt.get('נמדד',0)}</td></tr><tr><td>חלקיים</td><td>{cnt.get('חלקי',0)}</td></tr><tr><td>הוזנו ידנית</td><td>{cnt.get('ידני',0)}</td></tr><tr><td>חסרים</td><td>{cnt.get('חסר',0)+cnt.get('דורש השלמה',0)}</td></tr></table></div>")
-    out.append("<h2 class='pb'>גיליונות בתיק</h2><table><tr><th>#</th><th>גיליון</th><th>סוג שזוהה</th><th>קומה</th></tr>"+''.join(f"<tr><td>{i+1}</td><td>{_e(s['file'][9:70])}</td><td>{_e(s.get('type'))}</td><td>{_e(s.get('floor') or '')}</td></tr>" for i,s in enumerate(sheets))+"</table>")
+    import datetime
+    out.append(f"<div class='cover'><div class='band'><h1>דוח חישוב כמויות</h1><div class='sub'>{_e(pr['name'])}</div><div class='sub' style='font-size:12px;margin-top:6px'>גרסה {_e(pr.get('version',1))} · {datetime.date.today().strftime('%d.%m.%Y')}</div></div>")
+    out.append("<div class='tiles'>"+''.join(f"<div class='tile'><b>{v}</b><span>{k}</span></div>" for k,v in [('סעיפים בכתב',sum(cnt.values())),('נמדדו',cnt.get('נמדד',0)),('חלקיים',cnt.get('חלקי',0)),('הוזנו ידנית',cnt.get('ידני',0)),('חסרים',cnt.get('חסר',0)+cnt.get('דורש השלמה',0))])+"</div>")
+    out.append("<p class='mu'>הדוח מפרט לכל סעיף איך חושבה הכמות, על מה היא מבוססת ובאיזה מקום בתוכנית. כל הכמויות הן נטו, מותקן, בלי תוספת פחת, אלא אם נאמר אחרת בסעיף. אין בדוח מחירים. בכל פרק מופיע תיבת &quot;מה כדאי לשים לב&quot; עם מה שאולי לא חושב.</p></div>")
+    # sheets relied on
+    used=collections.defaultdict(set)
+    cur=''
+    for rw in rows:
+        if rw['kind']=='ch': cur=rw['desc']
+        elif rw['kind']=='item' and rw.get('trace'):
+            for tr_ in rw['trace'].get('rows',[]):
+                for lc in tr_.get('locs') or []: used[lc['sid']].add((cur,rw['desc'][:26]))
+    out.append("<h2 class='pb'>על אילו תוכניות הסתמכנו</h2><p class='mu'>כל גיליון שהועלה, מה זוהה בו ובאילו פרקים הוא שימש. גיליון בלי שימוש לא השפיע על אף כמות.</p>")
+    for i,s in enumerate(sheets):
+        p=os.path.join(files_dir,s['sid']+'.pdf'); t=thumb(p) if os.path.exists(p) else ''
+        u=used.get(s['sid'],set()); chs_=sorted({c for c,_ in u})
+        chips=''.join(f"<span class='chip'>{_e(c)}</span>" for c in chs_) or "<span class='tag t-w'>לא שימש לחישוב</span>"
+        out.append(f"<div class='sh'><img src='data:image/jpeg;base64,{t}'><div class='m'><b>גיליון {i+1} · {_e(TYPES.get(s.get('type'),s.get('type') or 'לא זוהה'))}</b><br><small>{_e(_fn(s['file']))}{(' · קומה '+_e(s['floor'])) if s.get('floor') else ''}</small><div class='u'>{chips}</div><small>{len(u)} סעיפים נשענים על הגיליון</small></div></div>")
+    out.append("<h2 class='pb'>טבלת גיליונות</h2><table><tr><th>#</th><th>גיליון</th><th>סוג שזוהה</th><th>קומה</th></tr>"+''.join(f"<tr><td>{i+1}</td><td>{_e(_fn(s['file']))}</td><td>{_e(s.get('type'))}</td><td>{_e(s.get('floor') or '')}</td></tr>" for i,s in enumerate(sheets))+"</table>")
     if params:
         out.append("<h2>פרמטרים והנחות</h2><table>"+''.join(f"<tr><td>{_e(k)}</td><td class='num'>{_e(v)}</td></tr>" for k,v in params)+"</table>")
     # chapter summary
@@ -85,7 +154,9 @@ def build(pr,files_dir,params=None,maxw=1100):
         meas=[i for i in c['items'] if i.get('q') is not None]; miss=[i for i in c['items'] if i.get('q') is None]
         if not meas and not miss: continue
         if not meas: later.append((c,miss)); continue
-        out.append(f"<h2 class='pb'>פרק {c['code']} · {_e(c['name'])}</h2>")
+        out.append(f"<div class='pb'></div><div class='chb'>פרק {c['code']} · {_e(c['name'])} <small>· {len(meas)} סעיפים נמדדו, {len(miss)} ללא כמות</small></div>")
+        cw=cautions(c['name'],c['items'])
+        if cw: out.append("<div class='watch'><b>מה כדאי לשים לב בפרק זה / מה אולי לא חושב</b><ul>"+''.join(f"<li>{_e(x)}</li>" for x in cw)+"</ul></div>")
         for it in meas:
             st=it['st']; tg='t-ok' if st=='נמדד' else 't-w'; tr=it.get('trace')
             body=''
@@ -95,7 +166,7 @@ def build(pr,files_dir,params=None,maxw=1100):
                 body+=f"<div class='fx'><b>נוסחה:</b> {_e(tr.get('formula',''))}</div>"
                 body+="<table><tr><th>#</th><th>אלמנט</th><th>מידות (מ')</th><th>כמות</th><th>מקור והערה</th></tr>"
                 for r,nums in numbered:
-                    tags=''.join(f"<span class='nb' style='background:rgb{COL[(n-1)%len(COL)]}'>{n}</span>" for n in nums)
+                    tags=(''.join(f"<span class='nb' style='background:rgb{COL[(n-1)%len(COL)]}'>{n}</span>" for n in nums) if len(nums)<=4 else f"<span class='nb' style='background:rgb{COL[(nums[0]-1)%len(COL)]};padding:0 6px'>{nums[0]}–{nums[-1]}</span>")
                     body+=f"<tr><td>{tags}</td><td>{_e(r['el'])}</td><td class='num'>{_e(r.get('dims',''))}</td><td class='num'><b>{_nf(r['val'])}</b></td><td>{_e(r.get('src',''))}{('<br><small>'+_e(r['note'])+'</small>') if r.get('note') else ''}</td></tr>"
                 body+=f"<tr><td></td><td><b>סה\"כ</b></td><td></td><td class='num'><b>{_nf(it['q'])}</b></td><td>{_e(it['unit'])}</td></tr></table>"
                 if tr.get('params'): body+="<div class='mu' style='margin-top:4px'>פרמטרים: "+' · '.join(f"{_e(k)} = {_e(v)}" for k,v in tr['params'].items())+"</div>"
