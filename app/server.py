@@ -229,6 +229,7 @@ def run(pid:str):
                 if q: lines.append(dict(ch=int(m['ch']),sub=int(m.get('sub',1)),desc=m['desc'],unit=m['unit'],q=q,st='נמדד',src=f"מיפוי שכבה {layer} ({s['file'][:18]})",need='',cover=[m['desc']]))
             except Exception as e: log.append(f"{s['file']}: שגיאת מיפוי שכבה {layer}: {str(e)[:60]}")
     P=BR.params(pr)
+    lines+=WR.plumbing_points(lines)
     lines+=DV.derive(lines,slab_areas,P)
     merged={}
     for l in lines:

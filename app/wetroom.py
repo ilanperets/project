@@ -210,3 +210,17 @@ def fixtures(path,P,labels,room_label,sheet_file=''):
         q=sum(r['val'] for r in rows)
         lines.append(dict(ch=ch,sub=sub,desc=desc,unit=unit,q=q,st='חלקי' if un else 'נמדד',src=f'ספירת סמלים ({room_label})',need=chk[-1]['t'] if un else '',trace=dict(formula='ספירת סמלים שסווגו, בתצוגה שבה יש הכי הרבה מהסוג',rows=rows,checks=chk,params={})))
     return lines,dict(room=room_label,groups=len(groups),counted={f'{k[1] if k[0]=="E" else k[0]}':sum(g['n'] for _,g in v) for k,v in tot.items()},unlabelled=un)
+
+
+POINTS={'אסלות':(2,'ניקוז לביוב + חיבור מים קרים'),'כיורי רחצה':(3,'מים חמים + מים קרים + ניקוז'),'תאי מקלחת (אגן, ניקוז ומערבל)':(3,'מים חמים + מים קרים + ניקוז')}
+
+def plumbing_points(lines):
+    """derives water and drain points from the counted fixtures. The points per fixture are an assumption, stated in the trace."""
+    rows=[]; tot=0
+    for l in lines:
+        if l['ch']==7 and l['desc'] in POINTS and l.get('q'):
+            n,what=POINTS[l['desc']]; v=l['q']*n; tot+=v
+            rows.append(dict(el=l['desc'],dims=f"{l['q']:g} × {n}",val=v,src=what,note=''))
+    if not rows: return []
+    return [dict(ch=7,sub=1,desc='נקודות מים וביוב',unit="נק'",q=tot,st='חלקי',src='נגזר מספירת הכלים',cover=['כלים סניטריים (אסלה, כיור, מקלחת)'],need='נקודות לפי כלי הן הנחה. יש לאמת מול תוכנית האינסטלציה. נקודות כלליות (ברז גן, מכונת כביסה, מים לדוד) לא נספרו',
+        trace=dict(formula='כמות הכלים × מספר הנקודות לכל כלי (אסלה 2, כיור 3, תא מקלחת 3)',rows=rows,checks=[dict(ok=False,t='מספר הנקודות לכלי הוא הנחה, לא נמדד מתוכנית אינסטלציה')],params={}))]
