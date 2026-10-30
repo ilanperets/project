@@ -17,7 +17,7 @@ def crop(path,locs,maxw=1100):
     rs=[(n,fitz.Rect(*r)*M) for n,r in locs]
     U=fitz.Rect(1e9,1e9,-1e9,-1e9)
     for _,r in rs: U|=r
-    pad=max(40,max(U.width,U.height)*0.18); R=fitz.Rect(U.x0-pad,U.y0-pad,U.x1+pad,U.y1+pad)&pg.rect
+    pad=max(140,max(U.width,U.height)*0.18); R=fitz.Rect(U.x0-pad,U.y0-pad,U.x1+pad,U.y1+pad)&pg.rect
     z=min(maxw/R.width,3.0)
     pm=pg.get_pixmap(matrix=fitz.Matrix(z,z),clip=R,alpha=False)
     im=Image.frombytes('RGB',(pm.width,pm.height),pm.samples); d=ImageDraw.Draw(im); f=_font(max(14,int(im.width/55)))
@@ -102,7 +102,8 @@ def build(pr,files_dir,params=None,maxw=1100):
                 seen=set()
                 for ck in tr.get('checks',[]):
                     if ck['t'] in seen: continue
-                    seen.add(ck['t']) body+=f"<div class='chk {'ok' if ck['ok'] else 'bad'}'>{'✓' if ck['ok'] else '⚠'} {_e(ck['t'])}</div>"
+                    seen.add(ck['t'])
+                    body+=f"<div class='chk {'ok' if ck['ok'] else 'bad'}'>{'✓' if ck['ok'] else '⚠'} {_e(ck['t'])}</div>"
                 for cap,png in imgs: body+=f"<div class='img'><img src='data:image/png;base64,{base64.b64encode(png).decode()}'><small>{_e(cap)}</small></div>"
             else:
                 body+=f"<div class='fx'><b>מקור:</b> {_e(it.get('src',''))}</div><div class='mu'>לסעיף זה אין עדיין פירוט לפי אלמנט. מוצגים הסכום והמקור בלבד.</div>"
