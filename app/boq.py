@@ -6,6 +6,7 @@ from .classify import TYPES
 
 from .spec import SPEC, CHAPTERS as CH
 from .brain import toks
+from .phrasing import FULL,NOTES
 SUB={(2,2):'תבניות וזיון',(4,2):'אלמנטים משולבים',(6,2):'מעקות ומסגרות',(7,2):'צנרת',(8,2):'תעלות וכבלים',(8,3):'לוחות',(10,2):'חיפוי קירות',(40,2):'אדמה וגינון'}
 def _sub(ch,sub): return SUB.get((ch,sub),'סעיפים ראשיים' if sub==1 else 'סעיפים נוספים')
 EXPECTED=[(s['ch'],s['sub'],s['desc'],s['unit'],s['plan'],'לקבלת הכמות: '+s['method'],s) for s in SPEC]
@@ -49,8 +50,9 @@ def build(name,lines,present_types,ov=None,hidden=(),chnames=None):
         rows.append(dict(kind='ch',code=f'{ch:02d}.00.0000',desc=CHN.get(ch,f'פרק {ch}')))
         for sub in sorted(k[1] for k in items if k[0]==ch):
             rows.append(dict(kind='sub',code=f'{ch:02d}.{sub:02d}.0000',desc=_sub(ch,sub)))
+            for j,t in enumerate(NOTES.get((ch,sub),[]),1): rows.append(dict(kind='note',code=f'{ch:02d}.{sub:02d}.{j:04d}',desc=f'{"אבגדהו"[j-1]}. {t}',unit='הערה'))
             for i,it in enumerate(items[(ch,sub)],1):
-                rows.append(dict(kind='item',code=f'{ch:02d}.{sub:02d}.{i*10:04d}',desc=it['desc'],unit=it['unit'],q=it['q'],src=f"{it['st']} · {it['src']}",need=it['need'],st=it['st'],method=it.get('method',''),vsrc=it.get('vsrc','')))
+                rows.append(dict(kind='item',code=f'{ch:02d}.{sub:02d}.{i*10:04d}',desc=it['desc'],full=FULL.get(it['desc'],it['desc']),unit=it['unit'],q=it['q'],src=f"{it['st']} · {it['src']}",need=it['need'],st=it['st'],method=it.get('method',''),vsrc=it.get('vsrc','')))
     return rows
 
 def needs(sheets,missing_types,unbuilt_types,assumptions):
@@ -75,25 +77,57 @@ def to_xlsx(rows,name,path,needs_list=(),prices=None,meta=None):
     for i,h in enumerate(['מספר','תאור',"יח' מידה",'כמות','מחיר','סה"כ','הערות (מקור המחיר) '],1):
         c=t.cell(15,i,h); c.font=F(bold=True); c.fill=HF
     r2=16
+    SUBF=PatternFill('solid',fgColor='E2D9F0'); CHT=PatternFill('solid',fgColor='A9A6DE')
+    state=dict(sub=None,ch=None)   # sub: dict(name,rows=[]) ; ch: dict(name,subs=[cells])
+    def tot_rows(kind,name,cells):
+        """three rows as in the reference report: total, discount %, total after discount; returns cell of the after-discount total"""
+        nonlocal r2
+        fill=SUBF if kind=='sub' else CHT; lab='תת פרק' if kind=='sub' else 'פרק'
+        t.cell(r2,2,f'סה"כ {lab} {name}'); t.cell(r2,6,'='+('+'.join(f'F{x}' for x in cells) if cells else '0')); tr=r2; r2+=1
+        t.cell(r2,2,f'אחוז הנחה {lab} {name}'); t.cell(r2,6,0); t.cell(r2,6).number_format='0.0%'; t.cell(r2,6).fill=PatternFill('solid',fgColor='FFF4D1'); dr=r2; r2+=1
+        t.cell(r2,2,f'סה"כ לאחר הנחה {lab} {name}'); t.cell(r2,6,f'=F{tr}*(1-F{dr})'); t.cell(r2,6).number_format=NF; ar=r2; r2+=1
+        for rr in (tr,dr,ar):
+            for c in t[rr][:7]:
+                c.font=F(bold=True); 
+                if c.column!=6 or rr!=dr: c.fill=fill
+        t.cell(tr,6).number_format=NF
+        return ar
+    def close_sub():
+        if state['sub'] and state['ch'] is not None:
+            state['ch']['subs'].append(tot_rows('sub',state['sub']['name'],state['sub']['rows']))
+        state['sub']=None
+    def close_ch():
+        close_sub()
+        if state['ch'] is not None and state['ch']['subs']:
+            state['all'].append(tot_rows('ch',state['ch']['name'],state['ch']['subs']))
+        state['ch']=None
+    state['all']=[]
     for r in rows:
         k=r['kind']; ra=a.max_row+1
-        if k in('ch','sub'):
-            a.append([r['code'],r['desc']]); t.cell(r2,1,r['code']); t.cell(r2,2,r['desc'])
+        if k in('ch','sub','note'):
+            if k=='ch' and r['desc']!=name: close_ch(); state['ch']=dict(name=r['desc'],subs=[])
+            if k=='sub': close_sub(); state['sub']=dict(name=r['desc'],rows=[])
+            a.append([r['code'],r['desc']]+([r['unit']] if k=='note' else [])); t.cell(r2,1,r['code']); t.cell(r2,2,r['desc'])
+            if k=='note': t.cell(r2,3,'הערה')
             for ws,rr in ((a,ra),(t,r2)):
-                for c in ws[rr]: c.font=F(bold=True)
+                for c in ws[rr]: c.font=F(bold=(k!='note'))
                 if k=='ch':
                     for c in ws[rr]: c.fill=CHF
+                if k=='note': ws.cell(rr,2).alignment=Alignment(wrap_text=True,vertical='top')
         else:
-            pz=prices.get(r['code'],0)
-            a.append([r['code'],r['desc'],' '+r['unit'],r['q'],pz,f'=E{ra}*D{ra}',0,f'=G{ra}*D{ra}',r['src']+(f" · חסר: {r['need']}" if r.get('need') else '')])
-            t.cell(r2,1,r['code']); t.cell(r2,2,r['desc']); t.cell(r2,3,' '+r['unit']); t.cell(r2,4,r['q']); t.cell(r2,5,prices.get(r['code'],0)); t.cell(r2,6,f'=E{r2}*D{r2}')
+            dsc=r.get('full') or r['desc']
+            a.append([r['code'],dsc,' '+r['unit'],r['q'],0,f'=E{ra}*D{ra}',0,f'=G{ra}*D{ra}',r['src']+(f" · חסר: {r['need']}" if r.get('need') else '')])
+            a.cell(ra,5).value=prices.get(r['code'],0)
+            t.cell(r2,1,r['code']); t.cell(r2,2,dsc); t.cell(r2,3,' '+r['unit']); t.cell(r2,4,r['q']); t.cell(r2,5,prices.get(r['code'],0)); t.cell(r2,6,f'=E{r2}*D{r2}')
+            if state['sub']: state['sub']['rows'].append(r2)
             for col in (5,6,7,8): a.cell(ra,col).number_format=NF
             for col in (5,6): t.cell(r2,col).number_format=NF
             for ws,rr in ((a,ra),(t,r2)): ws.cell(rr,2).alignment=Alignment(wrap_text=True,vertical='top')
             fill=MISS if r['q'] is None else (PART if r.get('st')=='חלקי' else None)
             if fill: a.cell(ra,4).fill=fill; t.cell(r2,4).fill=fill
         r2+=1
-    t.cell(r2,2,'סה"כ').font=F(bold=True); t.cell(r2,6,f'=SUM(F16:F{r2-1})').font=F(bold=True); t.cell(r2,6).number_format=NF
+    close_ch()
+    t.cell(r2,2,'סה"כ כללי לאחר הנחות').font=F(bold=True); t.cell(r2,6,'='+('+'.join(f'F{x}' for x in state['all']) if state['all'] else '0')).font=F(bold=True); t.cell(r2,6).number_format=NF
     for ws,w in ((a,[10.8,60.8,9.5,9.1,10.9,12.4,11.8,12.4,41.1]),(t,[10.8,60.8,9.6,9.1,11.8,12.4,41.1])):
         for col,x in zip('ABCDEFGHI',w): ws.column_dimensions[col].width=x
     for ws in (a,t):
