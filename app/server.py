@@ -292,7 +292,7 @@ def thumb(pid:str,sid:str):
 def export(pid:str):
     pr=_load(pid)
     if not pr.get('boq'): raise HTTPException(400,'עוד לא חושב כתב')
-    out=os.path.join(_pdir(pid),'boq.xlsx'); B.to_xlsx(pr['boq'],pr['name'],out,pr['needs']); return FileResponse(out,filename='kamuyot_boq.xlsx')
+    out=os.path.join(_pdir(pid),'boq.xlsx'); B.to_xlsx(pr['boq'],pr['name'],out,pr['needs'],prices=pr['prices'],meta=dict(client=pr.get('client',''),version='v%s'%pr.get('version',1),measurer=pr.get('measurer',''),reviewer=pr.get('reviewer',''),status=pr.get('status',''))); return FileResponse(out,filename='kamuyot_boq.xlsx')
 
 
 
@@ -463,7 +463,7 @@ def quote(pid:str):
     if not pr.get('boq'): raise HTTPException(400,'עוד לא חושב כתב')
     rows=[dict(r) for r in pr['boq']]
     import copy
-    out=os.path.join(_pdir(pid),'quote.xlsx'); B.to_xlsx(rows,pr['name'],out,pr['needs'],prices=pr['prices']); return FileResponse(out,filename='kamuyot_quote.xlsx')
+    out=os.path.join(_pdir(pid),'quote.xlsx'); B.to_xlsx(rows,pr['name'],out,pr['needs'],prices=pr['prices'],meta=dict(client=pr.get('client',''),version='v%s'%pr.get('version',1),measurer=pr.get('measurer',''),reviewer=pr.get('reviewer',''),status=pr.get('status',''))); return FileResponse(out,filename='kamuyot_quote.xlsx')
 
 @app.get('/api/projects/{pid}/orders/{n}.xlsx')
 def order_xlsx(pid:str,n:int):

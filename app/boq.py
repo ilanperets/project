@@ -62,7 +62,8 @@ def needs(sheets,missing_types,unbuilt_types,assumptions):
     for a in assumptions: out.append(dict(p='med',t=a['t'],why=a['why'],gives=a.get('gives','דיוק הכמויות'),how=a['how']))
     return out
 
-def to_xlsx(rows,name,path,needs_list=(),prices=None):
+def to_xlsx(rows,name,path,needs_list=(),prices=None,meta=None):
+    meta=meta or {}
     prices=prices or {}
     NF='#,###,##0.00;[Red]\\-#,###,##0.00'; F=lambda **k:Font(name='Arial',size=k.pop('size',11),**k)
     HF=PatternFill('solid',fgColor='D9D9D9'); MISS=PatternFill('solid',fgColor='FDE2E2'); PART=PatternFill('solid',fgColor='FFF4D1'); CHF=PatternFill('solid',fgColor='EEF3FA')
@@ -102,4 +103,53 @@ def to_xlsx(rows,name,path,needs_list=(),prices=None):
     P={'high':'דחוף','med':'חשוב','low':'כשיהיה זמן'}
     for n in needs_list: m.append([P[n['p']],n['t'],n['why'],n['gives'],n['how']])
     for col,w in zip('ABCDE',[12,45,60,28,36]): m.column_dimensions[col].width=w
+
+    # ---- cover, chapter summary, methods ----
+    from openpyxl.styles import Border, Side
+    DK=PatternFill('solid',fgColor='0D43A0'); LN=Side(style='thin',color='D0D7E2')
+    items=[r for r in rows if r['kind']=='item']; nq=sum(1 for r in items if r['q'] is not None)
+    npart=sum(1 for r in items if r.get('st')=='חלקי'); nman=sum(1 for r in items if r.get('st')=='ידני')
+    cv=wb.create_sheet('שער',0); cv.sheet_view.rightToLeft=True; cv.sheet_view.showGridLines=False
+    for col,w in zip('ABCD',[4,26,40,24]): cv.column_dimensions[col].width=w
+    cv['B3']='כתב כמויות'; cv['B3'].font=F(bold=True,size=28,color='0D43A0'); cv.merge_cells('B3:D3')
+    cv['B4']=name; cv['B4'].font=F(bold=True,size=16); cv.merge_cells('B4:D4')
+    info=[('לקוח',meta.get('client','')),('גרסה',meta.get('version','')),('תאריך',datetime.date.today().strftime('%d/%m/%Y')),('מודד',meta.get('measurer','')),('בודק',meta.get('reviewer','')),('סטטוס',{'received':'התקבל','measuring':'במדידה','review':'בבדיקה','delivered':'נמסר'}.get(meta.get('status',''),meta.get('status','')))]
+    for i,(k,v) in enumerate(info):
+        r=6+i; cv.cell(r,2,k).font=F(bold=True,color='74839A'); cv.cell(r,3,v).font=F(); cv.cell(r,3).alignment=Alignment(horizontal='right')
+        for c in (2,3): cv.cell(r,c).border=Border(bottom=LN)
+    cv['B13']='תמונת מצב'; cv['B13'].font=F(bold=True,size=14)
+    stat=[('סעיפים בכתב',len(items)),('נמדדו / יש כמות',nq),('חלקיים',npart),('הוזנו ידנית',nman),('חסרה כמות',len(items)-nq)]
+    for i,(k,v) in enumerate(stat):
+        r=14+i; cv.cell(r,2,k).font=F(); c=cv.cell(r,3,v); c.font=F(bold=True,size=13); c.alignment=Alignment(horizontal='right')
+        cv.cell(r,2).border=cv.cell(r,3).border=Border(bottom=LN)
+    for r_,c_ in ((20,'הכמויות נמדדו נטו, מותקן באתר, ללא תוספת פחת, אלא אם צוין אחרת בסעיף.'),(21,'סעיפים צהובים: כמות חלקית. סעיפים אדומים: חסרה כמות. פירוט בלשונית "מה חסר למערכת".'),(22,'מקור הכמות ואופן המדידה מפורטים בלשונית "שיטות ומקורות".')):
+        cv.cell(r_,2,c_).font=F(size=11,color='43536A'); cv.merge_cells(start_row=r_,start_column=2,end_row=r_,end_column=4); cv.cell(r_,2).alignment=Alignment(wrap_text=True,vertical='top'); cv.row_dimensions[r_].height=32
+    sm=wb.create_sheet('סיכום פרקים',1); sm.sheet_view.rightToLeft=True
+    sm.append(['פרק','שם הפרק','סעיפים','עם כמות','% כיסוי','סה"כ מתומחר'])
+    for c in sm[1]: c.font=F(bold=True,color='FFFFFF'); c.fill=DK; c.alignment=Alignment(horizontal='center')
+    chs=[]; cur=None
+    for r in rows:
+        if r['kind']=='ch': cur=dict(code=r['code'][:2],desc=r['desc'],n=0,q=0,tot=0.0); chs.append(cur)
+        elif r['kind']=='item' and cur:
+            cur['n']+=1; cur['q']+= r['q'] is not None
+            cur['tot']+=(r['q'] or 0)*prices.get(r['code'],0)
+    for i,c in enumerate(chs,2):
+        sm.append([c['code'],c['desc'],c['n'],c['q'],f'=IF(C{i}=0,0,D{i}/C{i})',c['tot']])
+        sm.cell(i,5).number_format='0%'; sm.cell(i,6).number_format=NF
+    n=len(chs)+2; sm.cell(n,2,'סה"כ').font=F(bold=True)
+    for col in (3,4,6): sm.cell(n,col,f'=SUM({"ABCDEF"[col-1]}2:{"ABCDEF"[col-1]}{n-1})').font=F(bold=True)
+    sm.cell(n,6).number_format=NF
+    for col,w in zip('ABCDEF',[8,40,10,10,10,16]): sm.column_dimensions[col].width=w
+    me=wb.create_sheet('שיטות ומקורות'); me.sheet_view.rightToLeft=True
+    me.append(['מספר','תאור','יח\'','אופן המדידה','מקור הכמות','מידת אימות הכלל'])
+    for c in me[1]: c.font=F(bold=True,color='FFFFFF'); c.fill=DK
+    for r in items:
+        me.append([r['code'],r['desc'],r['unit'],r.get('method',''),r.get('src',''),'מאומת' if r.get('vsrc')=='v' else ('לאימות' if r.get('method') else '')])
+        me.cell(me.max_row,4).alignment=Alignment(wrap_text=True,vertical='top')
+        me.cell(me.max_row,2).alignment=Alignment(wrap_text=True,vertical='top')
+    for col,w in zip('ABCDEF',[12,50,8,60,28,14]): me.column_dimensions[col].width=w
+    me.freeze_panes='A2'
+    for ws_ in (cv,sm,me):
+        ws_.page_setup.orientation='landscape' if ws_ is not cv else 'portrait'; ws_.page_setup.fitToWidth=1; ws_.page_setup.fitToHeight=0; ws_.sheet_properties.pageSetUpPr=openpyxl.worksheet.properties.PageSetupProperties(fitToPage=True)
+    wb.active=0
     wb.save(path)
