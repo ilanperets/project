@@ -26,7 +26,7 @@ def _load(pid):
     p=os.path.join(_pdir(pid),'project.json')
     if not os.path.exists(p): raise HTTPException(404,'פרויקט לא נמצא')
     pr=json.load(open(p,encoding='utf-8'))
-    for k,v in (('materials',[]),('prices',{}),('mprices',{}),('params',{}),('bills',[]),('orders',[]),('quotes',[]),('needs',[]),('log',[]),('events',[]),('checks',{}),('version',1),('status','received'),('client',''),('measurer',''),('reviewer',''),('due',''),('created',''),('updated',''),('changes',None),('delivered_at','')): pr.setdefault(k,v)
+    for k,v in (('materials',[]),('prices',{}),('mprices',{}),('params',{}),('bills',[]),('orders',[]),('quotes',[]),('needs',[]),('log',[]),('events',[]),('pending',[]),('stale',False),('checks',{}),('version',1),('status','received'),('client',''),('measurer',''),('reviewer',''),('due',''),('created',''),('updated',''),('changes',None),('delivered_at','')): pr.setdefault(k,v)
     return pr
 def _ev(pr,t): pr.setdefault('events',[]).append(dict(t=t,at=datetime.datetime.now().isoformat(timespec='minutes'))); pr['events']=pr['events'][-40:]
 def _save(pr):
@@ -106,11 +106,17 @@ async def upload(pid:str,files:list[UploadFile]=File(...)):
             os.remove(path); added.append(dict(file=f.filename,dup_of=seen[h]['file'])); continue
         try: ft=C.features(path); cl=C.classify(ft,rules)
         except Exception as e: os.remove(path); added.append(dict(file=f.filename,error='הקובץ לא נקרא: '+str(e)[:80])); continue
-        s=dict(sid=sid,file=f.filename,hash=h,w_mm=ft['w_mm'],h_mm=ft['h_mm'],n_draw=ft['n_draw'],layers=ft['layers'],type=cl['type'],conf=cl['conf'],why=cl['why'],floor=None,confirmed=False)
-        pr['sheets'].append(s); seen[h]=s; added.append(dict(file=f.filename,sid=sid,type=s['type'],conf=s['conf']))
-    n_ok=sum(1 for a in added if a.get('sid'))
+        s=dict(sid=sid,file=f.filename,hash=h,w_mm=ft['w_mm'],h_mm=ft['h_mm'],n_draw=ft['n_draw'],layers=ft['layers'],type=cl['type'],conf=cl['conf'],why=cl['why'],floor=None,confirmed=False,version=1)
+        try: rv=C.revision_of(ft,path,pr['sheets'],_pdir(pid))
+        except Exception: rv=None
+        if rv:
+            s['pending_of']=rv[0]['sid']; s['sim']=round(rv[1]*100); pr['pending']=[x for x in pr['pending'] if x['hash']!=h]+[s]; seen[h]=s
+            added.append(dict(file=f.filename,sid=sid,type=s['type'],conf=s['conf'],revision_of=rv[0]['sid'],sim=s['sim'])); continue
+        pr['sheets'].append(s); seen[h]=s; added.append(dict(file=f.filename,sid=sid,type=s['type'],conf=s['conf'],disc=C.DISC.get(s['type'],'')))
+    n_ok=sum(1 for a in added if a.get('sid') and not a.get('revision_of'))
     if n_ok: _stash(pr); _ev(pr,f'הועלו {n_ok} תוכניות')
-    pr['boq']=None; _save(pr); return dict(added=added,project=pr)
+    if n_ok: pr['stale']=True
+    _save(pr); return dict(added=added,project=pr)
 
 @app.post('/api/projects/{pid}/sheets/{sid}')
 def label(pid:str,sid:str,body:dict):
@@ -121,12 +127,48 @@ def label(pid:str,sid:str,body:dict):
         s['type']=body['type']; s['confirmed']=True; s['conf']='confirmed'; s['why']='אושר על ידך'
         rules=[r for r in _rules() if set(r['sig'])!=set(C.sig(s['layers']))]; rules.append(dict(sig=C.sig(s['layers']),type=s['type']))
         os.makedirs(ROOT,exist_ok=True); json.dump(rules,open(RULES,'w',encoding='utf-8'),ensure_ascii=False)
+    if 'type' in body and 'disc' not in body: s.pop('disc',None)
+    if 'disc' in body:
+        if body['disc'] and body['disc'] not in dict(C.DISCS): raise HTTPException(400,'תחום לא מוכר')
+        s['disc']=body['disc'] or None
     if 'floor' in body: s['floor']=body['floor'] or None
-    _stash(pr); pr['boq']=None; _save(pr); return pr
+    _stash(pr); pr['stale']=True; _save(pr); return pr
 
 def _snap(rows): return {r['desc']:dict(q=r.get('q'),unit=r.get('unit')) for r in (rows or []) if r.get('kind')=='item' and r.get('q') is not None}
 def _stash(pr):
     if pr.get('boq') and pr.get('prev_snap') is None: pr['prev_snap']=_snap(pr['boq']); pr['prev_ver']=pr.get('version',1)
+
+@app.post('/api/projects/{pid}/revision')
+def revision(pid:str,body:dict):
+    """decide what to do with an uploaded sheet that looks like a new revision: replace | add | skip"""
+    pr=_load(pid); n=next((x for x in pr['pending'] if x['sid']==body.get('sid')),None)
+    if not n: raise HTTPException(404,'אין גיליון ממתין')
+    act=body.get('action'); pr['pending']=[x for x in pr['pending'] if x['sid']!=n['sid']]
+    old=next((x for x in pr['sheets'] if x['sid']==n.get('pending_of')),None)
+    n.pop('pending_of',None); n.pop('sim',None)
+    if act=='skip':
+        try: os.remove(os.path.join(_pdir(pid),'files',n['sid']+'.pdf'))
+        except OSError: pass
+        _save(pr); return pr
+    _stash(pr)
+    if act=='replace' and old:
+        for k in ('type','floor','disc','confirmed','conf','why'):
+            if k in old: n[k]=old[k]
+        n['version']=old.get('version',1)+1; n['prev']=[dict(sid=old['sid'],file=old['file'],version=old.get('version',1))]+old.get('prev',[])
+        pr['sheets']=[n if x['sid']==old['sid'] else x for x in pr['sheets']]; _ev(pr,f"גיליון עודכן לגרסה {n['version']}: {n['file'][:30]}")
+    elif act in ('add','replace'): pr['sheets'].append(n); _ev(pr,'נוסף גיליון חדש')
+    else: raise HTTPException(400,'פעולה לא מוכרת')
+    pr['stale']=True; _save(pr); return pr
+
+@app.get('/api/projects/{pid}/sheets/{sid}/view.png')
+def view(pid:str,sid:str):
+    import fitz
+    if not re.fullmatch(r'[a-f0-9]{6}',sid): raise HTTPException(404,'')
+    src=os.path.join(_pdir(pid),'files',sid+'.pdf'); out=os.path.join(_pdir(pid),'files',sid+'_big.png')
+    if not os.path.exists(src): raise HTTPException(404,'')
+    if not os.path.exists(out):
+        pg=fitz.open(src)[0]; z=min(3000/pg.rect.width,4.0); pg.get_pixmap(matrix=fitz.Matrix(z,z),alpha=False).save(out)
+    return FileResponse(out,media_type='image/png')
 
 FLOOR={'ground':'קומת קרקע','first':'קומה א׳','second':'קומה ב׳','roof':'גג'}
 
@@ -199,7 +241,7 @@ def run(pid:str):
         pr['prev_snap']=None; _ev(pr,f"גרסה {pr['version']}: {len(ch)} סעיפים השתנו")
     else: _ev(pr,'כתב הכמויות חושב')
     if pr.get('status')=='received': pr['status']='measuring'
-    _save(pr)
+    pr['stale']=False; _save(pr)
     return pr
 
 def rebuild(pr):

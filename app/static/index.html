@@ -158,6 +158,44 @@ tr.ch{cursor:pointer}tr.hid{display:none}tr.m td{background:color-mix(in srgb,va
 .dlg{max-width:520px;width:100%}.dlg .fl2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
 @media(max-width:1180px){.lay,.two{grid-template-columns:1fr}.pulse{grid-template-columns:repeat(2,1fr)}.pulse>div:nth-child(3){border-inline-start:0}.stage{grid-template-columns:1fr}}
 @media(max-width:700px){.trust{grid-template-columns:1fr}.lg{grid-template-columns:repeat(2,1fr)}.tb{min-width:760px}.panel.pt{overflow-x:auto}}
+/* ===== plans (disciplines) + viewer ===== */
+.dtabs{display:flex;gap:10px;margin:16px 0;overflow-x:auto;padding-bottom:4px}
+.dt{flex:1;min-width:128px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;cursor:pointer;text-align:right;font:inherit;color:inherit}
+.dt .tp{display:flex;align-items:center;gap:9px;font-weight:700}.dt .tp svg{color:var(--mut)}.dt .n{font:700 24px/1 var(--fd)}.dt small{color:var(--mut);font-size:12.5px}
+.dt.on{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:0 14px 24px -14px var(--ink)}.dt.on .tp svg,.dt.on small{color:#B9C6DA}
+.dt.zero{border-style:dashed;background:transparent}.dt.zero .n{color:#A3AEBF}.dt.zero .tp{color:#6B7A90}
+.dt .cv{height:5px;border-radius:4px;background:var(--line);overflow:hidden}.dt.on .cv{background:rgba(255,255,255,.2)}.dt .cv i{display:block;height:100%;background:var(--ok)}.dt.on .cv i{background:#6BE09A}
+.up2{background:var(--card);border:1.5px dashed #9DBDEA;border-radius:14px;padding:11px 16px;display:flex;gap:14px;align-items:center;margin-top:16px;transition:.15s}.up2.over{background:#EAF2FD;border-color:var(--pri2)}.up2 .ico{width:38px;height:38px;border-radius:11px;background:linear-gradient(140deg,var(--bp2),var(--bp3));color:#fff;display:grid;place-items:center;flex:none}
+.qrow{display:grid;grid-template-columns:30px 1fr 200px 130px;gap:14px;align-items:center;padding:10px 4px;border-top:1px solid var(--line)}.qrow:first-child{border:0}
+.qrow .nm{font-weight:600;direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px}.qrow .nm small{display:block;color:var(--mut);font-weight:400;direction:rtl}
+.qi{width:26px;height:26px;border-radius:50%;display:grid;place-items:center}.qi.ok{background:var(--okb);color:var(--ok)}.qi.pr{background:var(--accsoft);color:var(--pri)}.qi.wk{background:var(--warnb);color:var(--warn)}.qi.bd{background:var(--badb);color:var(--bad)}
+.pb{height:8px;background:var(--line);border-radius:5px;overflow:hidden}.pb i{display:block;height:100%;background:linear-gradient(90deg,var(--pri2),#5B9BEA);border-radius:5px;transition:width .2s}
+.qs2{font-size:13px;font-weight:700}.qs2.ok{color:var(--ok)}.qs2.wk{color:var(--warn)}.qs2.pr{color:var(--pri)}.qs2.bd{color:var(--bad)}
+.sub2{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:0 14px 6px}.vt{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-inline-start:auto}.vt button{padding:6px 12px;color:var(--mut);border:0;background:none;cursor:pointer;font-weight:600}.vt button.on{background:var(--accsoft);color:var(--pri)}
+.sc{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
+.sheets4{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;padding:6px 14px 16px}
+.sc4{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card);display:flex;flex-direction:column}.sc4.need{border-color:#F0C766;box-shadow:0 0 0 3px var(--warnb)}
+.sc4 .im{aspect-ratio:4/3;background:#fff;position:relative;border-bottom:1px solid var(--line);overflow:hidden;cursor:pointer}.sc4 .im img{width:100%;height:100%;object-fit:contain;padding:6px}
+.sc4 .tp{position:absolute;top:8px;inset-inline-start:8px}.sc4 .vb{position:absolute;bottom:8px;inset-inline-end:8px;background:var(--ink);color:#fff;border-radius:7px;padding:1px 8px;font:700 12px var(--fd)}
+.sc4 .bd{padding:11px 13px;display:grid;gap:8px}.sc4 .bd b{font:600 15px var(--fd)}.sc4 .fn{font-size:12px;color:var(--mut);direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.found{font-size:13px;color:#43536A;background:var(--sunk);border-radius:9px;padding:7px 10px;min-height:34px}
+.sc4 select{min-height:34px;padding:4px 8px;font-size:13px}.sel2{display:grid;grid-template-columns:1fr 1fr;gap:6px}.sel2 select.al{border-color:#F0C766;background:var(--warnb);font-weight:700}
+.rowc{display:grid;grid-template-columns:80px minmax(0,1fr) 130px 130px 100px;gap:14px;align-items:center;padding:10px 14px;border-top:1px solid var(--line)}.rowc .im2{height:54px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;cursor:pointer}.rowc .im2 img{width:100%;height:100%;object-fit:contain}
+.brn{background:linear-gradient(135deg,var(--bp1),var(--bp2) 70%,var(--bp3));color:#fff;border-radius:16px;padding:18px 20px 8px}.brn h2{color:#fff;margin:0 0 2px;display:flex;gap:8px;align-items:center}.brn .s{font-size:13px;opacity:.8;margin-bottom:12px}
+.bi{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid rgba(255,255,255,.16);font-size:14px}.bi i{width:9px;height:9px;border-radius:50%;flex:none}.bi .u{margin-inline-start:auto;font:700 13px var(--fd);white-space:nowrap}.bi small{display:block;opacity:.7;font-size:12px}
+.cov{padding:2px 18px 14px}.cr{display:flex;gap:11px;align-items:center;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}.cr:first-child{border:0}.cr .b{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;flex:none;font:700 12px var(--fd)}.cr.y .b{background:var(--ok);color:#fff}.cr.n .b{background:var(--badb);color:var(--bad)}.cr.p .b{background:var(--warnb);color:var(--warn)}.cr small{display:block;color:var(--mut);font-size:12.5px}.cr .u{margin-inline-start:auto;font-size:12.5px;font-weight:700;color:var(--pri);white-space:nowrap}
+.vw{display:grid;grid-template-columns:104px minmax(0,1fr) 320px;gap:16px;height:calc(100vh - 200px);min-height:560px}
+.film{display:flex;flex-direction:column;gap:10px;overflow:auto}.film .f{border:2px solid var(--line);border-radius:10px;background:#fff;padding:4px;cursor:pointer}.film .f.on{border-color:var(--pri2);box-shadow:0 0 0 3px var(--accsoft)}.film img{width:100%;height:64px;object-fit:contain;display:block}.film small{display:block;text-align:center;font-size:11.5px;color:#43536A;padding-top:2px;font-weight:600}
+.canvas{background:#fff;border:1px solid var(--line);border-radius:16px;position:relative;overflow:hidden;cursor:grab;touch-action:none}.canvas.dragging{cursor:grabbing}.canvas .pan{position:absolute;inset:0;display:grid;place-items:center;transform-origin:0 0}.canvas.two .pan{grid-template-columns:1fr 1fr;gap:8px}.canvas img{max-width:100%;max-height:100%;display:block;user-select:none;-webkit-user-drag:none}
+.tools{position:absolute;top:12px;inset-inline-start:12px;display:flex;gap:6px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:5px;box-shadow:0 10px 24px -14px rgba(0,0,0,.4);z-index:2;cursor:default}.tools button{padding:6px 11px;border-radius:8px;font-weight:600;font-size:13px;color:#43536A;border:0;background:none;cursor:pointer}.tools button.on{background:var(--ink);color:#fff}
+.nv{position:absolute;top:50%;width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid var(--line);display:grid;place-items:center;box-shadow:0 10px 20px -10px rgba(0,0,0,.5);transform:translateY(-50%);z-index:2;cursor:pointer}
+.dtabs2{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;flex-wrap:wrap}.dtabs2 button{padding:6px 12px;border-radius:9px;font-weight:600;font-size:13.5px;color:#43536A;border:0;background:none;cursor:pointer}.dtabs2 button.on{background:var(--ink);color:#fff}.dtabs2 button small{opacity:.6;margin-inline-start:4px}.dtabs2 button.z{opacity:.45;cursor:default}
+.dp{overflow:auto;display:grid;gap:14px;align-content:start}.kv div{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14px}.kv div:first-child{border:0}.kv select{width:auto;min-height:34px;padding:4px 8px;max-width:170px}
+.ov2{position:fixed;inset:0;background:rgba(14,27,43,.55);display:grid;place-items:center;z-index:20;padding:16px}.dg{width:620px;max-width:100%;background:#fff;border-radius:20px;padding:24px 26px;box-shadow:0 40px 80px -20px rgba(0,0,0,.5)}
+.cmp{display:grid;grid-template-columns:1fr 40px 1fr;gap:10px;align-items:center;margin:16px 0}.cmp .s{border:1px solid var(--line);border-radius:12px;overflow:hidden}.cmp .s img{width:100%;height:150px;object-fit:contain;background:#fff;display:block}.cmp .s div{padding:8px 12px;font-size:13px;border-top:1px solid var(--line)}.cmp .ar{text-align:center;color:var(--pri2)}
+.opt{display:flex;gap:12px;border:2px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px;cursor:pointer}.opt.on{border-color:var(--pri2);background:#F4F8FE}.opt .rd{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);flex:none;margin-top:2px}.opt.on .rd{border:6px solid var(--pri2)}.opt b{display:block}.opt small{color:var(--mut)}
+@media(max-width:1180px){.sc{grid-template-columns:1fr}.vw{grid-template-columns:84px minmax(0,1fr);height:auto}.vw .dp{grid-column:1/-1}.canvas{min-height:60vh}}
+@media(max-width:700px){.qrow{grid-template-columns:30px 1fr 100px}.qrow .pb{display:none}.rowc{grid-template-columns:70px 1fr}}
 </style>
 </head>
 <body>
@@ -181,9 +219,9 @@ async function render(){
   const {pid,page}=R();
   if(pid){try{P=await api('/projects/'+pid);SUM=await api(`/projects/${pid}/summary`)}catch(e){location.hash='#/';return}}else P=null;
   side();
-  const v={projects,dash,plans,boq,materials,bills,brain,spec,engines,legacy,sheet}[page]||dash;
+  const v={projects,dash,plans,view,boq,materials,bills,brain,spec,engines,legacy,sheet}[page]||dash;
   $('#main').innerHTML='<div class="empty">טוען…</div>';
-  $('#main').innerHTML=(pid&&page!=='dash'?stepper(page):'')+await v();
+  const body=await v();$('#main').innerHTML=(pid&&page!=='dash'&&page!=='view'?stepper(page):'')+(pid&&P.stale&&P.boq&&P.sheets.length?`<div class="up2" style="border-color:#F0C766;background:var(--warnb);margin:0 0 16px"><div class="ico" style="background:var(--warn)">${ic('alert',20)}</div><div><b>התוכניות השתנו מאז החישוב האחרון</b><div style="font-size:13px">הכמויות בכתב עוד לא משקפות את השינוי.</div></div><span class="sp"></span><button class="btn p" onclick="runNow(this)">חשב מחדש</button></div>`:'')+body;
   if(window['after_'+page])window['after_'+page]();
 }
 window.addEventListener('hashchange',render);
@@ -229,7 +267,7 @@ const trkH=st=>{const idx=ST.indexOf(st);let o='';for(let k=0;k<4;k++){o+=`<i cl
 const rgH=p=>{const c=2*Math.PI*10;return `<svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="10" fill="none" stroke="#E0E6EF" stroke-width="4"/><circle cx="14" cy="14" r="10" fill="none" stroke="#1F6FD1" stroke-width="4" stroke-linecap="round" stroke-dasharray="${c*p/100} ${c}" transform="rotate(-90 14 14)"/></svg>`};
 const sideNav=(href,i,t,on,extra='')=>`<a href="${href}" class="${on?'on':''}">${ic(i)}${t}${extra}</a>`;
 function side(){
-  const {pid,page}=R(),l=(p,i,t,x='')=>sideNav(`#/p/${pid}/${p}`,i,t,page===p,x);
+  const {pid,page}=R(),l=(p,i,t,x='')=>sideNav(`#/p/${pid}/${p}`,i,t,page===p||(p==='plans'&&page==='view'),x);
   $('#side').innerHTML=`<div class="logo"><span class="mark">${ic('calc',19)}</span>כתבי כמויות</div><nav class="nav">
   ${sideNav('#/','folder','כל הפרויקטים',!pid&&page==='projects')}${sideNav('#/spec','book','ספר המפרט',page==='spec')}${sideNav('#/engines','cog','מנועי חישוב',page==='engines')}${sideNav('#/legacy','lib','ספריית אימון',page==='legacy')}
   ${pid?`<div class="sep">${esc(P?.name||'')}</div>${l('dash','eye','סקירת הפרויקט')}${l('plans','plan','תוכניות')}${l('boq','list','כתב כמויות')}${l('materials','box','חומרים והזמנות')}${l('bills','shek','חשבונות')}${l('brain','spark','המוח',SUM&&SUM.needs?`<span class="nb">${SUM.needs}</span>`:'')}`:''}</nav>
@@ -338,27 +376,122 @@ async function dash(){
 function after_dash(){if(window.__hl)showTip(-1)}
 
 /* ---------- plans ---------- */
+/* ---------- plans by discipline ---------- */
+const DIS=[['construction','קונסטרוקציה','plan',[1,2,23]],['arch','אדריכלות','eye',[4,6,9,10,11,12,14]],['elec','חשמל','calc',[8]],['hvac','מיזוג אוויר','cog',[15]],['plumb','אינסטלציה','box',[7,57]],['seal','איטום','shield',[5]],['dev','פיתוח','folder',[40]]];
+const DOF={foundation_piles:'construction',structure_plan:'construction',structure_other:'construction',floor_plan:'arch',elevation:'arch',section:'arch',details:'arch',openings_details:'arch',electrical:'elec',plumbing:'plumb',hvac:'hvac',waterproofing:'seal',site:'dev'};
+const discOf=s=>s.disc||DOF[s.type]||'';
+const discName=k=>(DIS.find(d=>d[0]===k)||[0,'לא מסווג'])[1];
+let PD='all',PT='all',PV='grid',UPQ=[];
+function discItems(k){const chs=(DIS.find(d=>d[0]===k)||[0,0,0,[]])[3],out=[];let on=false;(P.boq||[]).forEach(r=>{if(r.kind==='ch'){on=chs.includes(parseInt(r.code))}else if(r.kind==='item'&&on)out.push(r)});return out}
+function discCov(k){if(!P.boq)return null;const it=discItems(k);return it.length?Math.round(it.filter(r=>r.q!=null).length/it.length*100):null}
+const FK={area_m2:v=>`שטח ${nf(v,1)} מ"ר`,wall_body_m2:v=>`קירות ${nf(v,1)} מ"ר`,n:v=>`${v} פתחים`,piles:v=>`${v} כלונסאות`};
+function humanLine(t){t=String(t);const i=t.indexOf('{');if(i<0)return t.length>90?t.slice(0,90)+'…':t;const pre=t.slice(0,i).trim(),parts=[];
+  [...t.slice(i).matchAll(/'(\w+)':\s*([\d.]+)/g)].forEach(m=>{if(FK[m[1]])parts.push(FK[m[1]](parseFloat(m[2])))});return [pre,...parts].filter(Boolean).join(' · ')}
+function foundLine(s){const l=(P.log||[]).find(x=>x.startsWith(s.file.slice(0,18)));if(!l)return'<span class="mu">עוד לא חושב</span>';return esc(humanLine(l.slice(l.indexOf(':')+1).trim()))}
+const needAttn=s=>(s.type==='floor_plan'&&!s.floor)||(!s.confirmed&&(s.conf==='med'||s.conf==='none'))||s.type==='unknown';
+const confTag=s=>s.confirmed?['אושר על ידך','t-ok']:s.conf==='learned'?['זוהה לפי למידה','t-ok']:s.conf==='high'?['זוהה בביטחון','t-ok']:s.conf==='med'?['כדאי לאשר','t-w']:['לא זוהה','t-b'];
+const selH=(opts,cur,fn,cls='',ph='')=>`<select class="${cls}" onclick="event.stopPropagation()" onchange="${fn}">${ph?`<option value="">${ph}</option>`:''}${opts.map(([k,t])=>`<option value="${k}" ${k===cur?'selected':''}>${t}</option>`).join('')}</select>`;
+const FLOORS=[['ground','קומת קרקע'],['first','קומה א׳'],['second','קומה ב׳'],['roof','גג']];
+const typeOpts=()=>Object.entries(TYPES);
+function sheetCard(s){const ct=confTag(s),na=needAttn(s);return `<div class="sc4 ${na?'need':''}"><div class="im" onclick="location.hash='#/p/${P.id}/view/${s.sid}'"><img loading="lazy" src="/api/projects/${P.id}/sheets/${s.sid}/thumb.png" alt=""><div class="tp"><span class="tg ${ct[1]}">${ct[0]}</span></div>${(s.version||1)>1?`<div class="vb">גרסה ${s.version}</div>`:''}</div>
+  <div class="bd"><b>${esc(TYPES[s.type]||s.type)}</b><div class="fn" title="${esc(s.file)}">${esc(s.file)}</div><div class="found">${foundLine(s)}</div>
+  <div class="sel2">${selH(DIS.map(d=>[d[0],d[1]]),discOf(s),`setSheet('${s.sid}',{disc:this.value})`,'',discOf(s)?'':'בחר תחום')}${selH(typeOpts(),s.type,`setSheet('${s.sid}',{type:this.value})`)}${s.type==='floor_plan'?selH(FLOORS,s.floor,`setSheet('${s.sid}',{floor:this.value})`,s.floor?'':'al','באיזו קומה?'):''}</div></div></div>`}
+function sheetRow(s){const ct=confTag(s);return `<div class="rowc"><div class="im2" onclick="location.hash='#/p/${P.id}/view/${s.sid}'"><img loading="lazy" src="/api/projects/${P.id}/sheets/${s.sid}/thumb.png"></div><div style="min-width:0"><b>${esc(TYPES[s.type]||s.type)}</b>${(s.version||1)>1?` <span class="vchip">גרסה ${s.version}</span>`:''}<div class="fn" style="font-size:12px;color:var(--mut);direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s.file)}</div><div style="font-size:13px;color:#43536A">${foundLine(s)}</div></div><div>${selH(DIS.map(d=>[d[0],d[1]]),discOf(s),`setSheet('${s.sid}',{disc:this.value})`,'',discOf(s)?'':'בחר תחום')}</div><div>${s.type==='floor_plan'?selH(FLOORS,s.floor,`setSheet('${s.sid}',{floor:this.value})`,s.floor?'':'al','באיזו קומה?'):'<span class="mu">—</span>'}</div><div><span class="tg ${ct[1]}">${ct[0]}</span></div></div>`}
+function brainPanel(k){const it=discItems(k),nm=discName(k);
+  if(!P.boq)return `<div class="brn"><h2>${ic('spark',20)}מה המוח יודע ב${nm}</h2><div class="s">עוד לא חושב כתב. לחץ על "חשב כתב כמויות".</div></div>`;
+  const cv=discCov(k),ord=[...it.filter(r=>r.q!=null&&r.st==='נמדד'),...it.filter(r=>r.q!=null&&r.st!=='נמדד'),...it.filter(r=>r.q==null)].slice(0,8);
+  return `<div class="brn"><h2>${ic('spark',20)}מה המוח יודע ב${nm}</h2><div class="s">${cv==null?'אין סעיפים בתחום הזה בכתב':cv+'% מהסעיפים בתחום קיבלו כמות'}</div>
+  ${ord.map(r=>`<div class="bi"><i style="background:${r.q==null?'#FFC9A8':r.st==='נמדד'?'#6BE09A':'#8DB8EE'}"></i><div>${esc(r.desc)}<small>${r.q==null?esc(r.need||r.src):r.st==='נמדד'?'נמדד מהתוכנית':esc(r.st)}</small></div><div class="u">${r.q==null?'—':nf(r.q)+' '+esc(r.unit)}</div></div>`).join('')||'<div class="bi" style="opacity:.8">אין עדיין סעיפים</div>'}</div>`}
+function improvePanel(k){const present=new Set(P.sheets.map(s=>s.type)),rows=[];
+  Object.keys(TYPES).filter(t=>DOF[t]===k&&!present.has(t)).forEach(t=>{const n=(P.boq||[]).filter(r=>r.kind==='item'&&r.st==='דורש השלמה'&&String(r.src).includes(TYPES[t])).length;if(n)rows.push(['n',TYPES[t],'לא הועלה',`+${n} סעיפים`])});
+  P.sheets.filter(s=>discOf(s)===k&&s.type==='floor_plan'&&!s.floor).forEach(s=>rows.push(['p','סימון קומה','חסר לגיליון '+s.file.slice(-14),'משפר דיוק']));
+  if(!rows.length)return '';
+  return `<div class="panel"><div class="ph"><h2>כדי לשפר ב${discName(k)}</h2></div><div class="cov">${rows.map(r=>`<div class="cr ${r[0]}" onclick="$('#fi').click()"><div class="b">${r[0]==='n'?'✕':'!'}</div><div>${esc(r[1])}<small>${esc(r[2])}</small></div><div class="u">${r[3]}</div></div>`).join('')}</div></div>`}
+function allPanel(){return `<div class="panel"><div class="ph"><h2>מה כבר יש בתיק</h2><span class="mu" style="font-size:13px">${DIS.filter(d=>P.sheets.some(s=>discOf(s)===d[0])).length} מתוך ${DIS.length} תחומים</span></div><div class="cov">${DIS.map(d=>{const n=P.sheets.filter(s=>discOf(s)===d[0]).length,c=discCov(d[0]);return `<div class="cr ${n?'y':'n'}" onclick="PD='${d[0]}';PT='all';render()"><div class="b">${n?ic('check',14):'✕'}</div><div>${d[1]}<small>${n?n+' גיליונות':'לא הועלה'}</small></div><div class="u">${c==null?'':c+'% כיסוי'}</div></div>`}).join('')}</div></div>`}
 async function plans(){
-  const cards=P.sheets.map(s=>`<div class="sh"><div class="im" onclick="lightbox('/api/projects/${P.id}/sheets/${s.sid}/thumb.png')"><img loading="lazy" src="/api/projects/${P.id}/sheets/${s.sid}/thumb.png" alt=""></div><div class="bd"><div class="fn" title="${esc(s.file)}">${esc(s.file)}</div>
-   <div class="row"><span class="tag ${s.confirmed||s.conf==='high'||s.conf==='learned'?'t-ok':s.conf==='med'?'t-w':'t-b'}">${s.confirmed?'אושר':s.conf==='learned'?'זוהה לפי למידה':s.conf==='high'?'זוהה בביטחון':s.conf==='med'?'זוהה, כדאי לאשר':'לא זוהה'}</span></div>
-   <select onchange="setSheet('${s.sid}',{type:this.value})">${Object.entries(TYPES).map(([k,t])=>`<option value="${k}" ${k===s.type?'selected':''}>${t}</option>`).join('')}</select>
-   ${s.type==='floor_plan'?`<select onchange="setSheet('${s.sid}',{floor:this.value})"><option value="">באיזו קומה?</option>${[['ground','קומת קרקע'],['first','קומה א׳'],['second','קומה ב׳'],['roof','גג']].map(([k,t])=>`<option value="${k}" ${s.floor===k?'selected':''}>${t}</option>`).join('')}</select>`:''}
-   <a class="btn sec sm" href="#/p/${P.id}/sheet/${s.sid}">${s.type==='electrical'?'סמלי חשמל ומיפוי שכבות':'מיפוי שכבות למדידה'}</a></div></div>`).join('');
-  const cnt={};P.sheets.forEach(s=>cnt[TYPES[s.type]]=(cnt[TYPES[s.type]]||0)+1);
-  return `<h1>תוכניות</h1><p class="sub">גוררים את כל הקבצים של הפרויקט. המערכת מזהה כל גיליון, מנפה כפולים ולומדת מכל תיקון שלך.</p>
-  <label class="drop" id="drop"><div class="big">⇪</div><b style="font-size:19px">גרור לכאן קבצי PDF</b><div class="sub" style="margin:6px 0 0">או לחץ לבחירה. אפשר להעלות הרבה קבצים יחד, גם בהמשך.</div><div class="prog" id="prog" style="display:none"><b></b></div><div id="pst" class="sub" style="margin:8px 0 0"></div><input type="file" id="fi" multiple accept=".pdf" hidden></label>
-  ${P.sheets.length?`<div class="card" style="margin-top:16px"><div class="row"><div><h2 style="margin:0">${P.sheets.length} גיליונות בתיק</h2><div class="sub" style="margin:2px 0 0">${Object.entries(cnt).map(([k,v])=>`${v} ${k}`).join(' · ')}</div></div><span class="sp"></span>
-   <button class="btn" id="runb" onclick="runAll()">חשב כתב כמויות ▸</button></div><div class="sheets">${cards}</div></div>`:`<div class="card empty" style="margin-top:16px">עוד לא הועלו תוכניות.<br><br><button class="btn sec" onclick="startEmpty()">או התחל כתב כמויות ריק ומלא בעצמך</button></div>`}
+  const un=P.sheets.filter(s=>!discOf(s)).length,cur=PD==='all'?P.sheets:P.sheets.filter(s=>discOf(s)===PD);
+  const types={};cur.forEach(s=>types[s.type]=(types[s.type]||0)+1);if(PT!=='all'&&!types[PT])PT='all';const shown=PT==='all'?cur:cur.filter(s=>s.type===PT);
+  const tab=(k,t,i,n,c)=>`<button class="dt ${PD===k?'on':''} ${n?'':'zero'}" onclick="PD='${k}';PT='all';render()"><div class="tp">${ic(i,18)}${t}</div><div class="n">${n||'+'}</div><div class="cv"><i style="width:${c||0}%"></i></div><small>${n?(c==null?'עוד לא חושב':c+'% כיסוי'):'לא הועלה'}</small></button>`;
+  const allc=P.boq?(()=>{const it=(P.boq||[]).filter(r=>r.kind==='item');return it.length?Math.round(it.filter(r=>r.q!=null).length/it.length*100):null})():null;
+  const att=P.sheets.filter(needAttn).length;
+  return `<div class="topbar" style="display:flex"><span class="sp"></span>${P.sheets.length?`<button class="btn p" id="runb" onclick="runAll()">${ic('calc',17)}חשב כתב כמויות</button>`:''}</div>
+  <div class="crumb"><a href="#/" style="color:var(--mut);text-decoration:none">כל הפרויקטים</a> / ${esc(P.name)}</div><h1 class="h1x">תוכניות</h1><div class="mu" style="margin-top:4px">התיק מסודר לפי תחום. בוחרים תחום ורואים רק את התוכניות שלו, ואיתן מה המוח יודע לחשב ממנו.</div>
+  <label class="up2" id="drop"><div class="ico">${ic('xls',20).replace('M12 4v11M7 11l5 5 5-5M5 20h14','M12 16V5M7 10l5-5 5 5M5 20h14')}</div><div><b>גרור קבצים לכאן או בחר</b><div class="mu" style="font-size:13px">המערכת מזהה סוג ותחום לכל גיליון, ואפשר לשנות בכרטיס. כרגע נתמך PDF; DWG ו-DXF בהמשך.</div></div><span class="sp"></span><span class="btn">בחר קבצים</span><input id="fi" type="file" accept=".pdf" multiple hidden></label>
+  <div id="queue"></div>${(P.pending||[]).length&&!UPQ.length?`<div class="up2" style="border-color:#F0C766;background:var(--warnb)"><div class="ico" style="background:var(--warn)">${ic('alert',20)}</div><div><b>${P.pending.length} קבצים ממתינים להחלטה</b><div style="font-size:13px">הם דומים לגיליונות שכבר בתיק. החלט אם להחליף או להוסיף.</div></div><span class="sp"></span><button class="btn p" onclick="resolvePending()">החלט עכשיו</button></div>`:''}
+  ${P.sheets.length?`<div class="dtabs">${tab('all','הכל','lib',P.sheets.length,allc)}${DIS.map(d=>tab(d[0],d[1],d[2],P.sheets.filter(s=>discOf(s)===d[0]).length,discCov(d[0]))).join('')}</div>
+  ${un||att?`<div class="mu" style="margin:-4px 0 12px;font-size:13.5px">${att?`${att} גיליונות דורשים אישור שלך`:''}${un?` · ${un} לא משויכים לתחום`:''}</div>`:''}
+  <div class="sc"><div class="panel"><div class="ph"><h2>${PD==='all'?'כל הגיליונות':discName(PD)}</h2><span class="mu" style="font-size:13px">${cur.length} גיליונות</span><div class="vt"><button class="${PV==='grid'?'on':''}" onclick="PV='grid';render()">כרטיסים</button><button class="${PV==='list'?'on':''}" onclick="PV='list';render()">רשימה</button></div></div>
+   ${Object.keys(types).length>1?`<div class="sub2"><button class="chip3 ${PT==='all'?'on':''}" onclick="PT='all';render()">הכל<small>${cur.length}</small></button>${Object.entries(types).map(([t,n])=>`<button class="chip3 ${PT===t?'on':''}" onclick="PT='${t}';render()">${esc(TYPES[t]||t)}<small>${n}</small></button>`).join('')}</div>`:''}
+   ${cur.length?(PV==='grid'?`<div class="sheets4">${shown.map(sheetCard).join('')}</div>`:`<div>${shown.map(sheetRow).join('')}</div>`):`<div class="empty">עוד לא הועלו תוכניות ל${discName(PD)}.<br><br><button class="btn p" onclick="$('#fi').click()">העלה תוכניות</button></div>`}</div>
+  <div style="display:grid;gap:18px">${PD==='all'?allPanel():brainPanel(PD)+improvePanel(PD)}</div></div>`
+  :`<div class="card empty" style="margin-top:16px">עוד לא הועלו תוכניות.<br><br><button class="btn sec" onclick="startEmpty()">או התחל כתב כמויות ריק</button></div>`}
   ${P.log.length?`<details class="card" style="margin-top:16px"><summary style="cursor:pointer;font-weight:700">יומן החישוב האחרון</summary>${P.log.map(l=>`<div class="sub" style="margin:4px 0">${bl(l)}</div>`).join('')}</details>`:''}`}
-window.after_plans=()=>{const d=$('#drop'),f=$('#fi');if(!d)return;
-  f.onchange=()=>up(f.files);['dragenter','dragover'].forEach(e=>d.addEventListener(e,x=>{x.preventDefault();d.classList.add('over')}));
+window.after_plans=()=>{const d=$('#drop'),f=$('#fi');if(!d)return;drawQ();
+  f.onchange=()=>{up(f.files);f.value=''};['dragenter','dragover'].forEach(e=>d.addEventListener(e,x=>{x.preventDefault();d.classList.add('over')}));
   ['dragleave','drop'].forEach(e=>d.addEventListener(e,x=>{x.preventDefault();d.classList.remove('over')}));d.addEventListener('drop',x=>{x.preventDefault();up(x.dataTransfer.files)})};
-function up(files){const fd=new FormData();[...files].forEach(x=>fd.append('files',x));const pr=$('#prog'),st=$('#pst');pr.style.display='block';st.textContent='מעלה…';
-  const x=new XMLHttpRequest();x.open('POST',`/api/projects/${P.id}/upload`);
-  x.upload.onprogress=e=>{if(e.lengthComputable){pr.firstChild.style.width=(e.loaded/e.total*90)+'%';st.textContent=`מעלה ${Math.round(e.loaded/e.total*100)}%`}};
-  x.upload.onload=()=>{pr.firstChild.style.width='95%';st.textContent='מזהה את הגיליונות… זה לוקח כמה שניות לכל קובץ'};
-  x.onload=()=>{try{const r=JSON.parse(x.responseText);const d=r.added.filter(a=>a.dup_of).length,e=r.added.filter(a=>a.error).length;toast(`נקלטו ${r.added.filter(a=>a.sid).length} גיליונות${d?`, ${d} כפולים הוסרו`:''}${e?`, ${e} נכשלו`:''}`)}catch(e){toast('שגיאה בהעלאה')}render()};
-  x.onerror=()=>{toast('ההעלאה נכשלה');render()};x.send(fd)}
+function drawQ(){const q=$('#queue');if(!q)return;if(!UPQ.length){q.innerHTML='';return}
+  const m={up:['clock','pr','מעלה'],read:['clock','pr','קורא את הגיליון…'],ok:['check','ok','הושלם'],rev:['alert','wk','גרסה חדשה?'],dup:['alert','wk','כפול, הוסר'],err:['alert','bd','נכשל']};
+  const done=UPQ.filter(x=>['ok','dup','err','rev'].includes(x.st)).length;
+  q.innerHTML=`<div class="panel" style="margin-top:14px;padding:8px 18px 10px"><div style="display:flex;align-items:center;padding:10px 0 4px;gap:10px"><h2 style="margin:0">${done<UPQ.length?`מעלה ${UPQ.length} קבצים`:`הועלו ${UPQ.length} קבצים`}</h2><span class="mu" style="font-size:13px">${done} הושלמו</span><span class="sp"></span>${done===UPQ.length?`<button class="chip3" onclick="UPQ=[];drawQ()">סגור</button>`:''}</div>
+  ${UPQ.map(x=>{const t=m[x.st];return `<div class="qrow"><div class="qi ${t[1]}">${ic(t[0],15)}</div><div class="nm">${esc(x.name)}<small>${esc(x.note||'')}</small></div><div class="pb"><i style="width:${x.pct}%"></i></div><div class="qs2 ${t[1]}">${t[2]}${x.st==='up'||x.st==='read'?` · ${Math.round(x.pct)}%`:''}</div></div>`}).join('')}</div>`}
+function up(files){files=[...files].filter(f=>f.name);if(!files.length)return;UPQ=files.map(f=>({name:f.name,pct:0,st:'up'}));drawQ();
+  const fd=new FormData();files.forEach(x=>fd.append('files',x));const x=new XMLHttpRequest();x.open('POST',`/api/projects/${P.id}/upload`);
+  x.upload.onprogress=e=>{if(e.lengthComputable){UPQ.forEach(u=>u.pct=e.loaded/e.total*100);drawQ()}};
+  x.upload.onload=()=>{UPQ.forEach(u=>{u.pct=100;u.st='read';u.note='המערכת קוראת שכבות ומזהה סוג. כמה שניות לכל קובץ'});drawQ()};
+  x.onload=async()=>{try{const r=JSON.parse(x.responseText);const by={};r.added.forEach(a=>by[a.file]=a);
+    UPQ.forEach(u=>{const a=by[u.name];if(!a){u.st='err';u.note='לא התקבלה תשובה';return}
+      if(a.error){u.st='err';u.note=a.error}else if(a.dup_of){u.st='dup';u.note='זהה לגיליון '+a.dup_of}else if(a.revision_of){u.st='rev';u.note=`דומה ב-${a.sim}% לגיליון קיים`;u.sid=a.sid;u.of=a.revision_of}
+      else{u.st='ok';u.note=`זוהה: ${TYPES[a.type]||a.type}${a.disc?' · '+discName(a.disc):''}`}});drawQ();
+    const revs=UPQ.filter(u=>u.st==='rev');P=await api('/projects/'+P.id);
+    for(const u of revs)await dlgRev(u);
+    if(revs.length)UPQ.forEach(u=>{if(u.st==='rev')u.st='ok'});
+  }catch(e){toast('שגיאה בהעלאה');UPQ.forEach(u=>{if(u.st!=='ok'){u.st='err';u.note='ההעלאה נכשלה'}})}
+  P=await api('/projects/'+P.id);const keep=UPQ;await render();UPQ=keep;drawQ()};
+  x.onerror=()=>{toast('ההעלאה נכשלה');UPQ.forEach(u=>{u.st='err'});drawQ()};x.send(fd)}
+async function resolvePending(){for(const n of [...P.pending])await dlgRev({name:n.file,sid:n.sid,of:n.pending_of,note:`דומה ב-${n.sim}% לגיליון קיים`});P=await api('/projects/'+P.id);render()}
+function dlgRev(u){return new Promise(res=>{const old=P.sheets.find(s=>s.sid===u.of),nw=(P.pending||[]).find(s=>s.sid===u.sid);let ch='replace';
+  const d=document.createElement('div');d.className='ov2';
+  const draw=()=>{d.innerHTML=`<div class="dg" onclick="event.stopPropagation()"><h2 style="font-size:20px;margin:0">זוהתה גרסה חדשה של גיליון קיים</h2><div class="mu" style="margin-top:4px">הקובץ ${esc(u.name)} דומה ב-${u.note.match(/\d+/)[0]}% ל${esc(TYPES[old?.type]||'גיליון')} שכבר בתיק.</div>
+   <div class="cmp"><div class="s"><img src="/api/projects/${P.id}/sheets/${u.of}/thumb.png"><div><b>בתיק עכשיו</b> · גרסה ${old?.version||1}</div></div><div class="ar">${ic('diff',26)}</div><div class="s"><img src="/api/projects/${P.id}/sheets/${u.sid}/thumb.png"><div><b>הקובץ החדש</b> · יהיה גרסה ${(old?.version||1)+1}</div></div></div>
+   <div class="opt ${ch==='replace'?'on':''}" data-c="replace"><div class="rd"></div><div><b>החלף בגרסה החדשה והראה מה השתנה בכמויות</b><small>הגרסה הישנה נשמרת בהיסטוריה. אחרי חישוב מחדש תראה השוואה לפי סעיף.</small></div></div>
+   <div class="opt ${ch==='add'?'on':''}" data-c="add"><div class="rd"></div><div><b>הוסף כגיליון נפרד</b><small>למקרה שזו תוכנית אחרת שדומה לקודמת.</small></div></div>
+   <div class="row" style="margin-top:18px"><button class="btn p" id="rv-go">המשך</button><button class="btn sec" id="rv-skip">דלג על הקובץ</button></div></div>`;
+   d.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{ch=o.dataset.c;draw()});
+   d.querySelector('#rv-go').onclick=async()=>{await api(`/projects/${P.id}/revision`,{method:'POST',body:{sid:u.sid,action:ch}});d.remove();toast(ch==='replace'?'הגיליון עודכן לגרסה חדשה':'נוסף כגיליון נפרד');res()};
+   d.querySelector('#rv-skip').onclick=async()=>{await api(`/projects/${P.id}/revision`,{method:'POST',body:{sid:u.sid,action:'skip'}});d.remove();res()}};
+  draw();document.body.appendChild(d)})}
+
+/* ---------- plan viewer ---------- */
+let VZ={s:1,x:0,y:0,cmp:false};
+function view(){
+  const sid=location.hash.split('/')[4],s=P.sheets.find(x=>x.sid===sid);if(!s)return '<div class="empty">הגיליון לא נמצא. <a href="#/p/'+P.id+'/plans">חזרה לתוכניות</a></div>';
+  const dk=discOf(s),peers=P.sheets.filter(x=>discOf(x)===dk),i=peers.indexOf(s),go=k=>peers[(i+k+peers.length)%peers.length].sid;
+  const lines=(P.log||[]).filter(l=>l.startsWith(s.file.slice(0,18))).map(l=>l.slice(l.indexOf(':')+1).trim()),prev=(s.prev||[])[0];VZ={s:1,x:0,y:0,cmp:false};
+  const arrow=(d)=>`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+  const first=k=>(P.sheets.find(x=>discOf(x)===k)||{}).sid;
+  window.__nav={next:go(-1),prev:go(1)};
+  return `<div class="topbar"><div class="dtabs2">${DIS.map(d=>{const n=P.sheets.filter(x=>discOf(x)===d[0]).length;return `<button class="${d[0]===dk?'on':''} ${n?'':'z'}" ${n?`onclick="location.hash='#/p/${P.id}/view/${first(d[0])}'"`:''}>${d[1]}${n?`<small>${n}</small>`:''}</button>`}).join('')}</div><span class="sp"></span>
+   <button class="btn sec" onclick="location.hash='#/p/${P.id}/view/${go(1)}'">${arrow('M9 6l6 6-6 6')}הקודמת</button><span class="mu" style="font-weight:700">${i+1} מתוך ${peers.length}</span><button class="btn sec" onclick="location.hash='#/p/${P.id}/view/${go(-1)}'">הבאה${arrow('M15 6l-6 6 6 6')}</button></div>
+  <div class="crumb"><a href="#/p/${P.id}/plans" style="color:var(--mut);text-decoration:none">תוכניות</a> / ${esc(discName(dk))} / ${esc(TYPES[s.type]||'')}</div>
+  <h1 class="h1x" style="margin-bottom:14px">${esc(TYPES[s.type]||'גיליון')}${s.floor?' · '+esc((FLOORS.find(f=>f[0]===s.floor)||[0,''])[1]):''}${(s.version||1)>1?`<span class="vchip">${ic('diff',14)}גרסה ${s.version}</span>`:''}</h1>
+  <div class="vw"><div class="film">${peers.map(p=>`<div class="f ${p===s?'on':''}" onclick="location.hash='#/p/${P.id}/view/${p.sid}'"><img loading="lazy" src="/api/projects/${P.id}/sheets/${p.sid}/thumb.png"><small>${esc((p.floor?(FLOORS.find(f=>f[0]===p.floor)||[0,''])[1]:TYPES[p.type]||'').slice(0,14))}</small></div>`).join('')}</div>
+  <div class="canvas" id="cv"><div class="tools"><button onclick="vz(1.3)">+</button><button onclick="vz(1/1.3)">−</button><button onclick="vzReset()">התאם</button>${prev?`<button id="cmpb" onclick="vzCmp()">השווה לגרסה ${prev.version}</button>`:''}</div><div class="pan" id="pan"><img id="vimg" src="/api/projects/${P.id}/sheets/${s.sid}/view.png" alt="" draggable="false"></div></div>
+  <div class="dp"><div class="panel" style="padding:16px 18px"><h2 style="margin-bottom:8px">פרטי הגיליון</h2><div class="kv"><div><span class="mu">תחום</span>${selH(DIS.map(d=>[d[0],d[1]]),dk,`setSheet('${s.sid}',{disc:this.value})`,'',dk?'':'בחר תחום')}</div><div><span class="mu">סוג</span>${selH(typeOpts(),s.type,`setSheet('${s.sid}',{type:this.value})`)}</div>${s.type==='floor_plan'?`<div><span class="mu">קומה</span>${selH(FLOORS,s.floor,`setSheet('${s.sid}',{floor:this.value})`,s.floor?'':'al','בחר קומה')}</div>`:''}<div><span class="mu">גיליון</span><b style="direction:ltr;font-size:12.5px">${esc(s.file.slice(-22))}</b></div><div><span class="mu">מימדי נייר</span><b>${s.w_mm}×${s.h_mm} מ"מ</b></div></div></div>
+  <div class="brn"><h2>${ic('spark',18)}מה המערכת מצאה בגיליון</h2><div class="s">${lines.length?'מהחישוב האחרון':'עוד לא חושב כתב'}</div>${lines.map(l=>`<div class="bi"><i style="background:#6BE09A"></i><div style="font-size:13px">${bl(humanLine(l))}</div></div>`).join('')}</div>
+  <div class="panel" style="padding:14px 18px;display:grid;gap:8px"><a class="btn sec" style="text-decoration:none;text-align:center" href="#/p/${P.id}/sheet/${s.sid}">${s.type==='electrical'?'סמלי חשמל ומיפוי שכבות':'מיפוי שכבות למדידה'}</a></div></div></div>`}
+function vzApply(){const p=$('#pan');if(p)p.style.transform=`translate(${VZ.x}px,${VZ.y}px) scale(${VZ.s})`}
+function vz(f,cx,cy){const c=$('#cv').getBoundingClientRect();cx=cx??c.width/2;cy=cy??c.height/2;VZ.x=cx-(cx-VZ.x)*f;VZ.y=cy-(cy-VZ.y)*f;VZ.s=Math.min(8,Math.max(.5,VZ.s*f));vzApply()}
+function vzReset(){VZ.s=1;VZ.x=0;VZ.y=0;vzApply()}
+function vzCmp(){VZ.cmp=!VZ.cmp;const s=P.sheets.find(x=>x.sid===location.hash.split('/')[4]),prev=(s.prev||[])[0],cv=$('#cv'),pan=$('#pan');cv.classList.toggle('two',VZ.cmp);$('#cmpb').classList.toggle('on',VZ.cmp);
+  pan.innerHTML=VZ.cmp?`<img src="/api/projects/${P.id}/sheets/${prev.sid}/view.png" draggable="false"><img src="/api/projects/${P.id}/sheets/${s.sid}/view.png" draggable="false">`:`<img id="vimg" src="/api/projects/${P.id}/sheets/${s.sid}/view.png" draggable="false">`}
+window.after_view=()=>{const cv=$('#cv');if(!cv)return;let d=null;
+  cv.addEventListener('wheel',e=>{e.preventDefault();const r=cv.getBoundingClientRect();vz(e.deltaY<0?1.15:1/1.15,e.clientX-r.left,e.clientY-r.top)},{passive:false});
+  cv.addEventListener('pointerdown',e=>{if(e.target.closest('.tools'))return;d={x:e.clientX-VZ.x,y:e.clientY-VZ.y};cv.setPointerCapture(e.pointerId);cv.classList.add('dragging')});
+  cv.addEventListener('pointermove',e=>{if(d){VZ.x=e.clientX-d.x;VZ.y=e.clientY-d.y;vzApply()}});
+  ['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t,()=>{d=null;cv.classList.remove('dragging')}))};
+document.addEventListener('keydown',e=>{if(R().page!=='view'||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||!window.__nav)return;
+  if(e.key==='ArrowLeft')location.hash=`#/p/${P.id}/view/${window.__nav.next}`;else if(e.key==='ArrowRight')location.hash=`#/p/${P.id}/view/${window.__nav.prev}`});
+
 async function startEmpty(){await api(`/projects/${P.id}/start`,{method:'POST'});location.hash=`#/p/${P.id}/boq`}
 async function setSheet(sid,b){await api(`/projects/${P.id}/sheets/${sid}`,{method:'POST',body:b});toast(b.type?'נשמר. המערכת תזהה כך גיליונות דומים בפעם הבאה':'נשמר');render()}
 async function runAll(){const b=$('#runb');b.disabled=true;b.innerHTML='<span class="spin"></span> מחשב…';try{await api(`/projects/${P.id}/run`,{method:'POST'});toast('הכתב חושב');location.hash=`#/p/${P.id}/boq`}catch(e){toast(e.message);b.disabled=false}}

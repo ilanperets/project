@@ -5,7 +5,37 @@ import collections, hashlib, json, os, pymupdf as fitz
 TYPES={
  'foundation_piles':'תוכנית יסודות וכלונסאות','structure_plan':'תוכנית קונסטרוקציה (תקרה, קורות, גג)','structure_other':'קונסטרוקציה: פרטים ומדרגות',
  'floor_plan':'תוכנית קומה','elevation':'חזיתות','section':'חתכים','site':'תוכנית פיתוח','details':'פרטי בנייה','openings_details':'פרטי דלתות וחלונות',
- 'electrical':'תוכנית חשמל','plumbing':'תוכנית אינסטלציה','hvac':'תוכנית מיזוג אוויר','unknown':'לא זוהה'}
+ 'waterproofing':'תוכנית איטום','electrical':'תוכנית חשמל','plumbing':'תוכנית אינסטלציה','hvac':'תוכנית מיזוג אוויר','unknown':'לא זוהה'}
+
+DISC={'foundation_piles':'construction','structure_plan':'construction','structure_other':'construction','floor_plan':'arch','elevation':'arch','section':'arch','details':'arch','openings_details':'arch','electrical':'elec','plumbing':'plumb','hvac':'hvac','waterproofing':'seal','site':'dev','unknown':''}
+DISCS=[('construction','קונסטרוקציה'),('arch','אדריכלות'),('elec','חשמל'),('hvac','מיזוג אוויר'),('plumb','אינסטלציה'),('seal','איטום'),('dev','פיתוח')]
+
+def _ink(path,W=220):
+    import numpy as np
+    pg=fitz.open(path)[0]; z=W/pg.rect.width
+    pm=pg.get_pixmap(matrix=fitz.Matrix(z,z),colorspace=fitz.csGRAY,alpha=False)
+    return np.frombuffer(pm.samples,np.uint8).reshape(pm.height,pm.width)<200
+
+def _dil(a):
+    b=a.copy(); b[1:]|=a[:-1]; b[:-1]|=a[1:]; b[:,1:]|=a[:,:-1]; b[:,:-1]|=a[:,1:]; return b
+
+def ink_similarity(p1,p2):
+    """share of overlapping drawn pixels between two sheets (1.0 = identical drawing)"""
+    a=_ink(p1); b=_ink(p2); h=min(a.shape[0],b.shape[0]); w=min(a.shape[1],b.shape[1]); a=a[:h,:w]; b=b[:h,:w]
+    return float(((a&_dil(b)).sum()+(b&_dil(a)).sum())/max(1,a.sum()+b.sum()))
+
+def revision_of(ft,path,sheets,pdir):
+    """an uploaded sheet that looks like a new revision of an existing one: same paper size, same layers, same drawing"""
+    best=None
+    for e in sheets:
+        if abs(e['w_mm']-ft['w_mm'])/max(1,e['w_mm'])>.02 or abs(e['h_mm']-ft['h_mm'])/max(1,e['h_mm'])>.02: continue
+        a=set(sig(e['layers'])); b=set(sig(ft['layers']))
+        if len(a&b)/max(1,len(a|b))<.8: continue
+        ep=os.path.join(pdir,'files',e['sid']+'.pdf')
+        if not os.path.exists(ep): continue
+        iu=ink_similarity(ep,path)
+        if iu>=.8 and (not best or iu>best[1]): best=(e,iu)
+    return best
 
 def file_hash(path):
     return hashlib.sha1(open(path,'rb').read()).hexdigest()
