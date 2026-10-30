@@ -185,7 +185,7 @@ def run(pid:str):
         scale=50; assumptions.append(dict(t='קנה מידה 1:50 הונח',why='לא נמצאה תוכנית כלונסאות לכיול. כל המדידות נשענות על ההנחה הזו',how='אשר קנה מידה, או העלה תוכנית יסודות'))
     pr['scale']=scale
     fps=[s for s in sheets if s['type']=='floor_plan']
-    slab_areas=[]; labels=_jl(SYMF,{}); lmap=_jl(LMAPF,{})
+    slab_areas=[]; ext_per=[]; labels=_jl(SYMF,{}); lmap=_jl(LMAPF,{})
     for s in fps:
         if not s['floor']: assumptions.append(dict(t=f"באיזו קומה גיליון \"{s['file']}\"?",why='אי אפשר לקרוא את שם הקומה מהגיליון (טקסט וקטורי)',gives='תיאור הסעיפים ואיטום גג',how='בחר קומה בטבלת הגיליונות'))
     for s in sheets:
@@ -197,13 +197,14 @@ def run(pid:str):
                 fl=FLOOR.get(s['floor'],'קומה לא מסומנת')
                 if s['floor']=='roof':
                     l,info=E.roof(path(s),scale); lines+=l; log.append(f"{s['file']}: גג {info}")
-                    if info.get('area_m2'): slab_areas.append(info['area_m2'])
+                    if info.get('area_m2'): slab_areas.append(info['area_m2']); ext_per.append(('roof',info['perimeter_m'],info['area_m2']))
                     l,info=E.walls(path(s),scale,'מעקות גג'); lines+=l
                 else:
                     l,info=E.walls(path(s),scale,fl); lines+=l; log.append(f"{s['file']}: קירות {info}")
                     try:
                         _,ri=E.roof(path(s),scale)
                         if ri.get('area_m2'): slab_areas.append(ri['area_m2'])
+                        if ri.get('perimeter_m') and s['floor']: ext_per.append((s['floor'],ri['perimeter_m'],ri['area_m2']))
                     except Exception: pass
                     if info.get('extra_plan'): assumptions.append(dict(t=f"בגיליון \"{s['file']}\" זוהו שתי תוכניות דומות",why='נבחרה הגדולה מביניהן',how='אשר שזו הנכונה'))
             elif t=='tile_layout':
@@ -230,6 +231,9 @@ def run(pid:str):
             except Exception as e: log.append(f"{s['file']}: שגיאת מיפוי שכבה {layer}: {str(e)[:60]}")
     P=BR.params(pr)
     lines+=WR.plumbing_points(lines)
+    op_m2=sum(float(re.search(r'([\d.]+) מ"ר',l['need']).group(1)) for l in lines if l['ch']==6 and l['unit']=="יח'" and re.search(r'([\d.]+) מ"ר',l.get('need','')))
+    lines+=DV.exterior(ext_per,op_m2,BR.params(pr))
+    if any(f!='roof' for f,_,_ in ext_per) and not any(l['desc']=='טיח חוץ' for l in lines): assumptions.append(dict(t='היקף קומות לא נקרא אמין',why='הקו החיצוני של תוכניות הקומות לא נסגר, ולכן טיח וצבע חוץ לא חושבו',how='העלה חזיתות או תוכנית קומה שבה הקירות החיצוניים סגורים'))
     lines+=DV.derive(lines,slab_areas,P)
     merged={}
     for l in lines:

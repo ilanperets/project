@@ -29,3 +29,29 @@ def derive(lines,slab_areas,P):
         out.append(dict(ch=9,sub=1,desc='טיח פנים',unit='מ"ר',q=round(A,1),st='חלקי',src='אורך קירות × גובה × 2 צדדים פחות פתחים',need='היקף חדרים מדויק; חלק מהקירות חיצוניים'))
         out.append(dict(ch=11,sub=1,desc='צבע פנים בקירות ובתקרות',unit='מ"ר',q=round(A+slab_m2,1),st='חלקי',src='שטח הטיח + תקרות',need='כמו בטיח'))
     return out
+
+
+def exterior(floors,openings_m2,P):
+    """exterior plaster and paint: footprint perimeter x floor height x number of floors, less the openings read from the elevations.
+    floors: list of (floor key, perimeter m, area m2). A perimeter is trusted only if perimeter^2/area <= 40 and area >= 20 m2;
+    an untrusted floor borrows the roof outline and the trace says so. An estimate: parapets, setbacks and balconies are ignored."""
+    ok=lambda p,a: a>=20 and p*p/a<=40
+    roof=next(((p,a) for f,p,a in floors if f=='roof' and ok(p,a)),None)
+    levels=[(f,p,a) for f,p,a in floors if f!='roof']
+    if not levels or not roof and not any(ok(p,a) for _,p,a in levels): return []
+    h=P['wall_height']; rows=[]; gross=0; borrowed=0
+    names={'ground':'קומת קרקע','first':'קומה א׳','second':'קומה ב׳'}
+    for f,p,a in levels:
+        if ok(p,a): use=p; note=''
+        elif roof: use=roof[0]; note='הקו החיצוני של הקומה לא נסגר. נלקח היקף הגג'; borrowed+=1
+        else: continue
+        gross+=use*h; rows.append(dict(el=f'היקף {names.get(f,f)}',dims=f'{use:.1f} × {h:.2f}',val=round(use*h,1),src='קו חיצוני של תוכנית הקומה',note=note))
+    if not rows: return []
+    net=max(gross-openings_m2,0)
+    rows.append(dict(el='פתחים לפי חזיתות',dims='',val=-round(openings_m2,1),src='שכבת הפתחים בחזיתות',note='ייתכן שחזיתות נוספות לא נקראו'))
+    chk=[dict(ok=False,t='אומדן: אין התחשבות במעקות גג, נסיגות ומרפסות'),dict(ok=True,t=f'גובה קומה {h:.2f} מ\' הוא פרמטר של הפרויקט (לא נקרא מחתכים)')]
+    if borrowed: chk.append(dict(ok=False,t=f'{borrowed} קומות נמדדו לפי היקף הגג כי הקו החיצוני שלהן לא נסגר'))
+    tr=dict(formula='סכום (היקף קומה × גובה קומה) פחות שטח הפתחים',rows=rows,checks=chk,params=dict(wall_height=h))
+    need='אומדן לפי היקף וגובה קומה. נדרשת חזית לדיוק'
+    return [dict(ch=9,sub=1,desc='טיח חוץ',unit='מ"ר',q=round(net,1),st='חלקי',src='היקף תוכנית קומה × גובה × קומות',need=need,trace=tr),
+            dict(ch=11,sub=1,desc='צבע חוץ',unit='מ"ר',q=round(net,1),st='חלקי',src='כמו הטיח החיצוני',need=need,trace=tr)]

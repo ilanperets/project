@@ -106,8 +106,8 @@ def roof(path,scale):
     m=_raster(pg,['WL'],reg,2.0,scale); c=cv2.morphologyEx(m,cv2.MORPH_CLOSE,np.ones((21,21),np.uint8))
     cn,_=cv2.findContours(c,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
     if not cn: return [],{}
-    big=max(cn,key=cv2.contourArea); a=cv2.contourArea(big)*4/1e4
-    return [dict(ch=5,sub=1,desc='איטום גג, מדידה לפי קו חיצוני של המעקה',unit='מ"ר',q=round(a,1),st='חלקי',src='תוכנית גג: שטח סגור בשכבת WL',need='כולל עובי המעקה. לא כולל גגות נמוכים ומרפסות')],dict(area_m2=round(a,1))
+    big=max(cn,key=cv2.contourArea); a=cv2.contourArea(big)*4/1e4; per=cv2.arcLength(big,True)*0.02
+    return [dict(ch=5,sub=1,desc='איטום גג, מדידה לפי קו חיצוני של המעקה',unit='מ"ר',q=round(a,1),st='חלקי',src='תוכנית גג: שטח סגור בשכבת WL',need='כולל עובי המעקה. לא כולל גגות נמוכים ומרפסות')],dict(area_m2=round(a,1),perimeter_m=round(per,1))
 
 def openings(path,scale):
     pg=_page(path); K=PT_MM*scale/1000; boxes=[]
