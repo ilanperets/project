@@ -146,3 +146,51 @@ def rooms(path,scale):
     if not cnt: return [],{}
     return [dict(ch=10,sub=1,desc='ריצוף, שטח נטו של חללים סגורים',unit='מ"ר',q=round(tot,1),st='חלקי',src='בסיס אדריכלי בגיליון החשמל: זיהוי חללים סגורים',need='חללים פתוחים (סלון, מטבח, אוכל) נספרים כחלל אחד. נדרש אימות מול השטחים בתוכנית',
         trace=dict(formula='שטח כל חלל סגור = מספר הפיקסלים הפנויים בין קירות/דלתות/חלונות × גודל פיקסל. חללים עד 1.5 מ"ר או מעל 80 מ"ר, וחללים פתוחים לחוץ, לא נספרים',rows=rr,checks=[dict(ok=False,t='חללים פתוחים נספרים כחלל אחד; השוו לטבלת השטחים בתוכנית'),dict(ok=True,t=f'{cnt} חללים נספרו')],params={}))],dict(rooms=cnt,total_m2=round(tot,1))
+
+
+OPEN_LAYERS={'lite','WIN31','hazit 1-0.05'}
+def _views(pg,C=20,k=3):
+    """separate drawings on a facade sheet into views by occupancy gaps (>~60pt). returns rects sorted top-to-bottom, left-to-right"""
+    m=np.zeros((int(pg.rect.height/C)+2,int(pg.rect.width/C)+2),np.uint8)
+    for d in pg.get_drawings():
+        if d.get('layer') in ('hazit 1','WL','lite','hazit 1-0.05','WIN31','TAVIT','0'):
+            r=d['rect']
+            if r.width>1500 or r.height>1500 or (r.height<4 and r.width>250): continue
+            m[int(r.y0/C):int(r.y1/C)+1,int(r.x0/C):int(r.x1/C)+1]=1
+    m=cv2.dilate(m,np.ones((k,k),np.uint8)); n,lab,st,_=cv2.connectedComponentsWithStats(m)
+    vs=[fitz.Rect(st[i][0]*C,st[i][1]*C,(st[i][0]+st[i][2])*C,(st[i][1]+st[i][3])*C) for i in range(1,n) if st[i][4]>100]
+    vs.sort(key=lambda r:(round(r.y0/400),r.x0)); return vs
+
+def facades(path,scale):
+    """windows/doors per facade: union of frame/glass rectangles on window layers, grouped under the facade title below them"""
+    pg=_page(path); K=PT_MM*scale/1000; views=_views(pg)
+    boxes=[]
+    for dr in pg.get_drawings():
+        if dr.get('layer') in OPEN_LAYERS:
+            r=dr['rect']
+            if r.width*K>=0.15 and r.height*K>=0.15 and r.width*K<=4 and r.height*K<=3.3: boxes.append(box(r.x0-.6,r.y0-.6,r.x1+.6,r.y1+.6))
+    if not boxes: return [],{}
+    u=unary_union(boxes); gs=list(u.geoms) if hasattr(u,'geoms') else [u]; rows=[]; seen=[]
+    per=collections.defaultdict(list)
+    for g in gs:
+        x0,y0,x1,y1=g.bounds; w=(x1-x0)*K; h=(y1-y0)*K
+        if w<0.35 or h<0.35 or w>4 or h>3.3: continue
+        cx,cy=(x0+x1)/2,(y0+y1)/2
+        vi=[i for i,v in enumerate(views) if v.contains(fitz.Point(cx,cy))]
+        if not vi: continue
+        if y1>=views[vi[0]].y1-10: continue  # detail boxes hanging below the ground line
+        per[f'חזית {vi[0]+1}'].append((x0,y0,x1,y1,w,h))
+    if not per: return [],{}
+    win=[];door=[];orows=[];n=0;total=0.0
+    for name,els in sorted(per.items()):
+        for (x0,y0,x1,y1,w,h) in sorted(els,key=lambda e:(e[0],e[1])):
+            n+=1; a=w*h; total+=a; is_door=h>=2.0
+            (door if is_door else win).append(a)
+            orows.append(dict(el=f'{"דלת" if is_door else "חלון"} {n} · {name}',dims=f'{w:.2f} × {h:.2f}',val=round(a,2),src='מסגרות זכוכית/חלון בחזית',note='דלת אם הגובה 2.0 מ\' ומעלה',locs=[_loc(path,x0,y0,x1,y1,str(n))]))
+    chk=[dict(ok=True,t=f'נמצאו {len(views)} מבטים בגיליון, פתחים נקראו ב-{len(per)}'),dict(ok=False,t='מידות לפי קווי המסגרת בחזית; יש לאמת מול טבלת פתחים')]
+    tr=lambda rs,f_:dict(formula=f_,rows=rs,checks=chk,params={})
+    lines=[]
+    if win: lines.append(dict(ch=12,sub=1,desc='חלונות אלומיניום',unit="יח'",q=len(win),st='חלקי',src='חזיתות: מסגרות זכוכית בכל החזיתות',need='ספירה לפי חזיתות; סוגי פתיחה ופרטים לפי תוכנית פתחים',trace=tr([r for r in orows if r['el'].startswith('חלון')],'כל קבוצת מסגרות מחוברת = חלון אחד')))
+    if door: lines.append(dict(ch=12,sub=1,desc='דלתות ותריסי אלומיניום',unit="יח'",q=len(door),st='חלקי',src='חזיתות: פתחים בגובה 2.0 מ\' ומעלה',need='הפרדה בין דלת לתריס לפי תוכנית פתחים',trace=tr([r for r in orows if r['el'].startswith('דלת')],'פתח בגובה 2.0 מ\' ומעלה = דלת')))
+    lines.append(dict(ch=6,sub=1,desc='פתחים (חלונות ודלתות) לפי חזיתות',unit="יח'",q=n,st='חלקי',src='חזיתות: מסגרות בשכבות החלונות, כל החזיתות',need=f'סה"כ שטח פתחים {total:.1f} מ"ר',trace=tr(orows,'כל קבוצת מסגרות מחוברת נספרת כפתח. שטח = רוחב × גובה לפי קנה המידה')))
+    return lines,dict(n=n,area_m2=round(total,2),facades=len(per))

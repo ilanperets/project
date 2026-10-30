@@ -215,7 +215,9 @@ def run(pid:str):
                 l,info=WR.wetroom_plan(path(s),BR.params(pr),f'חדר רחצה {nr}',f'גיליון {sheets.index(s)+1}'); lines+=l; log.append(f"{s['file']}: תוכנית חדר רחצה {info}")
                 fl_,fi_=WR.fixtures(path(s),BR.params(pr),labels,f'חדר רחצה {nr}',f'גיליון {sheets.index(s)+1}'); lines+=fl_; log.append(f"{s['file']}: סמלים {fi_}")
             elif t=='elevation':
-                l,info=E.openings(path(s),scale); lines+=l; log.append(f"{s['file']}: פתחים {info}")
+                l,info=E.facades(path(s),scale)
+                if not l: l,info=E.openings(path(s),scale)
+                lines+=l; log.append(f"{s['file']}: פתחים {info}")
             elif t=='electrical':
                 l,info=E.rooms(path(s),scale)
                 nel=sum(1 for t in sheets[:sheets.index(s)] if t['type']=='electrical')+1
