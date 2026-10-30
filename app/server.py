@@ -26,7 +26,7 @@ def _load(pid):
     p=os.path.join(_pdir(pid),'project.json')
     if not os.path.exists(p): raise HTTPException(404,'פרויקט לא נמצא')
     pr=json.load(open(p,encoding='utf-8'))
-    for k,v in (('materials',[]),('prices',{}),('mprices',{}),('params',{}),('bills',[]),('orders',[]),('quotes',[]),('needs',[]),('log',[]),('events',[]),('pending',[]),('stale',False),('checks',{}),('version',1),('status','received'),('client',''),('measurer',''),('reviewer',''),('due',''),('created',''),('updated',''),('changes',None),('delivered_at','')): pr.setdefault(k,v)
+    for k,v in (('materials',[]),('prices',{}),('mprices',{}),('params',{}),('bills',[]),('orders',[]),('sq',{}),('pref',{}),('quotes',[]),('needs',[]),('log',[]),('events',[]),('pending',[]),('stale',False),('checks',{}),('version',1),('status','received'),('client',''),('measurer',''),('reviewer',''),('due',''),('created',''),('updated',''),('changes',None),('delivered_at','')): pr.setdefault(k,v)
     return pr
 def _ev(pr,t): pr.setdefault('events',[]).append(dict(t=t,at=datetime.datetime.now().isoformat(timespec='minutes'))); pr['events']=pr['events'][-40:]
 def _save(pr):
@@ -471,20 +471,59 @@ def get_bill(pid:str,n:int):
     if i<0 or i>=len(pr['bills']): raise HTTPException(404,'חשבון לא נמצא')
     prev=pr['bills'][i-1]['pct'] if i else {}; b=BR.bill(pr['boq'],pr['prices'],pr['bills'][i]['pct'],prev,P); b.update(n=n,date=pr['bills'][i]['date']); return b
 
+def _ostatus(o):
+    it=o['items']; d=sum(min(float(i.get('delivered') or 0),i['qty']) for i in it)
+    if o.get('status')=='בוטלה': return 'בוטלה'
+    if d<=0: return o.get('status') if o.get('status') in ('טיוטה','נשלחה','אושרה') else 'נשלחה'
+    return 'סופקה' if all(float(i.get('delivered') or 0)>=i['qty']-1e-9 for i in it) else 'סופקה חלקית'
+
+def _sprice(pr,material,supplier):
+    q=next((x for x in pr.get('sq',{}).get(material,[]) if x['supplier']==supplier),None)
+    return q['price'] if q else pr['mprices'].get(material)
+
 @app.post('/api/projects/{pid}/orders')
 def new_order(pid:str,body:dict):
-    pr=_load(pid)
-    items=[dict(material=i['material'],unit=i['unit'],qty=float(i['qty']),price=pr['mprices'].get(i['material'])) for i in body.get('items',[]) if float(i.get('qty',0))>0]
+    """one order for one supplier and one project stage; items may carry delivered (for orders already placed outside the system)"""
+    pr=_load(pid); sup=(body.get('supplier') or 'ספק לא צוין').strip()
+    items=[]
+    for i in body.get('items',[]):
+        q=float(i.get('qty') or 0)
+        if q<=0: continue
+        items.append(dict(material=i['material'],unit=i['unit'],qty=q,delivered=min(float(i.get('delivered') or 0),q),price=_sprice(pr,i['material'],sup)))
     if not items: raise HTTPException(400,'לא נבחרו חומרים')
-    o=dict(n=len(pr['orders'])+1,supplier=(body.get('supplier') or 'ספק לא צוין').strip(),needed=body.get('needed',''),note=body.get('note',''),date=str(datetime.date.today()),status='טיוטה',items=items)
-    pr['orders'].append(o); _save(pr); return o
+    n=max([x['n'] for x in pr['orders']] or [0])+1
+    o=dict(n=n,supplier=sup,stage=(body.get('stage') or '').strip(),needed=body.get('needed',''),note=body.get('note',''),date=body.get('date') or str(datetime.date.today()),status=body.get('status') or 'טיוטה',items=items,existing=bool(body.get('existing')),src=body.get('src'))
+    if body.get('existing'): o['status']=_ostatus(o)
+    pr['orders'].append(o); _ev(pr,f'הזמנה #{n} · {sup}'); _save(pr); return o
 
 @app.post('/api/projects/{pid}/orders/{n}')
 def order_status(pid:str,n:int,body:dict):
     pr=_load(pid); o=next((x for x in pr['orders'] if x['n']==n),None)
     if not o: raise HTTPException(404,'הזמנה לא נמצאה')
-    if body.get('status') in ('טיוטה','נשלחה','סופקה חלקית','סופקה','בוטלה'): o['status']=body['status']
+    if body.get('status') in ('טיוטה','נשלחה','אושרה','סופקה חלקית','סופקה','בוטלה'): o['status']=body['status']
+    if body.get('status')=='סופקה':
+        for i in o['items']: i['delivered']=i['qty']
+    if isinstance(body.get('delivered'),dict):
+        for i in o['items']:
+            if i['material'] in body['delivered']: i['delivered']=max(0.0,min(float(body['delivered'][i['material']] or 0),i['qty']))
+        o['status']=_ostatus(o) if o['status']!='בוטלה' else o['status']
+    if 'stage' in body: o['stage']=str(body['stage'])[:80]
     _save(pr); return o
+
+@app.post('/api/projects/{pid}/suppliers')
+def supplier_quote(pid:str,body:dict):
+    """supplier price quotes per material; pick=true makes it the preferred supplier and the material price"""
+    pr=_load(pid); m=body.get('material'); sup=(body.get('supplier') or '').strip()
+    if not m or not sup: raise HTTPException(400,'חסר חומר או ספק')
+    price=float(body['price']) if body.get('price') not in ('',None) else None
+    L=pr.setdefault('sq',{}).setdefault(m,[]); q=next((x for x in L if x['supplier']==sup),None)
+    if price is not None:
+        if q: q.update(price=price,date=str(datetime.date.today()))
+        else: L.append(dict(supplier=sup,price=price,days=body.get('days',''),date=str(datetime.date.today())))
+    if body.get('pick'):
+        pr.setdefault('pref',{})[m]=sup
+        if price is not None: pr['mprices'][m]=price
+    _save(pr); return dict(sq=pr['sq'],pref=pr['pref'],mprices=pr['mprices'])
 
 @app.get('/api/projects/{pid}/quote.xlsx')
 def quote(pid:str,ch:str='',only:str='',missing:str='show',hide:str=''):

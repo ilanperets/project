@@ -251,6 +251,74 @@ tr.ch{cursor:pointer}tr.hid{display:none}tr.m td{background:color-mix(in srgb,va
 .xdg .xb{display:grid;grid-template-columns:1fr 360px}.tool .chips{gap:6px}.chip small{opacity:.6;margin-inline-start:4px}
 @media(max-width:1250px){.wrap{grid-template-columns:200px minmax(0,1fr)}.insp{display:none}.xdg .xb{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}}
 @media print{.tree,.insp,.tool,.stats{display:none!important}.wrap{display:block}}
+
+
+.stats.m5{display:grid;grid-template-columns:repeat(5,1fr);background:#fff;border:1px solid var(--line);border-radius:16px;margin:16px 0}
+.stats.m5>div{padding:14px 18px;border-inline-start:1px solid var(--line)}.stats.m5>div:first-child{border:0}.stats.m5 b{display:block;font:700 24px/1.1 var(--fd)}.stats.m5 span{font-size:12.5px;color:var(--mut)}
+.stk{height:8px;border-radius:5px;background:var(--line);display:flex;overflow:hidden;margin-top:8px}.stk i{display:block;height:100%}.stk .d{background:var(--ok)}.stk .o{background:var(--pri2)}
+.tabs2{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:6px 0 16px}.tabs2 span{padding:10px 18px;font-weight:700;color:var(--mut);border-bottom:3px solid transparent;margin-bottom:-1px}.tabs2 span.on{color:var(--pri);border-color:var(--pri2)}.tabs2 small{background:var(--line);border-radius:10px;padding:0 7px;margin-inline-start:6px;font-size:12px}
+.lay{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
+.tool{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.cp{padding:5px 13px;border-radius:20px;font:600 13px var(--fb);color:var(--ink2);border:1px solid var(--line);background:#fff}.cp.on{background:var(--ink);color:#fff;border-color:var(--ink)}.cp small{opacity:.6;margin-inline-start:4px}
+.mt{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.mh,.mr{display:grid;grid-template-columns:26px minmax(0,1.5fr) 80px 170px 84px 170px;gap:12px;align-items:center;padding:0 14px}
+.mh{background:#F4F7FB;height:34px;font-size:12px;font-weight:700;color:var(--mut);border-bottom:1px solid var(--line)}
+.mg{background:linear-gradient(90deg,#EAF1FB,#F5F8FD);padding:10px 14px;font:700 14.5px var(--fd);display:flex;gap:10px;align-items:center;border-top:1px solid var(--line)}.mg small{font:500 12.5px var(--fb);color:var(--mut)}
+.mr{min-height:62px;border-bottom:1px solid #EDF1F6;font-size:14px}.mr .nm b{display:block}.mr .nm small{color:var(--mut);font-size:12px}
+.mr.in{background:#F4F9FF}
+.bx{width:20px;height:20px;border-radius:6px;border:2px solid var(--line);display:grid;place-items:center;color:#fff}.bx.on{background:var(--pri2);border-color:var(--pri2)}
+.qn{font:700 15px var(--fd)}.qn small{font:500 12px var(--fb);color:var(--mut);margin-inline-start:3px}
+.pg small{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mut);margin-top:4px}
+.sup{display:flex;gap:9px;align-items:center}.sup .lg{width:30px;height:30px;border-radius:9px;background:var(--soft);color:var(--pri);display:grid;place-items:center;font:700 12px var(--fd);flex:none}.sup b{font-size:13.5px;display:block;line-height:1.2}.sup small{color:var(--mut);font-size:12px}
+.cart{background:#fff;border:1px solid var(--line);border-radius:16px;position:sticky;top:12px;overflow:hidden}
+.cart .chd{padding:15px 18px;background:linear-gradient(135deg,var(--bp1),var(--bp2));color:#fff}.cart .chd b{font:700 17px var(--fd)}.cart .chd small{display:block;opacity:.8}
+.cart .cs{padding:13px 18px;border-top:1px solid var(--line)}.cart h5{margin:0 0 8px;font:600 12.5px var(--fb);color:var(--mut)}
+.cln{display:grid;grid-template-columns:1fr 92px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed #E7ECF3;font-size:13.5px}.cln:last-child{border:0}.cln small{display:block;color:var(--mut);font-size:11.5px}
+.cqi{border:1px solid var(--line);border-radius:9px;padding:5px 8px;font:700 14px var(--fd);display:flex;justify-content:space-between;background:#fff}.cqi small{display:inline;font:500 11px var(--fb)}
+.fl7{display:grid;grid-template-columns:1fr 1fr;gap:10px}.f7{border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:13.5px;background:#fff}.f7 small{display:block;color:var(--mut);font-size:11.5px}
+.ctot{display:flex;justify-content:space-between;align-items:baseline;font:700 22px var(--fd);padding:14px 18px;border-top:1px solid var(--line);background:#F8FAFD}.ctot small{font:500 12.5px var(--fb);color:var(--mut)}
+.oc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:12px;display:grid;grid-template-columns:90px minmax(0,1fr) 260px 120px;gap:16px;align-items:center}
+.oc .n{font:700 22px var(--fd);color:var(--pri)}.oc .n small{display:block;font:500 12px var(--fb);color:var(--mut)}
+.trk{display:flex;align-items:center;gap:0}.trk i{width:22px;height:22px;border-radius:50%;background:var(--line);display:grid;place-items:center;color:#fff;font-style:normal;flex:none}.trk i.d{background:var(--ok)}.trk i.c{background:var(--pri2);box-shadow:0 0 0 4px var(--soft)}.trk u{flex:1;height:3px;background:var(--line)}.trk u.d{background:var(--ok)}
+.trl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mut);margin-top:5px}
+.chipm{display:inline-block;background:#F4F7FB;border-radius:8px;padding:2px 9px;font-size:12.5px;margin:2px 0 0 4px;color:var(--ink2)}
+.pop{position:absolute;width:520px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 30px 60px -20px rgba(14,27,43,.5);z-index:6;overflow:hidden}
+.pop .ph{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}.pop .ph b{font:700 16px var(--fd)}
+.sr{display:grid;grid-template-columns:minmax(0,1fr) 90px 80px 100px;gap:10px;align-items:center;padding:11px 18px;border-bottom:1px solid #EDF1F6;font-size:13.5px}.sr.best{background:#F1FAF4}.sr.pick{box-shadow:inset -3px 0 0 var(--pri2)}
+.ov{position:fixed;inset:0;background:rgba(14,27,43,.45);z-index:5}
+.chk{display:grid;grid-template-columns:repeat(3,1fr);margin-top:2px}
+.stats.m5{border-radius:10px;margin:14px 0 18px}.stats.m5>div{padding:14px 20px;border-top:3px solid transparent}.stats.m5 b{color:var(--ink)!important;font:600 22px/1.1 var(--fd);letter-spacing:-.3px}
+.stats.m5>div:nth-child(2){border-top-color:var(--pri2)}.stats.m5>div:nth-child(3){border-top-color:var(--ok)}.stats.m5>div:nth-child(4){border-top-color:#C99A2E}.stats.m5>div:nth-child(5){border-top-color:var(--bad)}
+.stats.m5 span{font-size:12px;letter-spacing:.2px}.stk{height:4px;margin-top:9px;border-radius:2px}
+.tabs2 span{padding:9px 16px;font-weight:600;font-size:14px}.tabs2 small{background:none;border:1px solid var(--line);border-radius:5px;padding:0 6px;font-size:11.5px}
+.cp{border-radius:6px;padding:4px 11px;font-size:12.5px;font-weight:600;background:#fff}.cp.on{background:#fff;color:var(--ink);border-color:var(--ink);box-shadow:inset 0 -2px 0 var(--ink)}
+.mt{border-radius:10px}.mh{height:30px;font-size:11.5px;letter-spacing:.3px}
+.mg{background:#F4F7FB;padding:8px 14px;font:600 13px var(--fd);color:var(--ink2);letter-spacing:.2px}.mg small{font-weight:500}
+.mr{min-height:54px;font-size:13.5px}.mr .nm b{font-weight:600}.qn{font:600 14px var(--fd);font-variant-numeric:tabular-nums}
+.bx{border-radius:4px;width:17px;height:17px;border-width:1.5px}
+.sup .lg{display:none}.sup b{font-weight:600}.sup small{font-size:11.5px}
+.stk{background:#E6EBF2}.pg small{font-size:11px}.stk .d{background:#2F7D57}.stk .o{background:#7FA6DC}
+.cart{border-radius:10px;box-shadow:0 1px 0 var(--line)}.cart .chd{background:var(--ink);padding:12px 18px}.cart .chd b{font:600 15px var(--fd);letter-spacing:.2px}
+.cart .cs{padding:12px 18px}.cart h5{font:600 11.5px var(--fb);letter-spacing:.4px}
+.cqi{border-radius:5px;padding:4px 8px;font:600 13.5px var(--fd);background:#FAFBFD}.f7{border-radius:6px}.ctot{font:600 20px var(--fd);padding:12px 18px}
+.btn{border-radius:7px;padding:8px 14px;font-weight:600}.btn.p{box-shadow:none}
+.tg{border-radius:5px!important;font-weight:600}
+.ot7{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.oh7,.or7{display:grid;grid-template-columns:54px 70px minmax(0,1.1fr) minmax(0,1.5fr) 200px 100px 128px;gap:12px;align-items:center;padding:0 16px}
+.oh7{height:30px;background:#F4F7FB;font-size:11.5px;font-weight:700;color:var(--mut);border-bottom:1px solid var(--line)}
+.or7{min-height:58px;border-bottom:1px solid #EDF1F6;font-size:13.5px}.or7:last-child{border:0}
+.or7 .on{font:600 14px var(--fd);color:var(--pri)}.or7 small{display:block;color:var(--mut);font-size:11.5px}
+.sg7{display:flex;gap:3px}.sg7 i{flex:1;height:4px;border-radius:2px;background:#E6EBF2}.sg7 i.d{background:#2F7D57}.sg7 i.c{background:#7FA6DC}
+.sl7{font-size:11.5px;color:var(--mut);margin-top:5px;display:flex;justify-content:space-between}
+.chipm{border-radius:4px;background:#F4F7FB;font-size:12px}
+.pop{border-radius:10px}.sr.best{background:#F3F9F5}.pop .ph b{font:600 15px var(--fd)}
+
+.oh7,.or7{grid-template-columns:54px 70px minmax(0,1.1fr) minmax(0,1.5fr) 190px 90px 112px 160px!important}.ac7{display:flex;gap:6px;justify-content:flex-end}.ac7 span{border:1px solid var(--line);border-radius:6px;padding:4px 9px;font-size:12.5px;font-weight:600;display:flex;gap:5px;align-items:center;background:#fff}.ac7 span.p{border-color:var(--pri2);color:var(--pri)}
+.dlg7{position:fixed;inset:0;background:rgba(14,27,43,.5);display:grid;place-items:center;z-index:9}.dl7{width:720px;background:#fff;border-radius:12px;box-shadow:0 40px 80px -20px rgba(0,0,0,.5);overflow:hidden}.dl7 .dh{padding:16px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}.dl7 .dh b{font:600 17px var(--fd)}.dl7 .db{padding:18px 22px}.dl7 .ln{display:grid;grid-template-columns:minmax(0,1fr) 110px 110px 110px;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #EDF1F6;font-size:13.5px}.dl7 .ln.h{font-size:11.5px;font-weight:700;color:var(--mut);padding:0 0 6px}.dl7 .ln small{display:block;color:var(--mut);font-size:11.5px}.dl7 .df{padding:14px 22px;background:#F8FAFD;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center}
+
+.cs2{display:grid;grid-template-columns:1fr 78px;gap:6px;margin-top:6px}.cs2 input,.f7in{min-height:0;padding:6px 9px;border:1px solid var(--line);border-radius:6px;font-size:13px;background:#fff;width:100%}.cart .btn:disabled{opacity:.45;cursor:default}
+.cqi{display:flex;align-items:center;gap:4px;border:0!important;padding:0!important;background:none!important;border-radius:0}.cqi input{width:100%;min-height:0;padding:5px 8px;border:1px solid var(--line);border-radius:6px;font:600 13.5px var(--fd);background:#fff}.cln{grid-template-columns:1fr 104px!important}.hd .btn.sec,.hd .btn.p{min-height:0}.dl7 select.f7in{width:auto}
+@media(max-width:1250px){.lay{grid-template-columns:1fr}.cart{position:static}}
 </style>
 </head>
 <body>
@@ -663,21 +731,90 @@ async function takeSug(k,p){await api(`/projects/${P.id}/prices`,{method:'POST',
 async function saveParams(){const b={};Object.keys(PARAMS).forEach(k=>b[k]=$('#pp-'+k).value);await api(`/projects/${P.id}/params`,{method:'POST',body:b});await api(`/projects/${P.id}/run`,{method:'POST'});toast('חושב מחדש');render()}
 
 /* ---------- materials & orders ---------- */
+/* ---------- materials and orders (v3: staged ordering, suppliers, duplicate, record existing) ---------- */
+Object.assign(ICP,{truck:'<path d="M3 6h11v10H3zM14 9h4l3 3v4h-7M7 19.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM17 19.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>',cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',send:'<path d="M21 3L10 14M21 3l-7 18-4-7-7-4z"/>'});
+let MT='mat',MF='all',MCART={},MSTAGE='',MNEED='';
+const MCATS=[['בטון ויציקות',/בטון|זיון|תבנית|כלונס/],['איטום וצבע',/איטום|ביטומן|פריימר|צבע/],['בנייה וגמרים קשים',/בלוק|מלט|חול|טיח|רובה|דבק|ריצוף|אריחי|שפכטל/],['אינסטלציה וחשמל',/צינור|כבל|תאורה|שקע/]];
+const matCat=n=>{const c=MCATS.find(x=>x[1].test(n));return c?c[0]:'חומרים נוספים'};
+function mAgg(){const o={};(P.orders||[]).filter(x=>x.status!=='בוטלה').forEach(x=>x.items.forEach(i=>{const a=o[i.material]||(o[i.material]={ord:0,dlv:0});a.ord+=i.qty;a.dlv+=(i.delivered==null&&x.status==='סופקה')?i.qty:(i.delivered||0)}));
+  const r=P.materials.map(m=>{const a=o[m.material]||{ord:0,dlv:0};return {...m,ord:a.ord,dlv:a.dlv,rem:Math.max(0,+(m.qty-a.ord).toFixed(2)),sup:(P.pref||{})[m.material]||'',price:P.mprices[m.material]}});window.__M=r;return r}
+const nfm=(n,d=1)=>n==null?'':(+n).toLocaleString('he-IL',{maximumFractionDigits:d});
+const knownSups=()=>[...new Set([...Object.values(P.pref||{}),...(P.orders||[]).map(o=>o.supplier),...Object.values(P.sq||{}).flat().map(q=>q.supplier)])].filter(Boolean);
+function mStats(M){const v=(q,m)=>q*(m.price||0);let tot=0,ord=0,dlv=0,nosup=0;M.forEach(m=>{tot+=v(m.qty,m);ord+=v(m.ord,m);dlv+=v(m.dlv,m);if(!m.sup||!m.price)nosup++});return{tot,ord,dlv,rem:tot-ord,nosup}}
+function mStk(d,o,t){t=t||1;return `<div class="stk"><i class="d" style="width:${Math.min(100,d/t*100)}%"></i><i class="o" style="width:${Math.min(100,Math.max(0,(o-d)/t*100))}%"></i></div>`}
 async function materials(){
   if(!P.materials.length)return `<h1>חומרים והזמנות</h1><div class="card empty">אחרי חישוב כתב הכמויות, כאן יופיע פירוק לחומרים להזמנה.</div>`;
-  const rows=P.materials.map((m,i)=>`<tr><td><input type="checkbox" class="ck" data-i="${i}" checked></td><td><b>${esc(m.material)}</b><div class="code" style="text-align:right">${m.codes.slice(0,4).join(' · ')}</div></td><td>${esc(m.unit)}</td><td><input class="num" id="q${i}" value="${m.qty}"></td>
-   <td><input class="num" value="${P.mprices[m.material]??''}" placeholder="מחיר" onchange="setMp('${esc(m.material)}',this.value)"></td><td>${P.mprices[m.material]?money(m.qty*P.mprices[m.material]):''}</td></tr>`).join('');
-  const tot=P.materials.reduce((a,m)=>a+(P.mprices[m.material]?m.qty*P.mprices[m.material]:0),0);
-  const os=P.orders.map(o=>`<tr><td>#${o.n}</td><td>${esc(o.supplier)}</td><td>${o.items.length} חומרים</td><td>${esc(o.needed||'-')}</td>
-   <td><select onchange="ostat(${o.n},this.value)">${['טיוטה','נשלחה','סופקה חלקית','סופקה','בוטלה'].map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select></td><td><a class="btn sm sec" href="/api/projects/${P.id}/orders/${o.n}.xlsx">הורד</a></td></tr>`).join('');
-  return `<h1>חומרים והזמנות</h1><p class="sub">כתב הכמויות מפורק לחומרים לפי מתכוני ביצוע, כולל פחת. בוחרים מה להזמין ומפיקים הזמנת רכש.</p>
-  <div class="card"><div class="scroll"><table><tr><th></th><th>חומר</th><th>יח'</th><th>כמות להזמנה</th><th>מחיר</th><th>סה"כ</th></tr>${rows}</table></div>
-  <div class="row" style="margin-bottom:12px"><span class="sp"></span>${menu(`<button onclick="matCsv()">רשימת חומרים (CSV)</button><button onclick="window.print()">הדפסה / PDF</button>`)}</div><div class="row" style="margin-top:14px"><input id="sup" placeholder="שם ספק" style="max-width:220px"><input id="need" type="date" style="max-width:170px" title="תאריך אספקה"><input id="note" placeholder="הערה לספק" style="max-width:260px"><span class="sp"></span><b>${money(tot)}</b><button class="btn ok" onclick="mkOrder()">הפק הזמנת רכש</button></div></div>
-  <div class="card" style="margin-top:16px"><h2>הזמנות שנוצרו</h2>${P.orders.length?`<table><tr><th>#</th><th>ספק</th><th>פריטים</th><th>אספקה</th><th>סטטוס</th><th></th></tr>${os}</table>`:'<div class="empty">עוד אין הזמנות</div>'}</div>`}
-async function setMp(m,v){await api(`/projects/${P.id}/prices`,{method:'POST',body:{materials:{[m]:v}}});render()}
-async function mkOrder(){const items=[...document.querySelectorAll('.ck')].filter(c=>c.checked).map(c=>{const m=P.materials[c.dataset.i];return{material:m.material,unit:m.unit,qty:$('#q'+c.dataset.i).value}});
-  try{await api(`/projects/${P.id}/orders`,{method:'POST',body:{items,supplier:$('#sup').value,needed:$('#need').value,note:$('#note').value}});toast('ההזמנה נוצרה');render()}catch(e){toast(e.message)}}
-async function ostat(n,s){await api(`/projects/${P.id}/orders/${n}`,{method:'POST',body:{status:s}});toast('עודכן')}
+  const M=mAgg(),S=mStats(M),orders=P.orders||[];
+  const hd=`<div class="hd"><div><div class="crumb"><a href="#/">כל הפרויקטים</a> / ${esc(P.name)}</div><h1 class="h1x">חומרים והזמנות</h1><div class="mu" style="margin-top:4px">כל הכתב מפורק לחומרים. מזמינים בשלבים: בוחרים כמה מכל חומר להזמין עכשיו, והמערכת עוקבת אחרי מה שהוזמן, מה שסופק ומה שנשאר.</div></div><span style="flex:1"></span><button class="btn sec" onclick="matCsv()">${ic('xls',16)}ייצוא רשימה</button><button class="btn p" onclick="MT='mat';render()">${ic('plus',16)}הזמנה חדשה</button></div>
+  <div class="stats m5"><div><b>${money(S.tot)}</b><span>שווי כל החומרים (מתומחרים)</span></div><div><b>${money(S.ord)}</b><span>הוזמן עד היום${S.tot?` (${Math.round(S.ord/S.tot*100)}%)`:''}</span>${mStk(S.dlv,S.ord,S.tot)}</div><div><b>${money(S.dlv)}</b><span>סופק לאתר</span></div><div><b>${money(S.rem)}</b><span>נשאר להזמין</span></div><div><b>${S.nosup}</b><span>חומרים בלי ספק או מחיר</span></div></div>
+  <div class="tabs2">${[['mat','חומרים',M.length],['ord','הזמנות',orders.length],['sup','ספקים',knownSups().length]].map(([k,t,n])=>`<span class="${MT===k?'on':''}" onclick="MT='${k}';render()">${t}<small>${n}</small></span>`).join('')}</div>`;
+  if(MT==='ord')return hd+ordersTab();
+  if(MT==='sup')return hd+suppliersTab(M);
+  const flt=M.filter(m=>MF==='all'||(MF==='rem'&&m.rem>0)||(MF==='ord'&&m.ord>m.dlv)||(MF==='dlv'&&m.dlv>=m.qty)||(MF==='nosup'&&(!m.sup||!m.price)));
+  const cats=[...new Set(flt.map(m=>matCat(m.material)))];
+  const rows=cats.map(c=>{const L=flt.filter(m=>matCat(m.material)===c);return `<div class="mg">${c}<small>${L.length} חומרים · ${money(L.reduce((a,m)=>a+m.qty*(m.price||0),0))}</small></div>`+L.map(m=>{const i=M.indexOf(m),inC=MCART[i]!=null;
+    return `<div class="mr ${inC?'in':''}"><span class="bx ${inC?'on':''}" onclick="mToggle(${i})">${inC?ic('check',12):''}</span><div class="nm"><b>${esc(m.material)}</b><small>${esc((m.codes||[]).slice(0,2).join(' · '))}</small></div><span class="qn">${nfm(m.qty)}<small>${esc(m.unit)}</small></span><div class="pg">${mStk(m.dlv,m.ord,m.qty)}<small><span>סופק ${nfm(m.dlv)}</span><span>בהזמנה ${nfm(m.ord-m.dlv)}</span></small></div>${m.rem<=0?'<span class="tg t-ok">הוזמן הכל</span>':`<span class="qn">${nfm(m.rem)}<small>${esc(m.unit)}</small></span>`}<div class="sup" onclick="dlgQuotes(${i})" style="cursor:pointer"><div><b>${m.sup?esc(m.sup):'<span style="color:var(--bad)">— בחר ספק —</span>'}</b><small>${m.price?'₪'+nfm(m.price,2)+' ל'+esc(m.unit):'אין מחיר'}</small></div></div></div>`}).join('')}).join('');
+  const cnt=k=>({all:M.length,rem:M.filter(m=>m.rem>0).length,ord:M.filter(m=>m.ord>m.dlv).length,dlv:M.filter(m=>m.dlv>=m.qty).length,nosup:M.filter(m=>!m.sup||!m.price).length})[k];
+  return hd+`<div class="lay"><div><div class="tool"><div class="chips">${[['all','הכל'],['rem','נשאר להזמין'],['ord','בהזמנה'],['dlv','סופק'],['nosup','בלי ספק או מחיר']].map(([k,t])=>`<span class="cp ${MF===k?'on':''}" onclick="MF='${k}';render()">${t}<small>${cnt(k)}</small></span>`).join('')}</div></div>
+  <div class="mt"><div class="mh"><span></span><span>חומר</span><span>נדרש</span><span>התקדמות הזמנה</span><span>נשאר</span><span>ספק ומחיר</span></div>${rows||'<div class="empty" style="padding:26px;text-align:center">אין חומרים בסינון הזה.</div>'}</div></div>${cartH(M)}</div>`}
+function cartH(M){const ks=Object.keys(MCART).map(Number).filter(i=>M[i]);
+  const lines=ks.map(i=>{const m=M[i],c=MCART[i];return `<div class="cln"><div>${esc(m.material)}<small>נשאר ${nfm(m.rem)} ${esc(m.unit)}</small><div class="cs2"><input list="sups" placeholder="ספק" value="${esc(c.sup??m.sup)}" onchange="MCART[${i}].sup=this.value"><input class="num" placeholder="מחיר" value="${c.price??m.price??''}" onchange="MCART[${i}].price=this.value"></div></div><div class="cqi"><input class="num" value="${c.qty}" onchange="MCART[${i}].qty=this.value;render()"><small>${esc(m.unit)}</small></div></div>`}).join('');
+  const tot=ks.reduce((a,i)=>a+(+MCART[i].qty||0)*(+(MCART[i].price??M[i].price)||0),0),bySup=new Set(ks.map(i=>(MCART[i].sup??M[i].sup)||'?'));
+  return `<div class="cart"><datalist id="sups">${knownSups().map(s=>`<option value="${esc(s)}">`).join('')}</datalist><div class="chd"><small>הזמנה חדשה · טיוטה</small><b>הזמנה #${Math.max(0,...(P.orders||[]).map(o=>o.n))+1}</b></div>
+  <div class="cs"><h5>שלב בפרויקט</h5><input class="f7in" placeholder="למשל: יציקת תקרה קומה א׳" value="${esc(MSTAGE)}" onchange="MSTAGE=this.value"></div>
+  <div class="cs"><h5>${ks.length?ks.length+' חומרים נבחרו · כמות להזמנה עכשיו':'בחר חומרים בטבלה'}</h5>${lines||'<div class="mu" style="font-size:13px">סמן חומרים בטבלה והזן כמה להזמין בשלב הזה. אפשר להזמין חלק מהכמות בלבד.</div>'}</div>
+  <div class="cs"><h5>מועד אספקה</h5><input class="f7in" type="date" value="${MNEED}" onchange="MNEED=this.value">${bySup.size>1?`<div class="mu" style="font-size:12.5px;margin-top:8px">החומרים אצל ${bySup.size} ספקים שונים, ולכן ההזמנה תפוצל ל-${bySup.size} הזמנות נפרדות.</div>`:''}</div>
+  <div class="ctot"><span>${money(tot)}<small> · ללא מע"מ</small></span></div>
+  <div style="padding:14px 18px;display:flex;gap:8px"><button class="btn p" style="flex:1;justify-content:center" ${ks.length?'':'disabled'} onclick="mkOrders('נשלחה')">${ic('send',16)}צור ${bySup.size>1?bySup.size+' הזמנות':'הזמנה'}</button><button class="btn sec" ${ks.length?'':'disabled'} onclick="mkOrders('טיוטה')">טיוטה</button></div></div>`}
+function mToggle(i){if(MCART[i]!=null)delete MCART[i];else MCART[i]={qty:window.__M[i].rem};render()}
+async function mkOrders(status){const M=window.__M,ks=Object.keys(MCART).map(Number),g={};
+  for(const i of ks){const m=M[i],c=MCART[i],sup=((c.sup??m.sup)||'').trim();if(!sup){toast('חסר ספק ל'+m.material);return}
+    const pr=c.price??m.price;if(pr!==undefined&&pr!==''&&pr!==null)await api(`/projects/${P.id}/suppliers`,{method:'POST',body:{material:m.material,supplier:sup,price:pr,pick:true}});
+    (g[sup]=g[sup]||[]).push({material:m.material,unit:m.unit,qty:c.qty})}
+  try{for(const [sup,items] of Object.entries(g))await api(`/projects/${P.id}/orders`,{method:'POST',body:{items,supplier:sup,stage:MSTAGE,needed:MNEED,status}});
+    MCART={};MSTAGE='';toast('ההזמנות נוצרו');MT='ord';render()}catch(e){toast(e.message)}}
+function ordersTab(){const O=[...(P.orders||[])].sort((a,b)=>b.n-a.n);
+  const prog=o=>{const st=o.status;const k={'טיוטה':0,'נשלחה':1,'אושרה':2,'סופקה חלקית':2,'סופקה':4,'בוטלה':-1}[st]??1;return `<div class="sg7">${[0,1,2,3].map(x=>`<i class="${x<k?'d':x===k?'c':''}"></i>`).join('')}</div><div class="sl7"><span>${st}</span></div>`};
+  const tag=o=>({'סופקה':'<span class="tg t-ok">סופק במלואו</span>','סופקה חלקית':'<span class="tg t-w">סופק חלקית</span>','בוטלה':'<span class="tg t-b">בוטלה</span>','טיוטה':'<span class="tg t-n">טיוטה</span>'})[o.status]||'<span class="tg t-i">בדרך</span>';
+  const val=o=>o.items.reduce((a,i)=>a+i.qty*(i.price||0),0);
+  const dl=o=>o.items.reduce((a,i)=>a+((i.delivered==null&&o.status==='סופקה')?i.qty:(i.delivered||0)),0),tq=o=>o.items.reduce((a,i)=>a+i.qty,0);
+  return `<div class="tool"><span style="flex:1"></span><button class="btn sec sm" onclick="dlgExisting()">${ic('plus',14)}תעד הזמנה שכבר בוצעה</button></div>
+  ${O.length?`<div class="ot7"><div class="oh7"><span>מס'</span><span>תאריך</span><span>ספק ושלב</span><span>חומרים</span><span>התקדמות</span><span>שווי</span><span>סטטוס</span><span></span></div>${O.map(o=>`<div class="or7"><span class="on">#${o.n}</span><span class="mu">${esc((o.date||'').slice(5).split('-').reverse().join('/'))}</span><div><b>${esc(o.supplier)}</b><small>${esc(o.stage||'')}</small></div><div>${o.items.slice(0,3).map(i=>`<span class="chipm">${esc(i.material)} · ${nfm(i.qty)} ${esc(i.unit)}</span>`).join('')}${o.items.length>3?`<span class="chipm">+${o.items.length-3}</span>`:''}<small style="margin-top:3px">${dl(o)>0&&dl(o)<tq(o)?`סופק ${nfm(dl(o))} מתוך ${nfm(tq(o))}`:''}${o.existing?' הוזמן מחוץ למערכת':''}</small></div><div>${prog(o)}</div><b style="font:600 14px var(--fd)">${val(o)?money(val(o)):'—'}</b><span>${tag(o)}</span><div class="ac7"><span class="p" onclick="dlgDup(${o.n})">${ic('file',13)}שכפל</span><span onclick="dlgOrder(${o.n})">פתח</span></div></div>`).join('')}</div>`:'<div class="card empty">עוד אין הזמנות. בלשונית "חומרים" בוחרים חומרים ויוצרים הזמנה, או מתעדים הזמנה שכבר בוצעה.</div>'}`}
+function suppliersTab(M){const S={};(P.orders||[]).forEach(o=>{const s=S[o.supplier]||(S[o.supplier]={n:0,v:0,mats:new Set()});s.n++;s.v+=o.items.reduce((a,i)=>a+i.qty*(i.price||0),0);o.items.forEach(i=>s.mats.add(i.material))});
+  Object.entries(P.sq||{}).forEach(([m,L])=>L.forEach(q=>{const s=S[q.supplier]||(S[q.supplier]={n:0,v:0,mats:new Set()});s.mats.add(m)}));
+  const E=Object.entries(S);return E.length?`<div class="ot7"><div class="oh7" style="grid-template-columns:1.4fr 100px 120px 1fr!important"><span>ספק</span><span>הזמנות</span><span>שווי</span><span>חומרים</span></div>${E.map(([k,s])=>`<div class="or7" style="grid-template-columns:1.4fr 100px 120px 1fr!important"><b>${esc(k)}</b><span>${s.n}</span><span>${s.v?money(s.v):'—'}</span><span class="mu">${[...s.mats].slice(0,4).map(esc).join(' · ')}${s.mats.size>4?' …':''}</span></div>`).join('')}</div>`:'<div class="card empty">הספקים נוספים כשמזינים ספק ומחיר לחומר, בלשונית "חומרים".</div>'}
+function dlg7(html,w){document.querySelector('.dlg7')?.remove();const d=document.createElement('div');d.className='dlg7';d.innerHTML=`<div class="dl7" style="width:${w||720}px" onclick="event.stopPropagation()">${html}</div>`;d.onclick=()=>d.remove();document.body.appendChild(d)}
+function dlgQuotes(i){const m=window.__M[i],L=(P.sq||{})[m.material]||[],best=L.length?Math.min(...L.map(q=>q.price)):null;
+  dlg7(`<div class="dh"><b>${esc(m.material)} · ספקים והצעות מחיר</b><span style="flex:1"></span><span class="mu" style="cursor:pointer" onclick="this.closest('.dlg7').remove()">${ic('x',18)}</span></div><div class="db">
+  ${L.length?L.map(q=>`<div class="sr ${q.price===best?'best':''} ${q.supplier===m.sup?'pick':''}"><div><b>${esc(q.supplier)}</b><small class="mu">${q.date||''}${q.supplier===m.sup?' · נבחר':''}</small></div><b>₪${nfm(q.price,2)}</b><span>${q.price===best?'<span class="tg t-ok">הכי זול</span>':'<span class="mu">+₪'+nfm(q.price-best,2)+'</span>'}</span><button class="btn sec sm" onclick="pickSup(${i},'${encodeURIComponent(q.supplier)}')">בחר</button></div>`).join(''):'<div class="mu" style="margin-bottom:10px">עוד אין הצעות לחומר הזה.</div>'}
+  <h5 style="margin:16px 0 8px;color:var(--mut);font-weight:600">הוספת הצעה</h5><div class="fl7"><input id="q-s" list="sups" placeholder="שם ספק" class="f7in"><input id="q-p" class="f7in num" placeholder="מחיר ל${esc(m.unit)}"></div><datalist id="sups">${knownSups().map(s=>`<option value="${esc(s)}">`).join('')}</datalist></div>
+  <div class="df"><span class="mu" style="flex:1;font-size:13px">מחירים נשמרים בפרויקט</span><button class="btn p" onclick="addQuote(${i})">הוסף ובחר</button></div>`,560)}
+async function pickSup(i,s){const m=window.__M[i],sup=decodeURIComponent(s),q=((P.sq||{})[m.material]||[]).find(x=>x.supplier===sup);await api(`/projects/${P.id}/suppliers`,{method:'POST',body:{material:m.material,supplier:sup,price:q?.price,pick:true}});document.querySelector('.dlg7')?.remove();render()}
+async function addQuote(i){const m=window.__M[i],s=$('#q-s').value,p=$('#q-p').value;if(!s||!p){toast('חסר ספק או מחיר');return}await api(`/projects/${P.id}/suppliers`,{method:'POST',body:{material:m.material,supplier:s,price:p,pick:true}});document.querySelector('.dlg7')?.remove();render()}
+function dlgDup(n){const o=P.orders.find(x=>x.n===n),M=mAgg();window.__D=o.items.map(it=>{const m=M.find(x=>x.material===it.material)||{rem:0,qty:0};return {...it,rem:m.rem,q2:Math.min(it.qty,m.rem)}});
+  dlg7(`<div class="dh"><b>שכפול הזמנה #${o.n} · ${esc(o.supplier)}</b><span class="tg t-i">טיוטה חדשה</span><span style="flex:1"></span><span class="mu" style="cursor:pointer" onclick="this.closest('.dlg7').remove()">${ic('x',18)}</span></div><div class="db"><div class="mu" style="font-size:13px;margin-bottom:12px">ההזמנה הועתקה עם אותו ספק ואותם חומרים. עדכן כמויות ושלב, והיא תיווצר כהזמנה חדשה.</div>
+  <div class="ln h"><span>חומר</span><span>הזמנה מקורית</span><span>נשאר בפרויקט</span><span>כמות חדשה</span></div>${window.__D.map((it,k)=>`<div class="ln"><div><b>${esc(it.material)}</b></div><span>${nfm(it.qty)} ${esc(it.unit)}</span><span>${nfm(it.rem)} ${esc(it.unit)}</span><div class="cqi"><input class="num" value="${it.q2}" onchange="window.__D[${k}].q2=this.value"><small>${esc(it.unit)}</small></div></div>`).join('')}
+  <div class="fl7" style="margin-top:16px"><input id="d-st" class="f7in" placeholder="שלב בפרויקט" value="${esc(o.stage||'')}"><input id="d-nd" class="f7in" type="date"></div></div>
+  <div class="df"><span class="mu" style="flex:1;font-size:13px">ההזמנה המקורית לא משתנה</span><button class="btn sec" onclick="this.closest('.dlg7').remove()">ביטול</button><button class="btn sec" onclick="dupGo(${n},'טיוטה')">שמור כטיוטה</button><button class="btn p" onclick="dupGo(${n},'נשלחה')">צור הזמנה</button></div>`)}
+async function dupGo(n,status){const o=P.orders.find(x=>x.n===n);try{await api(`/projects/${P.id}/orders`,{method:'POST',body:{supplier:o.supplier,stage:$('#d-st').value,needed:$('#d-nd').value,status,items:window.__D.map(it=>({material:it.material,unit:it.unit,qty:it.q2}))}});document.querySelector('.dlg7')?.remove();toast('ההזמנה נוצרה');render()}catch(e){toast(e.message)}}
+function dlgOrder(n){const o=P.orders.find(x=>x.n===n);
+  dlg7(`<div class="dh"><b>הזמנה #${o.n} · ${esc(o.supplier)}</b><span class="tg t-i">${esc(o.status)}</span><span style="flex:1"></span><span class="mu" style="cursor:pointer" onclick="this.closest('.dlg7').remove()">${ic('x',18)}</span></div><div class="db"><div class="mu" style="font-size:13px;margin-bottom:10px">${esc(o.stage||'')} ${o.needed?'· אספקה '+esc(o.needed):''}</div>
+  <div class="ln h"><span>חומר</span><span>הוזמן</span><span>סופק</span><span>מחיר</span></div>${o.items.map((it,k)=>`<div class="ln"><div><b>${esc(it.material)}</b></div><span>${nfm(it.qty)} ${esc(it.unit)}</span><div class="cqi"><input class="num od" data-m="${esc(it.material)}" value="${it.delivered??(o.status==='סופקה'?it.qty:0)}"><small>${esc(it.unit)}</small></div><span>${it.price?'₪'+nfm(it.price,2):'—'}</span></div>`).join('')}</div>
+  <div class="df"><a class="btn sec sm" href="/api/projects/${P.id}/orders/${o.n}.xlsx">הורד Excel</a><select id="o-st" class="f7in" style="width:150px">${['טיוטה','נשלחה','אושרה','סופקה חלקית','סופקה','בוטלה'].map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select><span style="flex:1"></span><button class="btn p" onclick="saveOrder(${o.n})">שמור</button></div>`)}
+async function saveOrder(n){const dv={};document.querySelectorAll('.od').forEach(e=>dv[e.dataset.m]=e.value);const st=$('#o-st').value,o=P.orders.find(x=>x.n===n);
+  await api(`/projects/${P.id}/orders/${n}`,{method:'POST',body:{delivered:dv,...(st!==o.status?{status:st}:{})}});document.querySelector('.dlg7')?.remove();toast('עודכן');render()}
+function dlgExisting(){window.__E=[{material:'',unit:'',qty:'',delivered:'',price:''}];exRender()}
+function exRender(){dlg7(`<div class="dh"><b>תיעוד הזמנה שכבר בוצעה</b><span style="flex:1"></span><span class="mu" style="cursor:pointer" onclick="this.closest('.dlg7').remove()">${ic('x',18)}</span></div><div class="db"><div class="mu" style="font-size:13px;margin-bottom:12px">הזמנה שנעשתה מחוץ למערכת. תיעוד שלה מעדכן את מה שנשאר להזמין.</div>
+  <datalist id="mats">${P.materials.map(m=>`<option value="${esc(m.material)}">`).join('')}</datalist><datalist id="sups">${knownSups().map(s=>`<option value="${esc(s)}">`).join('')}</datalist>
+  <div class="fl7"><input id="e-s" list="sups" class="f7in" placeholder="ספק" value="${esc(window.__ES||'')}" onchange="window.__ES=this.value"><input id="e-d" class="f7in" type="date" value="${window.__ED||new Date().toISOString().slice(0,10)}" onchange="window.__ED=this.value"></div>
+  <div class="ln h" style="margin-top:14px;grid-template-columns:minmax(0,1fr) 100px 100px 100px"><span>חומר</span><span>כמות שהוזמנה</span><span>סופק</span><span>מחיר ליחידה</span></div>
+  ${window.__E.map((r,k)=>`<div class="ln" style="grid-template-columns:minmax(0,1fr) 100px 100px 100px"><input list="mats" class="f7in" placeholder="חומר" value="${esc(r.material)}" onchange="exPick(${k},this.value)"><input class="f7in num" value="${r.qty}" placeholder="${esc(r.unit)}" onchange="window.__E[${k}].qty=this.value"><input class="f7in num" value="${r.delivered}" onchange="window.__E[${k}].delivered=this.value"><input class="f7in num" value="${r.price}" onchange="window.__E[${k}].price=this.value"></div>`).join('')}
+  <div style="margin-top:10px;color:var(--pri2);font-weight:600;cursor:pointer" onclick="window.__E.push({material:'',unit:'',qty:'',delivered:'',price:''});exRender()">${ic('plus',14)} הוסף חומר</div></div>
+  <div class="df"><span style="flex:1"></span><button class="btn sec" onclick="this.closest('.dlg7').remove()">ביטול</button><button class="btn p" onclick="exSave()">שמור</button></div>`)}
+function exPick(k,v){const m=P.materials.find(x=>x.material===v);window.__E[k].material=v;if(m){window.__E[k].unit=m.unit;if(P.mprices[v]&&!window.__E[k].price)window.__E[k].price=P.mprices[v]}exRender()}
+async function exSave(){const sup=($('#e-s').value||'').trim(),rows=window.__E.filter(r=>r.material&&+r.qty>0);if(!sup||!rows.length){toast('חסר ספק או חומר');return}
+  for(const r of rows)if(r.price)await api(`/projects/${P.id}/suppliers`,{method:'POST',body:{material:r.material,supplier:sup,price:r.price}});
+  try{await api(`/projects/${P.id}/orders`,{method:'POST',body:{supplier:sup,date:$('#e-d').value,existing:true,items:rows.map(r=>({material:r.material,unit:r.unit,qty:r.qty,delivered:r.delivered||0}))}});document.querySelector('.dlg7')?.remove();toast('ההזמנה תועדה');render()}catch(e){toast(e.message)}}
 
 /* ---------- bills ---------- */
 async function bills(){
