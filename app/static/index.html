@@ -543,7 +543,7 @@ function after_dash(){if(window.__hl)showTip(-1)}
 /* ---------- plans ---------- */
 /* ---------- plans by discipline ---------- */
 const DIS=[['construction','קונסטרוקציה','plan',[1,2,23]],['arch','אדריכלות','eye',[4,6,9,10,11,12,14]],['elec','חשמל','calc',[8]],['hvac','מיזוג אוויר','cog',[15]],['plumb','אינסטלציה','box',[7,57]],['seal','איטום','shield',[5]],['dev','פיתוח','folder',[40]]];
-const DOF={foundation_piles:'construction',structure_plan:'construction',structure_other:'construction',floor_plan:'arch',elevation:'arch',section:'arch',details:'arch',openings_details:'arch',electrical:'elec',plumbing:'plumb',hvac:'hvac',waterproofing:'seal',site:'dev'};
+const DOF={foundation_piles:'construction',structure_plan:'construction',structure_other:'construction',floor_plan:'arch',elevation:'arch',section:'arch',details:'arch',openings_details:'arch',electrical:'elec',plumbing:'plumb',hvac:'hvac',comm:'elec',fire:'elec',bms:'elec',demolition:'arch',waterproofing:'seal',site:'dev'};
 const discOf=s=>s.disc||DOF[s.type]||'';
 const discName=k=>(DIS.find(d=>d[0]===k)||[0,'לא מסווג'])[1];
 let PD='all',PT='all',PV='grid',UPQ=[];
@@ -581,7 +581,7 @@ async function plans(){
   const att=P.sheets.filter(needAttn).length;
   return `<div class="topbar" style="display:flex"><span class="sp"></span>${P.sheets.length?`<button class="btn p" id="runb" onclick="runAll()">${ic('calc',17)}חשב כתב כמויות</button>`:''}</div>
   <div class="crumb"><a href="#/" style="color:var(--mut);text-decoration:none">כל הפרויקטים</a> / ${esc(P.name)}</div><h1 class="h1x">תוכניות</h1><div class="mu" style="margin-top:4px">התיק מסודר לפי תחום. בוחרים תחום ורואים רק את התוכניות שלו, ואיתן מה המוח יודע לחשב ממנו.</div>
-  <label class="up2" id="drop"><div class="ico">${ic('xls',20).replace('M12 4v11M7 11l5 5 5-5M5 20h14','M12 16V5M7 10l5-5 5 5M5 20h14')}</div><div><b>גרור קבצים לכאן או בחר</b><div class="mu" style="font-size:13px">המערכת מזהה סוג ותחום לכל גיליון, ואפשר לשנות בכרטיס. כרגע נתמך PDF; DWG ו-DXF בהמשך.</div></div><span class="sp"></span><span class="btn">בחר קבצים</span><input id="fi" type="file" accept=".pdf" multiple hidden></label>
+  <label class="up2" id="drop"><div class="ico">${ic('xls',20).replace('M12 4v11M7 11l5 5 5-5M5 20h14','M12 16V5M7 10l5-5 5 5M5 20h14')}</div><div><b>גרור קבצים לכאן או בחר</b><div class="mu" style="font-size:13px">המערכת מזהה סוג ותחום לכל גיליון, ואפשר לשנות בכרטיס. נתמכים PDF ו-DWG (DWG מדויק יותר, עם שכבות אמיתיות; ההמרה יכולה לקחת דקה-שתיים לקובץ גדול).</div></div><span class="sp"></span><span class="btn">בחר קבצים</span><input id="fi" type="file" accept=".pdf,.dwg" multiple hidden></label>
   <div id="queue"></div>${(P.pending||[]).length&&!UPQ.length?`<div class="up2" style="border-color:#F0C766;background:var(--warnb)"><div class="ico" style="background:var(--warn)">${ic('alert',20)}</div><div><b>${P.pending.length} קבצים ממתינים להחלטה</b><div style="font-size:13px">הם דומים לגיליונות שכבר בתיק. החלט אם להחליף או להוסיף.</div></div><span class="sp"></span><button class="btn p" onclick="resolvePending()">החלט עכשיו</button></div>`:''}
   ${P.sheets.length?`<div class="dtabs">${tab('all','הכל','lib',P.sheets.length,allc)}${DIS.map(d=>tab(d[0],d[1],d[2],P.sheets.filter(s=>discOf(s)===d[0]).length,discCov(d[0]))).join('')}</div>
   ${un||att?`<div class="mu" style="margin:-4px 0 12px;font-size:13.5px">${att?`${att} גיליונות דורשים אישור שלך`:''}${un?` · ${un} לא משויכים לתחום`:''}</div>`:''}

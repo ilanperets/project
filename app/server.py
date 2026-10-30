@@ -2,7 +2,7 @@ import json, os, re, shutil, time, uuid
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from . import wetroom as WR, classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP, sitework as SW
+from . import wetroom as WR, classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP, sitework as SW, dwg as DW
 import datetime
 
 ROOT=os.environ.get('KAMUYOT_DATA',os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'data'))
@@ -98,15 +98,27 @@ def delete(pid:str): shutil.rmtree(_pdir(pid),ignore_errors=True); return dict(o
 async def upload(pid:str,files:list[UploadFile]=File(...)):
     pr=_load(pid); rules=_rules(); seen={s['hash']:s for s in pr['sheets']}; added=[]
     for f in files:
-        if not f.filename.lower().endswith('.pdf'): added.append(dict(file=f.filename,error='רק קבצי PDF נתמכים כרגע (DWG בהמשך)')); continue
-        sid=uuid.uuid4().hex[:6]; path=os.path.join(_pdir(pid),'files',sid+'.pdf')
-        with open(path,'wb') as o: o.write(await f.read())
-        h=C.file_hash(path)
+        ext=os.path.splitext(f.filename)[1].lower()
+        if ext not in ('.pdf','.dwg'): added.append(dict(file=f.filename,error='נתמכים קבצי PDF ו-DWG בלבד')); continue
+        sid=uuid.uuid4().hex[:6]; path=os.path.join(_pdir(pid),'files',sid+'.pdf'); data=await f.read(); src=None
+        if ext=='.dwg':
+            src=os.path.join(_pdir(pid),'files',sid+'.dwg')
+            with open(src,'wb') as o: o.write(data)
+            try: dinfo=DW.dwg_to_pdf(src,path)
+            except Exception as e:
+                for p_ in (src,path):
+                    if os.path.exists(p_): os.remove(p_)
+                added.append(dict(file=f.filename,error='קובץ DWG לא נקרא: '+str(e)[:80])); continue
+        else:
+            with open(path,'wb') as o: o.write(data)
+        h=C.file_hash(src or path)
         if h in seen:
-            os.remove(path); added.append(dict(file=f.filename,dup_of=seen[h]['file'])); continue
+            os.remove(path)
+            if src: os.remove(src)
+            added.append(dict(file=f.filename,dup_of=seen[h]['file'])); continue
         try: ft=C.features(path); cl=C.classify(ft,rules)
         except Exception as e: os.remove(path); added.append(dict(file=f.filename,error='הקובץ לא נקרא: '+str(e)[:80])); continue
-        s=dict(sid=sid,file=f.filename,hash=h,w_mm=ft['w_mm'],h_mm=ft['h_mm'],n_draw=ft['n_draw'],layers=ft['layers'],type=cl['type'],conf=cl['conf'],why=cl['why'],floor=None,confirmed=False,version=1)
+        s=dict(sid=sid,file=f.filename,hash=h,w_mm=ft['w_mm'],h_mm=ft['h_mm'],n_draw=ft['n_draw'],layers=ft['layers'],type=cl['type'],conf=cl['conf'],why=cl['why'],floor=None,confirmed=False,version=1,**(dict(source='dwg',dwg=dinfo) if src else {}))
         try: rv=C.revision_of(ft,path,pr['sheets'],_pdir(pid))
         except Exception: rv=None
         if rv:

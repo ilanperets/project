@@ -5,9 +5,9 @@ import collections, hashlib, json, os, pymupdf as fitz
 TYPES={
  'foundation_piles':'תוכנית יסודות וכלונסאות','structure_plan':'תוכנית קונסטרוקציה (תקרה, קורות, גג)','structure_other':'קונסטרוקציה: פרטים ומדרגות',
  'floor_plan':'תוכנית קומה','elevation':'חזיתות','section':'חתכים','site':'תוכנית פיתוח','details':'פרטי בנייה','openings_details':'פרטי דלתות וחלונות',
- 'waterproofing':'תוכנית איטום','tile_layout':'פריסת אריחים (חדר רחצה)','wetroom_plan':'חדר רחצה: אדריכלות, אינסטלציה וחשמל','electrical':'תוכנית חשמל','plumbing':'תוכנית אינסטלציה','hvac':'תוכנית מיזוג אוויר','unknown':'לא זוהה'}
+ 'waterproofing':'תוכנית איטום','tile_layout':'פריסת אריחים (חדר רחצה)','wetroom_plan':'חדר רחצה: אדריכלות, אינסטלציה וחשמל','electrical':'תוכנית חשמל','plumbing':'תוכנית אינסטלציה','hvac':'תוכנית מיזוג אוויר','comm':'תוכנית תקשורת ומתח נמוך','fire':'תוכנית גילוי וכיבוי אש','bms':'תוכנית בקרה ובית חכם','demolition':'תוכנית הריסות ופירוקים','unknown':'לא זוהה'}
 
-DISC={'foundation_piles':'construction','structure_plan':'construction','structure_other':'construction','floor_plan':'arch','elevation':'arch','section':'arch','details':'arch','openings_details':'arch','electrical':'elec','plumbing':'plumb','hvac':'hvac','waterproofing':'seal','tile_layout':'arch','wetroom_plan':'plumb','site':'dev','unknown':''}
+DISC={'foundation_piles':'construction','structure_plan':'construction','structure_other':'construction','floor_plan':'arch','elevation':'arch','section':'arch','details':'arch','openings_details':'arch','electrical':'elec','plumbing':'plumb','hvac':'hvac','waterproofing':'seal','tile_layout':'arch','wetroom_plan':'plumb','comm':'elec','fire':'elec','bms':'elec','demolition':'arch','site':'dev','unknown':''}
 DISCS=[('construction','קונסטרוקציה'),('arch','אדריכלות'),('elec','חשמל'),('hvac','מיזוג אוויר'),('plumb','אינסטלציה'),('seal','איטום'),('dev','פיתוח')]
 
 def _ink(path,W=220):

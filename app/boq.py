@@ -64,6 +64,119 @@ def needs(sheets,missing_types,unbuilt_types,assumptions):
     for a in assumptions: out.append(dict(p='med',t=a['t'],why=a['why'],gives=a.get('gives','דיוק הכמויות'),how=a['how']))
     return out
 
+GUIDE=[
+('1. מספור הסעיפים',[
+ 'מספר סעיף = פרק.תת-פרק.פריט, למשל 10.01.0020: פרק 10 (ריצוף וחיפוי), תת-פרק 01, פריט 0020.',
+ 'מספרי הפרקים הם מספרי הפרקים של המפרט הכללי לעבודות בנייה ("הספר הכחול"), כך שקבלנים, מפקחים ותוכנות ניהול מדברים באותה שפה.',
+ 'הפריטים ממוספרים בקפיצות של 10, כדי להשאיר מקום לסעיפים שיתווספו בשינויים בלי למספר מחדש.']),
+('2. כללי מדידה',[
+ 'כל הכמויות נמדדות נטו, לפי המידות בפועל של העבודה הגמורה. פחת, חיתוכים, חפיפות ושאריות כלולים במחיר היחידה ואינם מתווספים לכמות.',
+ 'ריצוף: שטח רצפה נטו בין קירות מטויחים או מחופים. המצע, הדבק, הרובה והפילוס כלולים במחיר. פנלים נמדדים בנפרד במ"א, בניכוי פתחי דלתות.',
+ 'טיח, חיפוי וצבע על קירות: היקף × גובה, בניכוי פתחים ששטחם מעל 0.5 מ"ר. פתחים קטנים יותר אינם מנוכים, ובתמורה החשפים שלהם אינם נמדדים בנפרד.',
+ 'איטום רצפות: שטח הרצפה בתוספת העלייה על הקירות. איטום קירות במקלחון נמדד בנפרד.',
+ 'תקרות גבס: לפי שטח ההיטל האופקי. סינרים והנמכות היקפיות במ"א. פתחי שירות ביחידות.',
+ 'נקודה בחשמל: הכול מהלוח ועד לאביזר הסופי, כולל צנרת, מוליכים, קופסאות, חציבה וסתימה, האביזר והחיבור. בתברואה: מהמחלק ועד לברז או לכלי הסניטרי, כולל חציבה ואביזרים.',
+ 'קומפלט: עבודה שלמה ומושלמת, כולל כל החומרים, האביזרים, העבודה, הבדיקות והתיאומים הנדרשים לתוצאה עובדת.',
+ 'אלומיניום ודלתות: ביחידות עם מידות מפורשות. המחיר כולל זיגוג, פרזול, רשת, איטום והתקנה.',
+ 'הריסות ופירוקים: כוללים הורדה לקומת הקרקע והעמסה למכולה. מכולות נמדדות ביחידות לפי ספירה בפועל.',
+ 'שעת עבודה בעבודות רג\'י נמדדת לפי יומני עבודה חתומים בידי המפקח בלבד.',
+ 'מחיר יסוד: מחיר אספקה של פריט שהמזמין בוחר. מחיר היחידה כולל את ההתקנה. ההפרש בין מחיר הרכישה בפועל למחיר היסוד מתווסף או מקוזז לפי חשבונית.',
+ 'סכום זמני: סכום שמור לעבודות בלתי צפויות, מבוצע רק לפי הוראה בכתב. היתרה מקוזזת בחשבון הסופי.']),
+('3. מה כלול במחיר היחידה',[
+ 'חומרים, עבודה, ציוד, פיגומים והרמה, הובלה, פחת, הגנות על עבודות גמורות, ניקיון שוטף, בדיקות, אחריות, ביטוחים, ניהול, רווח ותקורה.',
+ 'אין סעיף "שונות": כל מה שנדרש לביצוע מושלם של הסעיף ולא נכתב בו, כלול בו.',
+ 'המחירים ללא מע"מ. המע"מ מחושב בשורת הריכוז לפי השיעור שבתא הכחול.',
+ 'הכמויות הן אומדן מדויק ככל האפשר לפי התוכניות. התשלום לפי מדידה בפועל, במחירי היחידה שבהצעה.']),
+('4. איך משתמשים בקובץ',[
+ 'בגיליון "כתב כמויות" ממלאים מחיר יחידה בתאים הצהובים בלבד. סה"כ לסעיף, לפרק, הריכוז, המע"מ והסה"כ הכולל מחושבים אוטומטית.',
+ 'שורה אדומה: חסרה כמות. שורה צהובה: כמות חלקית או הנחה. פירוט בלשונית "מה חסר למערכת" ובלשונית "שורות חסרות לפי פרק".',
+ 'כל הנוסחאות חיות. אין לדרוס תאים מחושבים בערכים קבועים.'])]
+
+def _tender_sheet(wb,rows,name,prices,meta,vat):
+    """a clean tender-style bill: title, chapter bands, item rows with borders, yellow price cells, live totals and VAT"""
+    from openpyxl.styles import Border, Side
+    NV='1F3864'; thin=Side(style='thin',color='9AA5B8'); dbl=Side(style='double',color='1F3864')
+    BD=Border(left=thin,right=thin,top=thin,bottom=thin); NF='#,##0.00'
+    ws=wb.create_sheet('כתב כמויות',1); ws.sheet_view.rightToLeft=True; ws.sheet_view.showGridLines=False
+    fnt=lambda **k:Font(name='Arial',size=k.pop('size',10),**k)
+    for col,w in zip('ABCDEF',[12,70,9,11,14,17]): ws.column_dimensions[col].width=w
+    ws.merge_cells('A1:F1'); ws['A1']=f'כתב כמויות · {name}'; ws['A1'].font=fnt(size=16,bold=True,color=NV); ws.row_dimensions[1].height=26
+    ws.merge_cells('A2:F2'); ws['A2']=(meta.get('client') and 'עבור: '+meta['client']+'  ·  ' or '')+datetime.date.today().strftime('%d/%m/%Y')+'  ·  מחירים ללא מע"מ'; ws['A2'].font=fnt(size=10,color='595959')
+    ws.merge_cells('A3:F3'); ws['A3']='ממלאים מחיר יחידה בתאים הצהובים בלבד. הסכומים מחושבים אוטומטית. כללי המדידה בלשונית "הנחיות".'; ws['A3'].font=fnt(size=9,color='C00000')
+    hdr=['סעיף','תיאור',"יח'",'כמות','מחיר יחידה','סה"כ']
+    for i,h in enumerate(hdr,1):
+        c=ws.cell(5,i,h); c.font=fnt(bold=True,color='FFFFFF'); c.fill=PatternFill('solid',fgColor=NV); c.alignment=Alignment(horizontal='center',vertical='center',wrap_text=True); c.border=BD
+    ws.row_dimensions[5].height=22
+    r=6; chap_tot=[]; cur=None
+    def close():
+        nonlocal r,cur
+        if cur and cur['items']:
+            ws.cell(r,2,f'סה"כ {cur["name"]}')
+            ws.cell(r,6,'=SUM('+','.join(f'F{a}:F{b}' for a,b in cur['spans'])+')')
+            for col in range(1,7):
+                c=ws.cell(r,col); c.font=fnt(bold=True); c.fill=PatternFill('solid',fgColor='EDEDED'); c.border=Border(left=thin,right=thin,top=dbl,bottom=dbl)
+            ws.cell(r,6).number_format=NF; chap_tot.append(r); r+=2
+        cur=None
+    for x in rows:
+        k=x['kind']
+        if k=='ch':
+            if x['desc']==name: continue
+            close(); cur=dict(name=x['desc'],items=0,spans=[],start=None)
+            ws.merge_cells(start_row=r,start_column=1,end_row=r,end_column=6)
+            c=ws.cell(r,1,f'פרק {x["code"][:2]} — {x["desc"]}'); c.font=fnt(size=11,bold=True,color='FFFFFF'); c.fill=PatternFill('solid',fgColor=NV); c.alignment=Alignment(horizontal='right',vertical='center'); ws.row_dimensions[r].height=22; r+=1
+        elif k=='sub' and cur is not None:
+            ws.merge_cells(start_row=r,start_column=1,end_row=r,end_column=6)
+            c=ws.cell(r,1,f'{x["code"][:5]}  {x["desc"]}'); c.font=fnt(size=10,bold=True,color=NV); c.fill=PatternFill('solid',fgColor='D9E1F2'); c.alignment=Alignment(horizontal='right'); r+=1
+            cur['start']=None
+        elif k=='note' and cur is not None:
+            ws.merge_cells(start_row=r,start_column=2,end_row=r,end_column=6)
+            c=ws.cell(r,2,x['desc']); c.font=fnt(size=9,italic=True,color='595959'); c.alignment=Alignment(wrap_text=True,vertical='top',horizontal='right'); ws.row_dimensions[r].height=max(15,13*(1+len(x['desc'])//95)); r+=1
+        elif k=='item' and cur is not None:
+            dsc=x.get('full') or x['desc']
+            ws.cell(r,1,x['code']); ws.cell(r,2,dsc); ws.cell(r,3,x['unit']); ws.cell(r,4,x['q']); ws.cell(r,5,prices.get(x['code']) or None)
+            ws.cell(r,6,f'=IF(OR(D{r}="",E{r}=""),0,D{r}*E{r})')
+            for col in range(1,7):
+                c=ws.cell(r,col); c.border=BD; c.font=fnt(color='0000FF' if col==4 else '000000')
+                c.alignment=Alignment(horizontal='center' if col in(1,3) else 'right',vertical='top',wrap_text=(col==2))
+            ws.cell(r,4).number_format=NF; ws.cell(r,5).number_format=NF; ws.cell(r,6).number_format=NF
+            ws.cell(r,5).fill=PatternFill('solid',fgColor='FFF2CC')
+            if x['q'] is None: ws.cell(r,4).fill=PatternFill('solid',fgColor='FDE2E2')
+            elif x.get('st')=='חלקי': ws.cell(r,4).fill=PatternFill('solid',fgColor='FFF4D1')
+            ws.row_dimensions[r].height=max(15,13.5*(1+len(dsc)//80))
+            if cur['spans'] and cur['spans'][-1][1]==r-1: cur['spans'][-1]=(cur['spans'][-1][0],r)
+            else: cur['spans'].append((r,r))
+            cur['items']+=1; r+=1
+    close()
+    r+=1; ws.cell(r,2,'ריכוז פרקים').font=fnt(size=12,bold=True,color=NV); r+=1
+    first=r
+    for tr in chap_tot:
+        ws.cell(r,2,f'=B{tr}'); ws.cell(r,6,f'=F{tr}'); ws.cell(r,6).number_format=NF
+        for col in (2,6): ws.cell(r,col).border=BD; ws.cell(r,col).font=fnt()
+        r+=1
+    ws.cell(r,2,'סה"כ לפני מע"מ'); ws.cell(r,6,f'=SUM(F{first}:F{r-1})'); st=r; r+=1
+    ws.cell(r,2,'שיעור מע"מ'); ws.cell(r,6,vat); ws.cell(r,6).number_format='0%'; ws.cell(r,6).font=fnt(color='0000FF',bold=True); vr=r; r+=1
+    ws.cell(r,2,'מע"מ'); ws.cell(r,6,f'=F{st}*F{vr}'); mr=r; r+=1
+    ws.cell(r,2,'סה"כ כולל מע"מ'); ws.cell(r,6,f'=F{st}+F{mr}')
+    for rr in (st,mr,r):
+        ws.cell(rr,6).number_format=NF
+        for col in (2,6): ws.cell(rr,col).font=fnt(bold=True,size=11); ws.cell(rr,col).fill=PatternFill('solid',fgColor='EDEDED'); ws.cell(rr,col).border=BD
+    ws.freeze_panes='A6'; ws.print_title_rows='5:5'; ws.page_setup.orientation='portrait'; ws.page_setup.paperSize=9
+    ws.page_setup.fitToWidth=1; ws.page_setup.fitToHeight=0; ws.sheet_properties.pageSetUpPr=openpyxl.worksheet.properties.PageSetupProperties(fitToPage=True)
+    ws.print_options.horizontalCentered=True; ws.oddFooter.center.text=f'{name}  |  &P / &N'
+    return ws
+
+def _guidelines(wb):
+    ws=wb.create_sheet('הנחיות',2); ws.sheet_view.rightToLeft=True; ws.sheet_view.showGridLines=False
+    ws.column_dimensions['A'].width=4; ws.column_dimensions['B'].width=120
+    f=lambda **k:Font(name='Arial',size=k.pop('size',10),**k)
+    ws['A1']='הנחיות לקריאת כתב הכמויות ולמילויו'; ws['A1'].font=f(size=16,bold=True,color='1F3864'); r=3
+    for h,lines in GUIDE:
+        ws.cell(r,1,h).font=f(size=11,bold=True,color='1F3864'); r+=1
+        for t in lines:
+            c=ws.cell(r,2,t); c.font=f(); c.alignment=Alignment(wrap_text=True,vertical='top',horizontal='right'); ws.row_dimensions[r].height=max(15,14*(1+len(t)//125)); r+=1
+        r+=1
+    ws.page_setup.orientation='portrait'; ws.page_setup.fitToWidth=1; ws.page_setup.fitToHeight=0; ws.sheet_properties.pageSetUpPr=openpyxl.worksheet.properties.PageSetupProperties(fitToPage=True)
+
 def to_xlsx(rows,name,path,needs_list=(),prices=None,meta=None,hide=(),ctx=None):
     meta=meta or {}
     prices=prices or {}
@@ -158,6 +271,9 @@ def to_xlsx(rows,name,path,needs_list=(),prices=None,meta=None,hide=(),ctx=None)
         cv.cell(r,2).border=cv.cell(r,3).border=Border(bottom=LN)
     for r_,c_ in ((20,'הכמויות נמדדו נטו, מותקן באתר, ללא תוספת פחת, אלא אם צוין אחרת בסעיף.'),(21,'סעיפים צהובים: כמות חלקית. סעיפים אדומים: חסרה כמות. פירוט בלשונית "מה חסר למערכת".'),(22,'מקור הכמות ואופן המדידה מפורטים בלשונית "שיטות ומקורות".')):
         cv.cell(r_,2,c_).font=F(size=11,color='43536A'); cv.merge_cells(start_row=r_,start_column=2,end_row=r_,end_column=4); cv.cell(r_,2).alignment=Alignment(wrap_text=True,vertical='top'); cv.row_dimensions[r_].height=32
+    try:
+        _tender_sheet(wb,rows,name,prices,meta,(meta.get('vat') or 0.18)); _guidelines(wb)
+    except Exception as _e: print('tender sheet failed',_e)
     sm=wb.create_sheet('סיכום פרקים',1); sm.sheet_view.rightToLeft=True
     sm.append(['פרק','שם הפרק','סעיפים','עם כמות','% כיסוי','סה"כ מתומחר'])
     for c in sm[1]: c.font=F(bold=True,color='FFFFFF'); c.fill=DK; c.alignment=Alignment(horizontal='center')
