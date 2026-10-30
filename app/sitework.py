@@ -26,6 +26,8 @@ def site_lines(M,P):
         h=P.get('wall_height',2.8)
         out.append(_ln(97,1,'רשת בטיחות והגנות בהיקף הבניין בעבודה בגובה','מ"ר',per*h*fl,'היקף × גובה קומה × מספר קומות',[dict(el='היקף',dims=f'{per:.1f}',val=round(per,1),src='היקף קומה',note='',locs=[]),dict(el='גובה × קומות',dims=f'{h} × {fl}',val=round(h*fl,1),src='פרמטר wall_height',note='',locs=[])],'חלקי','לבדוק: דרישות רשות הבטיחות בעבודה בגובה. לעשות: לאמת מול תוכנית בטיחות',P,('wall_height',)))
         out.append(_ln(97,1,'מעקות בטיחות זמניים בקצוות תקרות ופתחים','מ"א',per*fl,'היקף × מספר קומות',[dict(el='היקף תקרות',dims=f'{per:.1f} × {fl}',val=round(per*fl,1),src='היקף קומה',note='',locs=[])],'חלקי','לבדוק: פתחי מדרגות ופירים. לעשות: להוסיף אורך פתחים פנימיים',P,()))
+        ra=P.get('roof_drain_area',100); nd=max(2,math.ceil(fp/ra)); hh=h*fl
+        out.append(_ln(7,5,'ניקוז גג: מרזבים וצנרת יורדת','מ"א',nd*hh,'מספר צינורות (שטח גג ÷ שטח למרזב) × גובה הבניין',[dict(el='צינורות יורדים',dims=f'{nd}',val=nd,src='שטח גג חלקי פרמטר roof_drain_area, לפחות 2',note='',locs=[]),dict(el='גובה',dims=f'{hh:.1f}',val=round(hh,1),src='גובה קומה × קומות',note='',locs=[])],'חלקי: אומדן','אין תוכנית ניקוז. לבדוק: מיקום יציאות הניקוז והשיפועים בגג. לעשות: להעלות תוכנית גג עם ניקוז',P,('roof_drain_area','wall_height')))
         pa=P.get('plot_area') or 0
         if pa>fp:
             out.append(_ln(40,1,'שטח פיתוח חוץ (מגרש בניכוי שטח הבניין)','מ"ר',pa-fp,'שטח מגרש פחות שטח קומה תחתונה',[dict(el='שטח מגרש',dims=f'{pa}',val=pa,src='הוזן',note='',locs=[]),dict(el='שטח בניין',dims=f'{fp:.1f}',val=round(fp,1),src='קומה תחתונה',note='',locs=[])],'חלקי','לבדוק: חלוקה לגינון, ריצוף וחניה. לעשות: להעלות תוכנית פיתוח',P,('plot_area',)))

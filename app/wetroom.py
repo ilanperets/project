@@ -231,3 +231,18 @@ def plumbing_points(lines):
     if not rows: return []
     return [dict(ch=7,sub=1,desc='נקודות מים וביוב',unit="נק'",q=tot,st='חלקי',src='נגזר מספירת הכלים',cover=['כלים סניטריים (אסלה, כיור, מקלחת)'],need='נקודות לפי כלי הן הנחה. יש לאמת מול תוכנית האינסטלציה. נקודות כלליות (ברז גן, מכונת כביסה, מים לדוד) לא נספרו',
         trace=dict(formula='כמות הכלים × מספר הנקודות לכל כלי (אסלה 2, כיור 3, תא מקלחת 3)',rows=rows,checks=[dict(ok=False,t='מספר הנקודות לכלי הוא הנחה, לא נמדד מתוכנית אינסטלציה')],params={}))]
+
+
+def plumbing_pipes(lines,P):
+    """pipe length and trim items derived from the counted fixtures. Lengths per point are assumptions (params)."""
+    cnt={l['desc']:l['q'] for l in lines if l['ch']==7 and l.get('q') and l['desc'] in POINTS}
+    t=cnt.get('אסלות',0); s=cnt.get('כיורי רחצה',0); h=cnt.get('תאי מקלחת (אגן, ניקוז ומערבל)',0)
+    if not (t or s or h): return []
+    water=t*1+s*2+h*2; drain=t+s+h; a=P.get('pipe_water_m',4); b=P.get('pipe_drain_m',3)
+    ln=water*a+drain*b
+    out=[dict(ch=7,sub=2,desc='צנרת מים וביוב',unit='מ"א',q=round(ln,1),st='חלקי',src='נגזר מנקודות המים והביוב',cover=['צנרת מים וביוב'],
+        need='אורכי הצנרת הם אומדן לפי נקודה, לא נמדדו מתוכנית אינסטלציה. לבדוק: מיקום הפיר, המחסן והמתקנים. לעשות: להעלות תוכנית אינסטלציה למדידה אמיתית',
+        trace=dict(formula='נקודות מים × אורך ממוצע לנקודה + נקודות ביוב × אורך ממוצע לנקודה',rows=[dict(el='נקודות מים',dims=f'{water} × {a}',val=round(water*a,1),src='אסלה 1, כיור 2, מקלחת 2',note='',locs=[]),dict(el='נקודות ביוב',dims=f'{drain} × {b}',val=round(drain*b,1),src='אסלה 1, כיור 1, מקלחת 1',note='',locs=[])],checks=[dict(ok=False,t='אומדן: אין תוכנית אינסטלציה עם קווים ואורכים')],params=dict(pipe_water_m=a,pipe_drain_m=b)))]
+    if s+h: out.append(dict(ch=7,sub=3,desc='סוללה לכיור ולמקלחת',unit="יח'",q=s+h,st='חלקי',src='נגזר מספירת הכלים',need='לבדוק: סוג הסוללה לפי המפרט. לעשות: לאשר סוגי הסוללות',
+        trace=dict(formula='כיורים + תאי מקלחת',rows=[dict(el='כיורים',dims=str(s),val=s,src='ספירת כלים',note='',locs=[]),dict(el='תאי מקלחת',dims=str(h),val=h,src='ספירת כלים',note='',locs=[])],checks=[dict(ok=False,t='סוללת כיור/מקלחת אחת לכלי, לפי כלל')],params={})))
+    return out

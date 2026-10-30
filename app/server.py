@@ -232,7 +232,7 @@ def run(pid:str):
                 if q: lines.append(dict(ch=int(m['ch']),sub=int(m.get('sub',1)),desc=m['desc'],unit=m['unit'],q=q,st='נמדד',src=f"מיפוי שכבה {layer} ({s['file'][:18]})",need='',cover=[m['desc']]))
             except Exception as e: log.append(f"{s['file']}: שגיאת מיפוי שכבה {layer}: {str(e)[:60]}")
     P=BR.params(pr)
-    lines+=WR.plumbing_points(lines)
+    lines+=WR.plumbing_points(lines); lines+=WR.plumbing_pipes(lines,BR.params(pr))
     op_m2=sum(float(re.search(r'([\d.]+) מ"ר',l['need']).group(1)) for l in lines if l['ch']==6 and l['unit']=="יח'" and re.search(r'([\d.]+) מ"ר',l.get('need','')))
     lines+=DV.exterior(ext_per,op_m2,BR.params(pr))
     if any(f!='roof' for f,_,_ in ext_per) and not any(l['desc']=='טיח חוץ' for l in lines): assumptions.append(dict(t='היקף קומות לא נקרא אמין',why='הקו החיצוני של תוכניות הקומות לא נסגר, ולכן טיח וצבע חוץ לא חושבו',how='העלה חזיתות או תוכנית קומה שבה הקירות החיצוניים סגורים'))
