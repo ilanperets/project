@@ -64,7 +64,7 @@ def needs(sheets,missing_types,unbuilt_types,assumptions):
     for a in assumptions: out.append(dict(p='med',t=a['t'],why=a['why'],gives=a.get('gives','דיוק הכמויות'),how=a['how']))
     return out
 
-def to_xlsx(rows,name,path,needs_list=(),prices=None,meta=None):
+def to_xlsx(rows,name,path,needs_list=(),prices=None,meta=None,hide=()):
     meta=meta or {}
     prices=prices or {}
     NF='#,###,##0.00;[Red]\\-#,###,##0.00'; F=lambda **k:Font(name='Arial',size=k.pop('size',11),**k)
@@ -185,5 +185,13 @@ def to_xlsx(rows,name,path,needs_list=(),prices=None,meta=None):
     me.freeze_panes='A2'
     for ws_ in (cv,sm,me):
         ws_.page_setup.orientation='landscape' if ws_ is not cv else 'portrait'; ws_.page_setup.fitToWidth=1; ws_.page_setup.fitToHeight=0; ws_.sheet_properties.pageSetUpPr=openpyxl.worksheet.properties.PageSetupProperties(fitToPage=True)
+    H={'price':('E','G'),'total':('F','H'),'src':('I',),'rum':('G','H')}
+    for k in hide or ():
+        for col in H.get(k,()): a.column_dimensions[col].hidden=True
+        for col,tc in (('E','E'),('F','F'),('I','G')):
+            pass
+    if 'price' in (hide or ()): t.column_dimensions['E'].hidden=True
+    if 'total' in (hide or ()): t.column_dimensions['F'].hidden=True
+    if 'src' in (hide or ()): t.column_dimensions['G'].hidden=True
     wb.active=0
     wb.save(path)

@@ -288,11 +288,40 @@ def thumb(pid:str,sid:str):
         pg=fitz.open(src)[0]; z=min(900/pg.rect.width,2.0); pg.get_pixmap(matrix=fitz.Matrix(z,z),alpha=False).save(out)
     return FileResponse(out,media_type='image/png')
 
+def _filter_rows(rows,ch='',only='',missing='show'):
+    """export options: chapters (comma list of NN), only measured, hide items with no quantity"""
+    chs={c for c in (ch or '').split(',') if c}
+    keep=[]; cur=None
+    for r in rows:
+        if r['kind']=='ch':
+            cur=r['code'][:2]
+            if r['desc']==rows[0]['desc'] and r is rows[0]: keep.append(r); continue
+        if r['kind']=='item':
+            if chs and cur not in chs: continue
+            if only=='measured' and (r['q'] is None or r.get('st') in ('ידני',)): continue
+            if missing=='hide' and r['q'] is None: continue
+        elif chs and cur is not None and cur not in chs and r['kind']!='ch': continue
+        keep.append(r)
+    out=[]
+    for i,r in enumerate(keep):   # drop headings and notes with no items under them
+        if r['kind'] in('ch','sub','note') and i>0:
+            j=i+1; has=False
+            while j<len(keep):
+                k=keep[j]['kind']
+                if k=='item': has=True;break
+                if r['kind']=='ch' and k=='ch': break
+                if r['kind']=='sub' and k in('sub','ch'): break
+                if r['kind']=='note' and k in('sub','ch'): break
+                j+=1
+            if not has: continue
+        out.append(r)
+    return out
+
 @app.get('/api/projects/{pid}/export.xlsx')
-def export(pid:str):
+def export(pid:str,ch:str='',only:str='',missing:str='show',hide:str=''):
     pr=_load(pid)
     if not pr.get('boq'): raise HTTPException(400,'עוד לא חושב כתב')
-    out=os.path.join(_pdir(pid),'boq.xlsx'); B.to_xlsx(pr['boq'],pr['name'],out,pr['needs'],prices=pr['prices'],meta=dict(client=pr.get('client',''),version='v%s'%pr.get('version',1),measurer=pr.get('measurer',''),reviewer=pr.get('reviewer',''),status=pr.get('status',''))); return FileResponse(out,filename='kamuyot_boq.xlsx')
+    out=os.path.join(_pdir(pid),'boq.xlsx'); B.to_xlsx(_filter_rows(pr['boq'],ch,only,missing),pr['name'],out,pr['needs'],prices=pr['prices'],hide=hide.split(','),meta=dict(client=pr.get('client',''),version='v%s'%pr.get('version',1),measurer=pr.get('measurer',''),reviewer=pr.get('reviewer',''),status=pr.get('status',''))); return FileResponse(out,filename='kamuyot_boq.xlsx')
 
 
 
@@ -458,12 +487,12 @@ def order_status(pid:str,n:int,body:dict):
     _save(pr); return o
 
 @app.get('/api/projects/{pid}/quote.xlsx')
-def quote(pid:str):
+def quote(pid:str,ch:str='',only:str='',missing:str='show',hide:str=''):
     pr=_load(pid)
     if not pr.get('boq'): raise HTTPException(400,'עוד לא חושב כתב')
-    rows=[dict(r) for r in pr['boq']]
+    rows=_filter_rows([dict(r) for r in pr['boq']],ch,only,missing)
     import copy
-    out=os.path.join(_pdir(pid),'quote.xlsx'); B.to_xlsx(rows,pr['name'],out,pr['needs'],prices=pr['prices'],meta=dict(client=pr.get('client',''),version='v%s'%pr.get('version',1),measurer=pr.get('measurer',''),reviewer=pr.get('reviewer',''),status=pr.get('status',''))); return FileResponse(out,filename='kamuyot_quote.xlsx')
+    out=os.path.join(_pdir(pid),'quote.xlsx'); B.to_xlsx(rows,pr['name'],out,pr['needs'],prices=pr['prices'],hide=hide.split(','),meta=dict(client=pr.get('client',''),version='v%s'%pr.get('version',1),measurer=pr.get('measurer',''),reviewer=pr.get('reviewer',''),status=pr.get('status',''))); return FileResponse(out,filename='kamuyot_quote.xlsx')
 
 @app.get('/api/projects/{pid}/orders/{n}.xlsx')
 def order_xlsx(pid:str,n:int):

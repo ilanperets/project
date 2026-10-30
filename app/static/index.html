@@ -196,6 +196,61 @@ tr.ch{cursor:pointer}tr.hid{display:none}tr.m td{background:color-mix(in srgb,va
 .opt{display:flex;gap:12px;border:2px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px;cursor:pointer}.opt.on{border-color:var(--pri2);background:#F4F8FE}.opt .rd{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);flex:none;margin-top:2px}.opt.on .rd{border:6px solid var(--pri2)}.opt b{display:block}.opt small{color:var(--mut)}
 @media(max-width:1180px){.sc{grid-template-columns:1fr}.vw{grid-template-columns:84px minmax(0,1fr);height:auto}.vw .dp{grid-column:1/-1}.canvas{min-height:60vh}}
 @media(max-width:700px){.qrow{grid-template-columns:30px 1fr 100px}.qrow .pb{display:none}.rowc{grid-template-columns:70px 1fr}}
+
+
+.stats{display:grid;grid-template-columns:repeat(6,1fr);background:#fff;border:1px solid var(--line);border-radius:16px;margin:16px 0}
+.stats>div{padding:14px 18px;border-inline-start:1px solid var(--line)}.stats>div:first-child{border:0}.stats b{display:block;font:700 24px/1.1 var(--fd)}.stats span{font-size:12.5px;color:var(--mut)}
+.wrap{display:grid;grid-template-columns:220px minmax(0,1fr) 310px;gap:16px;align-items:start}
+.tree{background:#fff;border:1px solid var(--line);border-radius:16px;padding:10px;position:sticky;top:12px}
+.tree h4{margin:6px 8px 8px;font:600 12.5px var(--fb);color:var(--mut)}
+.tc{display:flex;gap:8px;align-items:center;padding:8px 9px;border-radius:10px;font-size:13.5px}.tc.on{background:var(--soft);color:var(--pri);font-weight:700}
+.tc .cd{font:700 12px var(--fd);color:var(--mut);width:22px}.tc.on .cd{color:var(--pri2)}.tc .nm{flex:1;line-height:1.2}.tc .ct{font-size:11.5px;color:var(--mut)}
+.dt2{width:9px;height:9px;border-radius:50%;flex:none}.dt2.g{background:var(--ok)}.dt2.y{background:#E0A41B}.dt2.r{background:var(--bad)}
+.tcs{padding:3px 9px 3px 9px;margin-inline-start:30px;font-size:12.5px;color:var(--ink2);display:flex;justify-content:space-between}.tcs.on{color:var(--pri);font-weight:700}
+.tool{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+
+.tbl{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.bth,.br{cursor:pointer;display:grid;grid-template-columns:22px 88px minmax(0,1fr) 44px 66px 66px 92px 82px;gap:8px;align-items:center;padding:0 10px}
+.bth{background:#F4F7FB;font-size:12px;font-weight:700;color:var(--mut);height:34px;border-bottom:1px solid var(--line)}
+.br{min-height:50px;border-bottom:1px solid #EDF1F6;font-size:14px}.br:hover{background:#FAFCFF}
+.br .gp{color:#B2BDCD}.br .cdx{font:600 12.5px var(--fd);color:var(--mut);direction:ltr;text-align:right}
+.br .ds{line-height:1.3}.br .ds small{display:block;color:var(--mut);font-size:12px}
+.br .nu{font:600 14px var(--fd);text-align:end}.br .pz{color:var(--ink2);text-align:end;font-variant-numeric:tabular-nums}.br .tt{font:700 14px var(--fd);text-align:end}
+.br.rsel{background:#EEF5FF;box-shadow:inset -3px 0 0 var(--pri2)}
+.br.br.man{background:#FFFBF2}
+.rc{background:linear-gradient(90deg,#EAF1FB,#F5F8FD);font-weight:700;min-height:46px;border-top:1px solid var(--line)}
+.rc .cdx{color:var(--pri);font-size:13px}.rc .ds{font:700 15.5px var(--fd)}
+.rs{background:#F8FAFD;font-weight:700;min-height:38px;color:var(--ink2)}.rs .ds{padding-inline-start:14px}
+
+
+
+
+.insp{background:#fff;border:1px solid var(--line);border-radius:16px;position:sticky;top:12px;overflow:hidden}
+.insp .hd2{padding:16px 18px;background:linear-gradient(135deg,var(--bp1),var(--bp2));color:#fff}.insp .hd2 small{opacity:.8}.insp .hd2 b{display:block;font:700 17px/1.25 var(--fd);margin-top:3px}
+.insp .sec{padding:13px 18px;border-top:1px solid var(--line)}.insp .sec h5{margin:0 0 8px;font:600 12.5px var(--fb);color:var(--mut)}
+.bigq{font:700 32px/1 var(--fd)}.bigq small{font-size:15px;color:var(--mut);font-weight:600;margin-inline-start:6px}
+.bk{display:grid;gap:7px}.bk div{display:flex;align-items:center;gap:8px;font-size:13.5px}.bk i{flex:1;height:7px;background:var(--line);border-radius:5px;overflow:hidden}.bk i b{display:block;height:100%;background:var(--pri2)}
+.fx{background:#F4F7FB;border-radius:10px;padding:9px 11px;font:500 13px/1.5 var(--fb);color:var(--ink2)}.fx code{font:600 13px var(--fd);color:var(--pri)}
+.act{display:grid;grid-template-columns:1fr 1fr;gap:7px}.act span{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;font-weight:600;display:flex;gap:7px;align-items:center;color:var(--ink2)}
+.hist{font-size:12.5px;color:var(--ink2);display:grid;gap:5px}.hist span{color:var(--mut)}
+
+
+
+.xdg{width:980px;max-width:100%;padding:0;overflow:hidden;border-radius:22px}
+.xdg .dh{padding:20px 26px;border-bottom:1px solid var(--line);display:flex;align-items:center}.xdg .dh h2{margin:0;font:700 22px var(--fd)}
+.xb{display:grid;grid-template-columns:1fr 360px}.xdg .l{padding:22px 26px}.xdg .rr{background:#F6F8FC;padding:22px 24px;border-inline-start:1px solid var(--line)}
+.fmts{display:grid;grid-template-columns:1fr 1fr;gap:10px}.fm{border:2px solid var(--line);border-radius:14px;padding:13px 14px;display:flex;gap:11px}.fm.on{border-color:var(--pri2);background:#F4F8FE}.fm .fi{width:38px;height:38px;border-radius:11px;background:var(--soft);color:var(--pri);display:grid;place-items:center;flex:none}.fm.on .fi{background:var(--pri2);color:#fff}.fm b{display:block}.fm small{color:var(--mut);font-size:12.5px;line-height:1.35}
+.opts h5{margin:20px 0 8px;font:600 12.5px var(--fb);color:var(--mut)}
+.ck{display:flex;gap:9px;align-items:center;padding:6px 0;font-size:14px}.bx{width:19px;height:19px;border-radius:6px;border:2px solid var(--line);display:grid;place-items:center;color:#fff;flex:none}.bx.on{background:var(--pri2);border-color:var(--pri2)}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}.seg span{flex:1;text-align:center;padding:7px;font-size:13px;font-weight:600;color:var(--ink2)}.seg span.on{background:var(--ink);color:#fff}
+.pv{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:11.5px;box-shadow:0 10px 24px -16px rgba(0,0,0,.3)}.pv div{display:grid;grid-template-columns:78px 1fr 44px 52px;gap:6px;padding:5px 8px;border-bottom:1px solid #EEF2F7}.pv .h{background:#D9D9D9;font-weight:700}.pv .c{background:#EEF3FA;font-weight:700}
+.warn2{display:flex;gap:9px;background:var(--warnb);color:var(--warn);border-radius:11px;padding:10px 12px;font-size:13px;line-height:1.4;margin-top:12px}
+
+.qin{width:100%;min-height:0;padding:4px 6px;border:1px solid transparent;background:transparent;text-align:end;font:600 14px var(--fd)}.qin:hover,.qin:focus{border-color:var(--line);background:#fff}
+.br .ds{font-size:13.5px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.br .ds small{display:block;-webkit-line-clamp:2;overflow:hidden}.br.rsel .ds{-webkit-line-clamp:unset}.br.rn{background:#FBFCFE;min-height:36px;font-size:13px}.srch{display:flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:0 12px;color:var(--mut);width:240px}.srch input{border:0;background:none;outline:0;padding:9px 0;min-height:0;width:100%}
+.xdg .xb{display:grid;grid-template-columns:1fr 360px}.tool .chips{gap:6px}.chip small{opacity:.6;margin-inline-start:4px}
+@media(max-width:1250px){.wrap{grid-template-columns:200px minmax(0,1fr)}.insp{display:none}.xdg .xb{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}}
+@media print{.tree,.insp,.tool,.stats{display:none!important}.wrap{display:block}}
 </style>
 </head>
 <body>
@@ -496,41 +551,104 @@ async function startEmpty(){await api(`/projects/${P.id}/start`,{method:'POST'})
 async function setSheet(sid,b){await api(`/projects/${P.id}/sheets/${sid}`,{method:'POST',body:b});toast(b.type?'נשמר. המערכת תזהה כך גיליונות דומים בפעם הבאה':'נשמר');render()}
 async function runAll(){const b=$('#runb');b.disabled=true;b.innerHTML='<span class="spin"></span> מחשב…';try{await api(`/projects/${P.id}/run`,{method:'POST'});toast('הכתב חושב');location.hash=`#/p/${P.id}/boq`}catch(e){toast(e.message);b.disabled=false}}
 
-/* ---------- BOQ ---------- */
-let FLT='all',COLL={};
+/* ---------- BOQ (v3: chapter tree, table, item inspector, add and export dialogs) ---------- */
+Object.assign(ICP,{x:'<path d="M6 6l12 12M18 6L6 18"/>',pkg:'<path d="M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v8"/>',print:'<path d="M7 9V3h10v6M7 17H4v-6h16v6h-3M7 14h10v7H7z"/>',csv:'<path d="M4 4h16v16H4zM4 9h16M4 14h16M10 4v16"/>'});
+let FLT='all',CHSEL='all',SELC=null,BQ='';
+function boqModel(){
+  const chs=[];let cur=null,sub=null;
+  P.boq.forEach((r,i)=>{r._i=i;
+    if(r.kind==='ch'){if(i===0)return;cur={code:r.code.slice(0,2),name:r.desc,n:0,q:0,tot:0,subs:[]};chs.push(cur)}
+    else if(r.kind==='sub'){sub={code:r.code,name:r.desc,tot:0,n:0};cur.subs.push(sub)}
+    else if(r.kind==='item'&&cur){const p=P.prices[r.code],t=r.q!=null&&p?r.q*p:0;cur.n++;cur.q+=r.q!=null?1:0;cur.tot+=t;if(sub){sub.n++;sub.tot+=t}}});
+  return chs}
+function itemSt(r){const p=P.prices[r.code];return r.q==null?'miss':r.st==='חלקי'?'part':r.st==='ידני'?'man':p?'priced':'ok'}
+function boqStats(){const it=P.boq.filter(r=>r.kind==='item');return{n:it.length,meas:it.filter(r=>r.q!=null&&r.st!=='ידני'&&r.st!=='חלקי').length,man:it.filter(r=>r.st==='ידני').length,miss:it.filter(r=>r.q==null).length,part:it.filter(r=>r.st==='חלקי').length,priced:it.filter(r=>P.prices[r.code]).length}}
 async function boq(){
   if(!P.boq)return `<h1>כתב כמויות</h1><div class="card empty">עוד לא חושב. <a href="#/p/${P.id}/plans">העלה תוכניות</a> והרץ חישוב, או <button class="btn sec" onclick="startEmpty()">התחל כתב ריק</button></div>`;
-  const pr=P.prices;let cur='';
-  const man=new Set((P.manual||[]).map(m=>m.desc));
-  const tr=P.boq.map((r,i)=>{
-    if(r.kind==='ch'){cur=r.code.slice(0,2);return `<tr class="ch" data-ch="${cur}" onclick="toggleCh('${cur}')"><td class="code">${r.code}</td><td colspan="7"><span id="ar-${cur}">${COLL[cur]?'◂':'▾'}</span> ${esc(r.desc)}</td></tr>`}
-    if(r.kind==='sub')return `<tr class="sub" data-in="${cur}"><td class="code">${r.code}</td><td colspan="7">${esc(r.desc)}</td></tr>`;
-    const q=r.q,p=pr[r.code],tot=q&&p?q*p:null,st=q==null?'miss':r.st==='חלקי'?'part':p?'priced':'ok';
-    return `<tr class="${man.has(r.desc)||r.st==='ידני'?'m':''}" data-in="${cur}" data-st="${st}"><td class="code">${r.code}</td><td>${esc(r.desc)}${r.need?`<div class="sub" style="margin:0;font-size:12px">${esc(r.need)}</div>`:''}${r.method?`<div class="sub" style="margin:2px 0 0;font-size:12px">אופן המדידה: ${esc(r.method)} ${r.vsrc==='v'?'<span class="tag t-ok">מאומת</span>':'<span class="tag t-w">לאימות</span>'}</div>`:''}<span class="sug" id="s-${r.code}"></span></td><td>${esc(r.unit)}</td>
-    <td style="white-space:nowrap"><input class="num" style="width:90px" value="${q??''}" placeholder="כמות" onchange="setQty(${i},this.value)">${r.st==='חלקי'?' <span class="tag t-w">חלקי</span>':r.st==='ידני'?' <span class="tag t-ok">ידני</span>':q==null?' <span class="tag t-b">חסר</span>':''}</td>
-    <td><input class="num" data-c="${r.code}" value="${p??''}" placeholder="מחיר" ${q==null?'disabled':''} onchange="setPrice(this)"></td><td><b>${tot!=null?money(tot):''}</b></td><td style="font-size:12px;color:var(--mut)">${esc(r.src)}</td>
-    <td><button class="x" title="${man.has(r.desc)?'מחק סעיף':'הסתר סעיף'}" onclick="rmItem(${i})">✕</button></td></tr>`}).join('');
-  const chs=[...new Set(P.boq.filter(r=>r.kind==='ch'&&r.code!=='00.00.0000').map(r=>r.code.slice(0,2)+'|'+r.desc))];
+  const chs=boqModel(),S=boqStats(),hid=(P.hidden||[]),man=new Set((P.manual||[]).map(m=>m.desc));
+  const q=BQ.trim();
+  const pass=r=>{const st=itemSt(r);if(FLT==='miss'&&st!=='miss')return false;if(FLT==='part'&&st!=='part')return false;if(FLT==='man'&&st!=='man')return false;if(FLT==='priced'&&!P.prices[r.code])return false;if(q&&!((r.full||r.desc)+r.code).includes(q))return false;return true};
+  let curC=null,subHtml='',body='',cnt=0;const out=[];let curSub=null,pend=[];
+  const flush=()=>{if(pend.length&&pend.some(x=>x.it)){out.push(...pend)}pend=[]};
+  P.boq.forEach((r,i)=>{
+    if(r.kind==='ch'){if(i===0)return;flush();curC=r.code.slice(0,2);if(CHSEL!=='all'&&CHSEL!==curC){pend=[];curC='-'+curC;return}const c=chs.find(x=>x.code===curC);pend=[{h:`<div class="br rc" onclick="selCh('${curC}')"><span></span><span class="cdx">${curC}</span><span class="ds">${esc(r.desc)}</span><span></span><span></span><span></span><span class="tt">${c&&c.tot?money(c.tot):''}</span><span><span class="tg t-n">${c?c.n:0} סעיפים</span></span></div>`}];return}
+    if(typeof curC==='string'&&curC[0]==='-')return;
+    if(r.kind==='sub'){const sx=pend.filter(x=>!x.sub);pend=pend.filter(x=>!x.sub||x.it);if(pend.length&&!pend.some(x=>x.it&&x.under===curC)){}
+      const cc=chs.find(x=>x.code===curC),sb=cc&&cc.subs.find(s=>s.code===r.code);pend.push({sub:1,h:`<div class="br rs"><span></span><span class="cdx">${r.code.slice(0,5)}</span><span class="ds">${esc(r.desc)}</span><span></span><span></span><span></span><span class="tt">${sb&&sb.tot?money(sb.tot):''}</span><span></span></div>`});return}
+    if(r.kind==='note'){pend.push({note:1,h:`<div class="br rn"><span></span><span class="cdx">${r.code}</span><span class="ds mu">${esc(r.desc)}</span><span class="mu">הערה</span><span></span><span></span><span></span><span></span></div>`});return}
+    if(r.kind!=='item')return;
+    if(!pass(r))return;
+    const st=itemSt(r),p=P.prices[r.code],tot=r.q!=null&&p?r.q*p:null,tag={miss:'<span class="tg t-b">חסר</span>',part:'<span class="tg t-w">חלקי</span>',man:'<span class="tg t-w">ידני</span>',ok:'<span class="tg t-ok">נמדד</span>',priced:'<span class="tg t-ok">מתומחר</span>'}[st];
+    // make sure the sub heading and chapter heading of this item are emitted
+    const idx=pend.findIndex(x=>x.sub&&!x.done);
+    pend.forEach(x=>{if(x.sub)x.done=1});
+    pend.push({it:1,h:`<div class="br ${st==='miss'?'miss':''} ${st==='man'?'man':''} ${SELC===r.code?'rsel':''}" onclick="selItem('${r.code}')"><span></span><span class="cdx">${r.code}</span><span class="ds">${esc(r.full||r.desc)}${r.need&&st==='miss'?`<small>${esc(r.need)}</small>`:''}</span><span class="mu">${esc(r.unit)}</span><span class="nu" onclick="event.stopPropagation()"><input class="num qin" value="${r.q??''}" placeholder="—" onchange="setQty(${i},this.value)"></span><span class="pz" onclick="event.stopPropagation()"><input class="num qin" data-c="${r.code}" value="${p??''}" placeholder="—" ${r.q==null?'disabled':''} onchange="setPrice(this)"></span><span class="tt">${tot!=null?money(tot):''}</span><span>${tag}</span></div>`});cnt++});
+  flush();
+  const tbl=out.map(x=>x.h).join('');
+  const sel=P.boq.find(r=>r.code===SELC&&r.kind==='item');
   const prm=Object.entries(PARAMS).map(([k,d])=>`<div class="fld"><label>${d.label}</label><input class="num" style="width:100%" id="pp-${k}" value="${P.params[k]??d.v}"></div>`).join('');
-  const hid=(P.hidden||[]);
-  return `<h1>כתב כמויות</h1><p class="sub">מספור היררכי בפורמט כתב כמויות מכרזי. אפשר לתקן כל כמות, להוסיף סעיפים ופרקים, ולהסתיר מה שלא רלוונטי.</p>
-  <div class="row" style="margin-bottom:14px"><div class="chips">${[['all','הכל'],['miss','חסר כמות'],['part','חלקי'],['ok','עם כמות'],['priced','מתומחר']].map(([k,t])=>`<span class="chip ${FLT===k?'on':''}" onclick="setFlt('${k}')">${t}</span>`).join('')}</div><span class="sp"></span>
-   <button class="btn sec" onclick="document.getElementById('bld').scrollIntoView({behavior:'smooth'})">+ הוסף סעיף</button><button class="btn sec" onclick="suggestAll()">הצע מחירים מהזיכרון</button><button class="btn sec" onclick="remember()">שמור מחירים לזיכרון</button>
-   ${menu(`<a href="/api/projects/${P.id}/export.xlsx">כתב כמויות (Excel)</a><a href="/api/projects/${P.id}/quote.xlsx">הצעת מחיר (Excel)</a><button onclick="boqCsv()">כתב כמויות (CSV)</button><button onclick="window.print()">הדפסה / PDF</button>`)}</div>
-  <div class="card"><div class="scroll"><table><tr><th>מספר</th><th>תיאור</th><th>יח'</th><th>כמות</th><th>מחיר</th><th>סה"כ</th><th>מקור</th><th></th></tr>${tr}</table></div>
-  <div class="row" style="margin-top:14px;font-size:18px"><span class="sub" style="margin:0;font-size:13px">${hid.length?`${hid.length} סעיפים מוסתרים · <a href="#" onclick="unhideAll();return false">החזר הכל</a>`:''}</span><span class="sp"></span><b>סה"כ מתומחר: ${money(SUM.total)}</b></div></div>
-  <div class="card builder" id="bld" style="margin-top:16px"><h2>בנאי: הוספת סעיף</h2><div class="grid g4" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
-   <div class="fld"><label>פרק</label><select id="b-ch" onchange="document.getElementById('b-new').style.display=this.value==='new'?'grid':'none'">${chs.map(c=>{const[n,d]=c.split('|');return `<option value="${+n}">${n} · ${esc(d)}</option>`}).join('')}<option value="new">+ פרק חדש…</option></select></div>
-   <div class="fld" id="b-new" style="display:none"><label>מספר ושם פרק חדש</label><div class="row"><input id="b-cn" class="num" style="width:70px" placeholder="50"><input id="b-cname" placeholder="שם הפרק"></div></div>
-   <div class="fld" style="grid-column:span 2"><label>תיאור הסעיף</label><input id="b-desc" placeholder="למשל: ריצוף אבן טבעית בחדרי רחצה"></div>
-   <div class="fld"><label>יחידה</label><select id="b-unit">${['מ"ר','מטר','יח\'','מ"ק','טון','ק"ג','קומפ\'','נק\'','שעה','ליטר'].map(u=>`<option>${u}</option>`).join('')}</select></div>
-   <div class="fld"><label>כמות</label><input id="b-q" class="num" style="width:100%" placeholder="אפשר להשאיר ריק"></div></div>
-   <button class="btn" style="margin-top:12px" onclick="addItem()">הוסף לכתב</button></div>
+  const tree=chs.map(c=>`<div class="tc ${CHSEL===c.code?'on':''}" onclick="selCh('${c.code}')"><span class="cd">${c.code}</span><span class="nm">${esc(c.name)}</span><span class="ct">${c.n}</span><span class="dt2 ${c.q===c.n?'g':c.q?'y':'r'}"></span></div>${CHSEL===c.code?c.subs.map(s=>`<div class="tcs"><span>${s.code.slice(0,5)} ${esc(s.name)}</span><span>${s.n}</span></div>`).join(''):''}`).join('');
+  return `<div class="hd"><div><div class="crumb"><a href="#/">כל הפרויקטים</a> / ${esc(P.name)}</div><h1 class="h1x">כתב כמויות<span class="vchip">${ic('diff',14)}גרסה ${P.version}</span></h1><div class="mu" style="margin-top:4px">פרק ← תת-פרק ← סעיף. לחיצה על סעיף פותחת מאיפה הכמות הגיעה ואיך חושבה. אפשר לתקן כמות ומחיר ישירות בטבלה.</div></div><span class="sp" style="flex:1"></span>
+   <div class="srch">${ic('search',16)}<input placeholder="חיפוש סעיף או קוד" value="${esc(BQ)}" oninput="BQ=this.value;clearTimeout(window.__bt);window.__bt=setTimeout(()=>{render().then?0:0},250)"></div>
+   <button class="btn sec" onclick="dlgAdd()">${ic('plus',16)}הוסף סעיף</button><button class="btn p" onclick="dlgExport()">${ic('xls',16)}ייצוא</button></div>
+  <div class="stats"><div><b>${S.n}</b><span>סעיפים בכתב</span></div><div><b style="color:var(--ok)">${S.meas}</b><span>נמדדו מהתוכניות</span></div><div><b style="color:var(--warn)">${S.man}</b><span>הוזנו ידנית</span></div><div><b style="color:var(--bad)">${S.miss}</b><span>חסרה כמות</span></div><div><b>${S.part}</b><span>חלקיים</span></div><div><b>${money(SUM.total||0)}</b><span>סה"כ מתומחר (ללא מע"מ)</span></div></div>
+  <div class="wrap"><div class="tree"><h4>פרקים · ${chs.length}</h4><div class="tc ${CHSEL==='all'?'on':''}" onclick="selCh('all')"><span class="cd"></span><span class="nm">כל הפרקים</span><span class="ct">${S.n}</span></div>${tree}<div class="tc" style="color:var(--pri2);font-weight:700" onclick="dlgAdd(true)">${ic('plus',15)}הוסף פרק</div></div>
+  <div><div class="tool"><div class="chips">${[['all','הכל',S.n],['miss','חסר כמות',S.miss],['part','חלקי',S.part],['man','ידני',S.man],['priced','מתומחר',S.priced]].map(([k,t,n])=>`<span class="chip ${FLT===k?'on':''}" onclick="setFlt('${k}')">${t}<small>${n}</small></span>`).join('')}</div><span style="flex:1"></span>${hid.length?`<span class="mu" style="font-size:13px">${hid.length} מוסתרים · <a href="#" onclick="unhideAll();return false">החזר הכל</a></span>`:''}<button class="btn sec sm" onclick="suggestAll()">הצע מחירים מהזיכרון</button><button class="btn sec sm" onclick="remember()">שמור מחירים לזיכרון</button></div>
+   <div class="tbl"><div class="bth"><span></span><span>מספר</span><span>תיאור</span><span>יח'</span><span style="text-align:end">כמות</span><span style="text-align:end">מחיר</span><span style="text-align:end">סה"כ</span><span>סטטוס</span></div>${tbl||'<div class="empty" style="padding:30px;text-align:center" >אין סעיפים שמתאימים לסינון.</div>'}</div></div>
+  <div class="insp">${sel?inspH(sel,man):`<div class="hd2"><small>סעיף</small><b>בחר סעיף בטבלה</b></div><div class="sec mu">לחיצה על שורה מציגה כאן את מקור הכמות, אופן המדידה והיסטוריה, ופעולות על הסעיף.</div>`}</div></div>
   <details class="card" style="margin-top:16px"><summary style="cursor:pointer;font-weight:700">הנחות החישוב (משנים וכל הכתב מחושב מחדש)</summary><div class="grid g4" style="margin-top:12px">${prm}</div><button class="btn" style="margin-top:12px" onclick="saveParams()">שמור וחשב מחדש</button></details>`}
-window.after_boq=()=>applyFlt();
-function applyFlt(){document.querySelectorAll('tr[data-in]').forEach(r=>{let hide=!!COLL[r.dataset.in];if(!hide&&FLT!=='all'&&r.dataset.st){const st=r.dataset.st;hide=!(FLT===st||(FLT==='ok'&&(st==='ok'||st==='priced'||st==='part')))}if(!hide&&FLT!=='all'&&!r.dataset.st)hide=true;r.classList.toggle('hid',hide)})}
+function inspH(r,man){const st=itemSt(r),isM=man.has(r.desc),i=r._i;
+  return `<div class="hd2"><small>${r.code} · נבחר</small><b>${esc(r.full||r.desc)}</b></div>
+  <div class="sec"><h5>כמות</h5><div class="bigq">${r.q!=null?nf(r.q,2):'—'}<small>${esc(r.unit)}</small></div><div style="margin-top:6px">${r.q==null?'<span class="tg t-b">חסר</span>':r.st==='חלקי'?'<span class="tg t-w">חלקי</span>':r.st==='ידני'?'<span class="tg t-w">ידני</span>':'<span class="tg t-ok">נמדד</span>'} ${r.vsrc==='v'?'<span class="tg t-ok">כלל מאומת</span>':r.method?'<span class="tg t-w">כלל לאימות</span>':''}</div></div>
+  <div class="sec"><h5>מאיפה הגיעה הכמות</h5><div class="fx">${esc(r.src||'')}</div>${r.need?`<div class="warn2">${ic('alert',16)}<div>${esc(r.need)}</div></div>`:''}</div>
+  ${r.method?`<div class="sec"><h5>אופן המדידה</h5><div class="fx">${esc(r.method)}</div></div>`:''}
+  <div class="sec"><h5>פעולות</h5><div class="act"><span onclick="document.querySelector('.rsel .qin').focus()">${ic('plus',14)}שנה כמות ידנית</span>${r.st==='ידני'&&!isM?`<span onclick="bld({action:'qty',desc:${JSON.stringify(r.desc).replace(/"/g,'&quot;')},q:''})">${ic('undo',14)}חזור לכמות המחושבת</span>`:`<span onclick="location.hash='#/p/${P.id}/plans'">${ic('plan',14)}הצג תוכניות</span>`}<span style="color:var(--bad)" onclick="rmItem(${i})">${ic('x',14)}${isM?'מחק סעיף':'הסתר מהכתב'}</span></div></div>`}
+function selCh(c){CHSEL=c;SELC=null;render()}
+function selItem(c){SELC=c;render()}
 function setFlt(k){FLT=k;render()}
-function toggleCh(c){COLL[c]=!COLL[c];$('#ar-'+c).textContent=COLL[c]?'◂':'▾';applyFlt()}
+window.after_boq=()=>{};
+function dlgAdd(newCh){
+  const chs=boqModel();let spec=window.__spec;
+  const d=document.createElement('div');d.className='ov2';
+  const opts=chs.map(c=>`<option value="${+c.code}" ${CHSEL===c.code?'selected':''}>${c.code} · ${esc(c.name)}</option>`).join('');
+  d.innerHTML=`<div class="dg" onclick="event.stopPropagation()" style="width:640px"><h2 style="margin:0 0 14px">${newCh?'פרק חדש':'סעיף חדש'}</h2><div class="grid" style="grid-template-columns:1fr 1fr;gap:12px">
+   <div class="fld"><label>פרק</label><select id="a-ch" onchange="document.getElementById('a-new').style.display=this.value==='new'?'grid':'none'">${opts}<option value="new" ${newCh?'selected':''}>+ פרק חדש…</option></select></div>
+   <div class="fld" id="a-new" style="display:${newCh?'grid':'none'}"><label>מספר ושם הפרק החדש</label><div class="row"><input id="a-cn" class="num" style="width:70px" placeholder="50"><input id="a-cname" placeholder="שם הפרק"></div></div>
+   <div class="fld"><label>תת-פרק (מספר)</label><input id="a-sub" class="num" value="1" style="width:100%"></div>
+   <div class="fld"><label>יחידה</label><select id="a-unit">${['מ"ר','מ"א','יח\'','מ"ק','טון','ק"ג','קומפ\'','נק\'','ש"ע','ליטר'].map(u=>`<option>${u}</option>`).join('')}</select></div>
+   <div class="fld" style="grid-column:span 2"><label>תיאור הסעיף (אפשר להתחיל להקליד ולבחור מספר המפרט)</label><input id="a-desc" list="a-sp" placeholder="למשל: ריצוף אבן טבעית בחדרי רחצה" oninput="addPick(this.value)"><datalist id="a-sp">${(spec||[]).map(s=>`<option value="${esc(s.desc)}">`).join('')}</datalist></div>
+   <div class="fld"><label>כמות (אפשר להשאיר ריק)</label><input id="a-q" class="num" style="width:100%"></div></div>
+   <div class="row" style="margin-top:16px;gap:8px"><button class="btn p" onclick="addGo()">הוסף לכתב</button><button class="btn sec" onclick="this.closest('.ov2').remove()">ביטול</button></div></div>`;
+  d.onclick=()=>d.remove();document.body.appendChild(d);
+  if(!spec)api('/spec').then(r=>{window.__spec=r.items;const dl=document.getElementById('a-sp');if(dl)dl.innerHTML=r.items.map(s=>`<option value="${esc(s.desc)}">`).join('')})}
+function addPick(v){const s=(window.__spec||[]).find(x=>x.desc===v);if(!s)return;const u=document.getElementById('a-unit');[...u.options].some(o=>o.text===s.unit)||u.add(new Option(s.unit));u.value=s.unit;const c=document.getElementById('a-ch');if([...c.options].some(o=>+o.value===s.ch))c.value=s.ch;document.getElementById('a-sub').value=s.sub}
+async function addGo(){const c=document.getElementById('a-ch').value,nw=c==='new';const b={action:'add',ch:nw?document.getElementById('a-cn').value:c,sub:document.getElementById('a-sub').value||1,desc:document.getElementById('a-desc').value,unit:document.getElementById('a-unit').value,q:document.getElementById('a-q').value};if(nw)b.chname=document.getElementById('a-cname').value;
+  try{await bld(b);document.querySelector('.ov2')?.remove();toast('הסעיף נוסף')}catch(e){toast(e.message)}}
+let EXP={fmt:'xlsx',scope:'all',miss:'show',cols:{price:1,total:1,src:1},chs:null};
+function dlgExport(){document.querySelector('.ov2')?.remove();const chs=boqModel();if(!EXP.chs)EXP.chs=new Set(chs.map(c=>c.code));
+  const S=boqStats(),d=document.createElement('div');d.className='ov2';d.id='exp';
+  const fm=(k,i,b,s)=>`<div class="fm ${EXP.fmt===k?'on':''}" onclick="EXP.fmt='${k}';dlgExport()"><span class="fi">${ic(i,19)}</span><div><b>${b}</b><small>${s}</small></div></div>`;
+  const seg=(k,arr)=>`<div class="seg">${arr.map(([v,t])=>`<span class="${EXP[k]===v?'on':''}" onclick="EXP.${k}='${v}';dlgExport()">${t}</span>`).join('')}</div>`;
+  const ck=(lab,on,fn)=>`<div class="ck" onclick="${fn}"><span class="bx ${on?'on':''}">${on?ic('check',13):''}</span>${lab}</div>`;
+  const pv=P.boq.filter(r=>r.kind!=='note').slice(0,40).filter(r=>r.kind==='item'||r.kind==='ch').slice(1,6);
+  const nm=`כתב-כמויות_${P.name.replace(/\s+/g,'-')}_v${P.version}.${EXP.fmt==='csv'?'csv':EXP.fmt==='print'?'pdf':'xlsx'}`;
+  d.innerHTML=`<div class="dg xdg" onclick="event.stopPropagation()"><div class="dh"><h2>ייצוא כתב כמויות</h2><span class="tg t-i" style="margin-inline-start:12px">גרסה ${P.version}</span><span style="flex:1"></span><span class="mu" style="cursor:pointer" onclick="document.getElementById('exp').remove()">${ic('x',20)}</span></div>
+  <div class="xb"><div class="l"><div class="fmts">${fm('xlsx','xls','Excel · כתב כמויות','בפורמט כתב הכמויות המכרזי: שער, סיכום פרקים, כתב, תמחור, מה חסר ושיטות')}${fm('quote','csv','Excel · הצעת מחיר','כתב עם מחירים, סה"כ והנחה לכל פרק. נוסחאות חיות')}${fm('print','print','PDF להדפסה','הדפסה מהדפדפן. שמור כ-PDF')}${fm('csv','pkg','CSV','טבלה פשוטה לייבוא למערכות אחרות')}</div>
+  <div class="opts"><h5>מה לכלול</h5>${seg('scope',[['all','כל הכתב'],['chs','פרקים נבחרים'],['measured','רק מה שנמדד']])}
+  ${EXP.scope==='chs'?`<div style="display:grid;grid-template-columns:1fr 1fr;margin-top:6px">${chs.map(c=>ck(c.code+' '+esc(c.name),EXP.chs.has(c.code),`EXP.chs.has('${c.code}')?EXP.chs.delete('${c.code}'):EXP.chs.add('${c.code}');dlgExport()`)).join('')}</div>`:''}
+  <h5>עמודות</h5><div style="display:grid;grid-template-columns:1fr 1fr">${ck('מחיר יחידה וסה"כ',EXP.cols.price,"EXP.cols.price=EXP.cols.price?0:1;EXP.cols.total=EXP.cols.price;dlgExport()")}${ck('מקור הכמות והערות',EXP.cols.src,"EXP.cols.src=EXP.cols.src?0:1;dlgExport()")}</div>
+  <h5>טיפול בסעיפים חסרים</h5>${seg('miss',[['show','הצג בצהוב עם הערה'],['hide','הסתר סעיפים בלי כמות']])}</div></div>
+  <div class="rr"><b>תצוגה מקדימה</b><div class="pv" style="margin:10px 0 14px"><div class="h"><span>מספר</span><span>תאור</span><span>יח'</span><span>כמות</span></div>${pv.map(r=>`<div class="${r.kind==='ch'?'c':''}"><span>${r.code.slice(0,r.kind==='ch'?2:10)}</span><span>${esc((r.full||r.desc).slice(0,46))}</span><span>${esc(r.unit||'')}</span><span>${r.q??''}</span></div>`).join('')}</div>
+  ${S.miss?`<div class="warn2">${ic('alert',18)}<div><b>${S.miss} סעיפים בלי כמות.</b> ${EXP.miss==='show'?'יסומנו בצהוב ויופיעו גם בלשונית "מה חסר". אפשר לייצא בכל זאת.':'לא יופיעו בקובץ.'}</div></div>`:''}
+  <div class="mu" style="margin-top:14px">שם הקובץ: <b style="color:var(--ink)">${esc(nm)}</b></div>
+  <div style="display:flex;gap:8px;margin-top:14px"><button class="btn p" style="flex:1;justify-content:center" onclick="expGo()">${ic('xls',16)}ייצא קובץ</button><button class="btn sec" onclick="document.getElementById('exp').remove()">ביטול</button></div></div></div></div>`;
+  d.onclick=()=>d.remove();document.body.appendChild(d)}
+function expGo(){const q=new URLSearchParams();if(EXP.scope==='chs')q.set('ch',[...EXP.chs].join(','));if(EXP.scope==='measured')q.set('only','measured');if(EXP.miss==='hide')q.set('missing','hide');
+  const hide=[];if(!EXP.cols.price)hide.push('price','total');if(!EXP.cols.src)hide.push('src');if(hide.length)q.set('hide',hide.join(','));
+  document.getElementById('exp')?.remove();
+  if(EXP.fmt==='print'){window.print();return}
+  if(EXP.fmt==='csv'){boqCsv();return}
+  const a=document.createElement('a');a.href=`/api/projects/${P.id}/${EXP.fmt==='quote'?'quote':'export'}.xlsx?${q}`;a.click();toast('הקובץ יורד')}
 async function bld(b){P=await api(`/projects/${P.id}/builder`,{method:'POST',body:b});render()}
 function setQty(i,v){bld({action:'qty',desc:P.boq[i].desc,q:v})}
 async function rmItem(i){const d=P.boq[i].desc;if((P.manual||[]).some(m=>m.desc===d))await bld({action:'rm_manual',desc:d});else await bld({action:'hide',desc:d});toast('הוסר מהכתב')}
