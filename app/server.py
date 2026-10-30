@@ -265,6 +265,21 @@ def rebuild(pr):
     for k in used: asm.append(dict(t=f"הנחה: {BR.DEFAULT_PARAMS[k]['label']} = {P[k]}",why=BR.DEFAULT_PARAMS[k]['why'],gives='פירוק לחומרים',how='עדכן בהגדרות הפרויקט'))
     pr['boq']=rows; pr['materials']=mats; pr['needs']=B.needs(sheets,missing,unbuilt,asm)
 
+@app.get('/api/projects/{pid}/preflight')
+def preflight(pid:str):
+    """what is missing or partial, by chapter, and why. Shown before every export."""
+    pr=_load(pid); chs=[]; cur=None
+    for r in pr.get('boq') or []:
+        if r['kind']=='ch' and r['desc']!=pr['name']: cur=dict(code=r['code'][:2],name=r['desc'],missing=[],partial=[],ok=0); chs.append(cur)
+        elif r['kind']=='item' and cur is not None:
+            it=dict(code=r['code'],desc=r.get('full') or r['desc'],unit=r['unit'],why=r.get('need',''))
+            if r['q'] is None: cur['missing'].append(it)
+            elif r['st']=='חלקי': cur['partial'].append(it)
+            else: cur['ok']+=1
+    sheets=[n for n in pr.get('needs',[]) if n['t'].startswith('גיליון מסוג')]
+    return dict(chapters=[c for c in chs if c['missing'] or c['partial']],sheets=[dict(t=n['t'].replace('גיליון מסוג: ',''),how=n['how']) for n in sheets],
+        n_missing=sum(len(c['missing']) for c in chs),n_partial=sum(len(c['partial']) for c in chs),n_ok=sum(c['ok'] for c in chs))
+
 @app.post('/api/projects/{pid}/builder')
 def builder(pid:str,body:dict):
     """add / quantity override / hide / restore / rename chapter, without re-running the engines"""

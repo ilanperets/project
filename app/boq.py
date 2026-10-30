@@ -183,6 +183,20 @@ def to_xlsx(rows,name,path,needs_list=(),prices=None,meta=None,hide=()):
         me.cell(me.max_row,2).alignment=Alignment(wrap_text=True,vertical='top')
     for col,w in zip('ABCDEF',[12,50,8,60,28,14]): me.column_dimensions[col].width=w
     me.freeze_panes='A2'
+    miss=[r for r in items if r.get('q') is None or r.get('st')=='חלקי']
+    if miss:
+        mm=wb.create_sheet('שורות חסרות לפי פרק'); mm.sheet_view.rightToLeft=True
+        mm.append(['פרק','מספר','תאור','יח\'','מצב','למה חסר / מה חסר'])
+        for c in mm[1]: c.font=F(bold=True,color='FFFFFF'); c.fill=DK
+        chname={}
+        for r in rows:
+            if r['kind']=='ch': chname[r['code'][:2]]=r['desc']
+        for r in miss:
+            mm.append([chname.get(r['code'][:2],''),r['code'],r.get('full') or r['desc'],r['unit'],'חסרה כמות' if r.get('q') is None else 'כמות חלקית',r.get('need','')])
+            mm.cell(mm.max_row,5).fill=MISS if r.get('q') is None else PART
+            for ci in (3,6): mm.cell(mm.max_row,ci).alignment=Alignment(wrap_text=True,vertical='top')
+        for col,w in zip('ABCDEF',[26,12,60,8,14,70]): mm.column_dimensions[col].width=w
+        mm.freeze_panes='A2'
     tr=[r for r in items if r.get('trace')]
     if tr:
         tc=wb.create_sheet('דפי חישוב'); tc.sheet_view.rightToLeft=True

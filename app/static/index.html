@@ -245,6 +245,7 @@ tr.ch{cursor:pointer}tr.hid{display:none}tr.m td{background:color-mix(in srgb,va
 .ck{display:flex;gap:9px;align-items:center;padding:6px 0;font-size:14px}.bx{width:19px;height:19px;border-radius:6px;border:2px solid var(--line);display:grid;place-items:center;color:#fff;flex:none}.bx.on{background:var(--pri2);border-color:var(--pri2)}
 .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}.seg span{flex:1;text-align:center;padding:7px;font-size:13px;font-weight:600;color:var(--ink2)}.seg span.on{background:var(--ink);color:#fff}
 .pv{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:11.5px;box-shadow:0 10px 24px -16px rgba(0,0,0,.3)}.pv div{display:grid;grid-template-columns:78px 1fr 44px 52px;gap:6px;padding:5px 8px;border-bottom:1px solid #EEF2F7}.pv .h{background:#D9D9D9;font-weight:700}.pv .c{background:#EEF3FA;font-weight:700}
+.pf{background:#FFF8E6;border:1px solid #F0DDA6;border-radius:12px;padding:11px 13px;margin-top:12px;font:500 13px/1.45 var(--fb);color:#6B4E00}.pf-ok{display:flex;gap:8px;background:#EAF6EF;border-color:#BFE3CE;color:#1E6B45}.pfh{display:flex;gap:9px}.pfs{margin-top:8px}.pfl{margin-top:8px;max-height:210px;overflow:auto}.pfc{padding:6px 0;border-top:1px solid #F0DDA6}.pfc div{display:flex;justify-content:space-between;gap:8px}.pfc span{font-weight:600}.pfc small{display:block;color:#8A6A10;font-size:11.5px}
 .warn2{display:flex;gap:9px;background:var(--warnb);color:var(--warn);border-radius:11px;padding:10px 12px;font-size:13px;line-height:1.4;margin-top:12px}
 
 .qin{width:100%;min-height:0;padding:4px 6px;border:1px solid transparent;background:transparent;text-align:end;font:600 14px var(--fd)}.qin:hover,.qin:focus{border-color:var(--line);background:#fff}
@@ -446,6 +447,11 @@ function resetAll(){const d=document.createElement('div');d.className='lb';d.sty
   <div class="fld" style="margin-top:12px"><label>לאישור, כתוב: אפס</label><input id="rs-t" autocomplete="off"></div>
   <div class="row" style="margin-top:16px"><button class="btn danger" onclick="doReset()">מחק הכל והתחל מחדש</button><button class="btn sec" onclick="this.closest('.lb').remove()">ביטול</button></div></div>`;
   d.onclick=()=>d.remove();document.body.appendChild(d)}
+async function preflightLoad(){const el=document.getElementById('pfl');if(!el)return;const r=await fetch(`/api/projects/${P.id}/preflight`).then(x=>x.json());
+  if(!r.n_missing&&!r.n_partial){el.innerHTML=`<div class="pf pf-ok">${ic('check',16)}<div><b>הכתב שלם.</b> כל הסעיפים נמדדו.</div></div>`;return}
+  el.innerHTML=`<div class="pf"><div class="pfh">${ic('alert',18)}<div><b>לפני הייצוא: ${r.n_missing} סעיפים בלי כמות, ${r.n_partial} חלקיים.</b> ${r.n_ok} נמדדו במלואם. השורות החסרות ירשמו בקובץ בלשונית "שורות חסרות לפי פרק".</div></div>
+  ${r.sheets.length?`<div class="pfs"><b>גיליונות שלא נמצאו בתיק:</b> ${r.sheets.map(s=>esc(s.t)).join(' · ')}</div>`:''}
+  <div class="pfl">${r.chapters.map(c=>`<div class="pfc"><div><b>${c.code} ${esc(c.name)}</b><span>${c.missing.length?c.missing.length+' חסרים':''}${c.missing.length&&c.partial.length?' · ':''}${c.partial.length?c.partial.length+' חלקיים':''}</span></div><small>${esc([...new Set(c.missing.map(m=>(m.why||'').split('.')[0]))].filter(Boolean).slice(0,2).join(' · ')||(c.partial[0]?.why||''))}</small></div>`).join('')}</div></div>`}
 async function doReset(){if($('#rs-t').value.trim()!=='אפס'){toast('כדי לאשר צריך לכתוב: אפס');return}
   await api('/reset',{method:'POST',body:{memory:$('#rs-m').checked,rules:$('#rs-r').checked}});document.querySelector('.lb')?.remove();toast('המערכת אופסה');location.hash='#/';render()}
 async function delProj(id){if(confirm('למחוק את הפרויקט וכל הקבצים שלו?')){await api('/projects/'+id,{method:'DELETE'});document.querySelector('.lb')?.remove();render()}}
@@ -712,10 +718,10 @@ function dlgExport(){document.querySelector('.ov2')?.remove();const chs=boqModel
   <h5>עמודות</h5><div style="display:grid;grid-template-columns:1fr 1fr">${ck('מחיר יחידה וסה"כ',EXP.cols.price,"EXP.cols.price=EXP.cols.price?0:1;EXP.cols.total=EXP.cols.price;dlgExport()")}${ck('מקור הכמות והערות',EXP.cols.src,"EXP.cols.src=EXP.cols.src?0:1;dlgExport()")}</div>
   <h5>טיפול בסעיפים חסרים</h5>${seg('miss',[['show','הצג בצהוב עם הערה'],['hide','הסתר סעיפים בלי כמות']])}</div></div>
   <div class="rr"><b>תצוגה מקדימה</b><div class="pv" style="margin:10px 0 14px"><div class="h"><span>מספר</span><span>תאור</span><span>יח'</span><span>כמות</span></div>${pv.map(r=>`<div class="${r.kind==='ch'?'c':''}"><span>${r.code.slice(0,r.kind==='ch'?2:10)}</span><span>${esc((r.full||r.desc).slice(0,46))}</span><span>${esc(r.unit||'')}</span><span>${r.q??''}</span></div>`).join('')}</div>
-  ${S.miss?`<div class="warn2">${ic('alert',18)}<div><b>${S.miss} סעיפים בלי כמות.</b> ${EXP.miss==='show'?'יסומנו בצהוב ויופיעו גם בלשונית "מה חסר". אפשר לייצא בכל זאת.':'לא יופיעו בקובץ.'}</div></div>`:''}
+  <div id="pfl"></div>
   <div class="mu" style="margin-top:14px">שם הקובץ: <b style="color:var(--ink)">${esc(nm)}</b></div>
   <div style="display:flex;gap:8px;margin-top:14px"><button class="btn p" style="flex:1;justify-content:center" onclick="expGo()">${ic('xls',16)}ייצא קובץ</button><button class="btn sec" onclick="document.getElementById('exp').remove()">ביטול</button></div></div></div></div>`;
-  d.onclick=()=>d.remove();document.body.appendChild(d)}
+  d.onclick=()=>d.remove();document.body.appendChild(d);preflightLoad()}
 function expGo(){const q=new URLSearchParams();if(EXP.scope==='chs')q.set('ch',[...EXP.chs].join(','));if(EXP.scope==='measured')q.set('only','measured');if(EXP.miss==='hide')q.set('missing','hide');
   const hide=[];if(!EXP.cols.price)hide.push('price','total');if(!EXP.cols.src)hide.push('src');if(hide.length)q.set('hide',hide.join(','));
   document.getElementById('exp')?.remove();
