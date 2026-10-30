@@ -178,7 +178,7 @@ def facades(path,scale):
         cx,cy=(x0+x1)/2,(y0+y1)/2
         vi=[i for i,v in enumerate(views) if v.contains(fitz.Point(cx,cy))]
         if not vi: continue
-        if y1>=views[vi[0]].y1-10: continue  # detail boxes hanging below the ground line
+        if y1>=views[vi[0]].y1-80: continue  # detail boxes hanging below the ground line
         per[f'חזית {vi[0]+1}'].append((x0,y0,x1,y1,w,h))
     if not per: return [],{}
     win=[];door=[];orows=[];n=0;total=0.0
