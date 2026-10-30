@@ -26,9 +26,12 @@ def _load(pid):
     p=os.path.join(_pdir(pid),'project.json')
     if not os.path.exists(p): raise HTTPException(404,'פרויקט לא נמצא')
     pr=json.load(open(p,encoding='utf-8'))
-    for k,v in (('materials',[]),('prices',{}),('mprices',{}),('params',{}),('bills',[]),('orders',[]),('quotes',[]),('needs',[]),('log',[])): pr.setdefault(k,v)
+    for k,v in (('materials',[]),('prices',{}),('mprices',{}),('params',{}),('bills',[]),('orders',[]),('quotes',[]),('needs',[]),('log',[]),('events',[]),('checks',{}),('version',1),('status','received'),('client',''),('measurer',''),('reviewer',''),('due',''),('created',''),('updated',''),('changes',None),('delivered_at','')): pr.setdefault(k,v)
     return pr
-def _save(pr): json.dump(pr,open(os.path.join(_pdir(pr['id']),'project.json'),'w',encoding='utf-8'),ensure_ascii=False)
+def _ev(pr,t): pr.setdefault('events',[]).append(dict(t=t,at=datetime.datetime.now().isoformat(timespec='minutes'))); pr['events']=pr['events'][-40:]
+def _save(pr):
+    pr['updated']=datetime.datetime.now().isoformat(timespec='minutes')
+    json.dump(pr,open(os.path.join(_pdir(pr['id']),'project.json'),'w',encoding='utf-8'),ensure_ascii=False)
 
 @app.get('/api/health')
 def health(): return dict(ok=True,types=C.TYPES)
@@ -37,14 +40,14 @@ def health(): return dict(ok=True,types=C.TYPES)
 def projects():
     out=[]
     for d in sorted(os.listdir(PROJ)):
-        try: pr=_load(d); out.append(dict(id=pr['id'],name=pr['name'],sheets=len(pr['sheets']),has_boq=bool(pr.get('boq'))))
+        try: pr=_load(d); out.append(dict(id=pr['id'],name=pr['name'],sheets=len(pr['sheets']),has_boq=bool(pr.get('boq')),status=pr.get('status')))
         except Exception: pass
     return out
 
 @app.post('/api/projects')
 def create(body:dict):
     pid=uuid.uuid4().hex[:8]; os.makedirs(os.path.join(_pdir(pid),'files'))
-    pr=dict(id=pid,name=(body.get('name') or 'פרויקט חדש').strip()[:80],scale=None,sheets=[],boq=None,needs=[],log=[],materials=[],prices={},mprices={},params={},bills=[],orders=[],quotes=[]); _save(pr); return pr
+    now=datetime.datetime.now().isoformat(timespec='minutes'); pr=dict(id=pid,name=(body.get('name') or 'פרויקט חדש').strip()[:80],client=(body.get('client') or '').strip()[:60],measurer=(body.get('measurer') or '').strip()[:40],reviewer=(body.get('reviewer') or '').strip()[:40],due=(body.get('due') or '')[:10],status='received',version=1,created=now,events=[dict(t='הפרויקט נפתח',at=now)],checks={},scale=None,sheets=[],boq=None,needs=[],log=[],materials=[],prices={},mprices={},params={},bills=[],orders=[],quotes=[]); _save(pr); return pr
 
 @app.post('/api/reset')
 def reset(body:dict):
@@ -58,6 +61,32 @@ def reset(body:dict):
             try: os.remove(f)
             except OSError: pass
     return dict(ok=True)
+
+STATUSES=['received','measuring','review','delivered']
+@app.post('/api/projects/{pid}/meta')
+def meta(pid:str,body:dict):
+    pr=_load(pid)
+    for k in ('name','client','measurer','reviewer'):
+        if k in body: pr[k]=str(body[k]).strip()[:80]
+    if 'due' in body: pr['due']=str(body['due'])[:10]
+    if 'checks' in body: pr['checks'].update({k:bool(v) for k,v in body['checks'].items()})
+    if 'status' in body:
+        if body['status'] not in STATUSES: raise HTTPException(400,'סטטוס לא מוכר')
+        if body['status']=='review' and not pr.get('boq'): raise HTTPException(400,'אי אפשר לשלוח לבדיקה לפני שחושב כתב')
+        if body['status']=='delivered':
+            if not all(c['ok'] for c in _checks(pr)): raise HTTPException(400,'לא כל הבדיקות הושלמו')
+            pr['delivered_at']=datetime.datetime.now().isoformat(timespec='minutes')
+        if pr['status']!=body['status']: _ev(pr,{'received':'הוחזר לשלב קבלה','measuring':'הוחזר למדידה','review':'נשלח לבדיקה','delivered':'נמסר ללקוח'}[body['status']])
+        pr['status']=body['status']
+    _save(pr); return pr
+
+def _checks(pr):
+    ck=pr.get('checks',{}); sh=pr['sheets']; needs=pr.get('needs',[])
+    return [dict(k='scale',t='קנה מידה כויל מהתוכנית',auto=True,ok=bool(pr.get('scale')) and not any(n['t'].startswith('קנה מידה') for n in needs)),
+     dict(k='sheets',t='כל הגיליונות סווגו',auto=True,ok=bool(sh) and all(x['type']!='unknown' for x in sh)),
+     dict(k='high',t='אין ממצאים דחופים פתוחים',auto=True,ok=not any(n['p']=='high' for n in needs),note=f"{sum(1 for n in needs if n['p']=='high')} פתוחים"),
+     dict(k='asm',t='ההנחות אושרו',auto=False,ok=bool(ck.get('asm'))),
+     dict(k='second',t='בדיקה שנייה בוצעה',auto=False,ok=bool(ck.get('second')),note=pr.get('reviewer') or 'לא הוגדר בודק')]
 
 @app.get('/api/projects/{pid}')
 def get(pid:str): return _load(pid)
@@ -79,6 +108,8 @@ async def upload(pid:str,files:list[UploadFile]=File(...)):
         except Exception as e: os.remove(path); added.append(dict(file=f.filename,error='הקובץ לא נקרא: '+str(e)[:80])); continue
         s=dict(sid=sid,file=f.filename,hash=h,w_mm=ft['w_mm'],h_mm=ft['h_mm'],n_draw=ft['n_draw'],layers=ft['layers'],type=cl['type'],conf=cl['conf'],why=cl['why'],floor=None,confirmed=False)
         pr['sheets'].append(s); seen[h]=s; added.append(dict(file=f.filename,sid=sid,type=s['type'],conf=s['conf']))
+    n_ok=sum(1 for a in added if a.get('sid'))
+    if n_ok: _stash(pr); _ev(pr,f'הועלו {n_ok} תוכניות')
     pr['boq']=None; _save(pr); return dict(added=added,project=pr)
 
 @app.post('/api/projects/{pid}/sheets/{sid}')
@@ -91,7 +122,11 @@ def label(pid:str,sid:str,body:dict):
         rules=[r for r in _rules() if set(r['sig'])!=set(C.sig(s['layers']))]; rules.append(dict(sig=C.sig(s['layers']),type=s['type']))
         os.makedirs(ROOT,exist_ok=True); json.dump(rules,open(RULES,'w',encoding='utf-8'),ensure_ascii=False)
     if 'floor' in body: s['floor']=body['floor'] or None
-    pr['boq']=None; _save(pr); return pr
+    _stash(pr); pr['boq']=None; _save(pr); return pr
+
+def _snap(rows): return {r['desc']:dict(q=r.get('q'),unit=r.get('unit')) for r in (rows or []) if r.get('kind')=='item' and r.get('q') is not None}
+def _stash(pr):
+    if pr.get('boq') and pr.get('prev_snap') is None: pr['prev_snap']=_snap(pr['boq']); pr['prev_ver']=pr.get('version',1)
 
 FLOOR={'ground':'קומת קרקע','first':'קומה א׳','second':'קומה ב׳','roof':'גג'}
 
@@ -153,7 +188,18 @@ def run(pid:str):
         else: merged[k]=l
     lines=list(merged.values())
     pr['lines']=lines; pr['asm']=assumptions; pr['log']=log
-    rebuild(pr); _save(pr)
+    rebuild(pr)
+    if pr.get('prev_snap') is not None:
+        old=pr['prev_snap']; new=_snap(pr['boq']); ch=[]
+        for d in sorted(set(old)|set(new)):
+            a=old.get(d,{}).get('q'); b=new.get(d,{}).get('q')
+            if a!=b: ch.append(dict(desc=d,unit=(new.get(d) or old.get(d)).get('unit'),old=a,new=b))
+        pr['version']=pr.get('prev_ver',1)+1
+        pr['changes']=dict(frm=pr['version']-1,to=pr['version'],at=datetime.datetime.now().isoformat(timespec='minutes'),items=ch)
+        pr['prev_snap']=None; _ev(pr,f"גרסה {pr['version']}: {len(ch)} סעיפים השתנו")
+    else: _ev(pr,'כתב הכמויות חושב')
+    if pr.get('status')=='received': pr['status']='measuring'
+    _save(pr)
     return pr
 
 def rebuild(pr):
@@ -334,7 +380,10 @@ def summary(pid:str):
             if r.get('q') and pr['prices'].get(r['code']): b['priced']+=1; b['total']+=r['q']*pr['prices'][r['code']]
     by.pop(pr['name'],None)
     billed=sum(b['total'] for b in pr['bills']) if pr['bills'] else 0
-    return dict(name=pr['name'],sheets=len(pr['sheets']),items=len(items),measured=sum(1 for r in items if r.get('q')),priced=sum(1 for r in items if r.get('q') and pr['prices'].get(r['code'])),total=tot,chapters=by,bills=len(pr['bills']),billed=billed,orders=len(pr['orders']),needs=len(pr['needs']))
+    return dict(name=pr['name'],sheets=len(pr['sheets']),items=len(items),measured=sum(1 for r in items if r.get('q')),priced=sum(1 for r in items if r.get('q') and pr['prices'].get(r['code'])),total=tot,chapters=by,bills=len(pr['bills']),billed=billed,orders=len(pr['orders']),needs=len(pr['needs']),
+      id=pr['id'],client=pr['client'],status=pr['status'],measurer=pr['measurer'],reviewer=pr['reviewer'],due=pr['due'],version=pr['version'],updated=pr['updated'],created=pr['created'],delivered_at=pr['delivered_at'],
+      trust=dict(measured=sum(1 for r in items if r.get('q') is not None and r.get('st')=='נמדד'),manual=sum(1 for r in items if r.get('q') is not None and r.get('st')=='ידני'),est=sum(1 for r in items if r.get('q') is not None and r.get('st') not in ('נמדד','ידני')),missing=sum(1 for r in items if r.get('q') is None)),
+      thumb_sid=next((x['sid'] for t in ('floor_plan','foundation_piles') for x in pr['sheets'] if x['type']==t),(pr['sheets'][0]['sid'] if pr['sheets'] else None)),checks=_checks(pr),changes=pr.get('changes'),events=pr.get('events',[])[-8:],high=sum(1 for n in pr['needs'] if n['p']=='high'))
 
 @app.post('/api/projects/{pid}/bills')
 def new_bill(pid:str,body:dict):
