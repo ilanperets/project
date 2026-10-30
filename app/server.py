@@ -271,6 +271,14 @@ def rebuild(pr):
     for k in used: asm.append(dict(t=f"הנחה: {BR.DEFAULT_PARAMS[k]['label']} = {P[k]}",why=BR.DEFAULT_PARAMS[k]['why'],gives='פירוק לחומרים',how='עדכן בהגדרות הפרויקט'))
     pr['boq']=rows; pr['materials']=mats; pr['needs']=B.needs(sheets,missing,unbuilt,asm)
 
+@app.get('/api/projects/{pid}/report.pdf')
+def report_pdf(pid:str):
+    from . import report as RP
+    pr=_load(pid); fd=os.path.join(_pdir(pid),'files'); P=BR.params(pr)
+    params=[(BR.DEFAULT_PARAMS[k]['label'],P[k]) for k in ('wall_height','deduct_limit','wp_upturn','room_scale','waste_tile') if k in P]
+    out=os.path.join(_pdir(pid),'report.pdf'); RP.to_pdf(RP.build(pr,fd,params),out)
+    return FileResponse(out,media_type='application/pdf',filename='דוח-חישוב.pdf')
+
 @app.get('/api/projects/{pid}/preflight')
 def preflight(pid:str):
     """what is missing or partial, by chapter, and why. Shown before every export."""
@@ -397,7 +405,7 @@ def sheet_symbols(pid:str,sid:str):
     if not os.path.exists(p): raise HTTPException(404,'')
     labels=_jl(SYMF,{}); pr0=_load(pid); st=next((x['type'] for x in pr0['sheets'] if x['sid']==sid),'')
     g=WR.fixture_groups(p,BR.params(pr0)) if st=='wetroom_plan' else SY.groups(p)
-    return dict(labels=SY.LABEL_NAMES,groups=[dict(g=x,label=labels.get(x['sig'])) for x in g if x['n']>=(1 if st=='wetroom_plan' else 2)][:40],total=sum(x['n'] for x in g),labelled=sum(x['n'] for x in g if labels.get(x['sig'])))
+    return dict(labels=SY.LABEL_NAMES,groups=[dict(g={k:v for k,v in x.items() if k!='boxes'},label=labels.get(x['sig'])) for x in g if x['n']>=(1 if st=='wetroom_plan' else 2)][:40],total=sum(x['n'] for x in g),labelled=sum(x['n'] for x in g if labels.get(x['sig'])))
 
 @app.get('/api/projects/{pid}/sheets/{sid}/crop.png')
 def sheet_crop(pid:str,sid:str,x:float,y:float,w:float,h:float):
