@@ -96,10 +96,11 @@ def walls(path,scale,floor_label):
     for ti in t:
         if ti<6: continue
         bins['עד 12' if ti<12 else '12-17' if ti<17 else '17-23' if ti<23 else 'מעל 23']+=1
-    lines=[]
+    lines=[]; sp=(PT_MM*scale/10)
     for k,v in bins.items():
         if v>=50:
-            lines.append(dict(ch=4,sub=1,desc=f'קירות בעובי {k} ס"מ, {floor_label}',unit='מטר',q=round(v/100,1),st='חלקי',src='שכבת WL בתוכנית הקומה',need='גיליון מהנדס עם קירות נושאים בלבד: מחיצות פנים עשויות לא להופיע'))
+            lines.append(dict(ch=4,sub=1,desc=f'קירות בעובי {k} ס"מ, {floor_label}',unit='מטר',q=round(v/100,1),st='חלקי',src='שכבת WL בתוכנית הקומה',need='גיליון מהנדס עם קירות נושאים בלבד: מחיצות פנים עשויות לא להופיע',
+                trace=dict(formula='אורך הקירות = אורך שלד (skeleton) של גוף הקיר בשכבת WL, מסווג לפי עובי מקומי',rows=[dict(el=f'קירות בעובי {k} ס"מ',dims=f'סך אורך {v/100:.1f} מ\'',val=round(v/100,1),src='שכבת WL: גוף הקיר ממולא ומדולל לשלד',note='מסומן אזור התוכנית שנסרק',locs=[_loc(path,reg.x0,reg.y0,reg.x1,reg.y1,'אזור שנסרק')])],checks=[dict(ok=not extra,t='נמצאה תוכנית נוספת בגיליון' if extra else 'תוכנית אחת בגיליון'),dict(ok=False,t='מחיצות פנים עשויות לא להופיע בגיליון מהנדס')],params={})))
     return lines,dict(extra_plan=bool(extra),wall_body_m2=round(float((body>0).sum())/1e4,2))
 
 def roof(path,scale):
@@ -137,10 +138,11 @@ def rooms(path,scale):
     solid=cv2.morphologyEx(m,cv2.MORPH_CLOSE,np.ones((7,7),np.uint8)); k=int(120/px)|1
     barrier=cv2.morphologyEx(solid,cv2.MORPH_CLOSE,cv2.getStructuringElement(cv2.MORPH_RECT,(k,k)))
     free=(barrier==0).astype(np.uint8); n,lab,st,_=cv2.connectedComponentsWithStats(free)
-    ext=set(np.unique(np.concatenate([lab[0],lab[-1],lab[:,0],lab[:,-1]]))); tot=0;cnt=0
+    ext=set(np.unique(np.concatenate([lab[0],lab[-1],lab[:,0],lab[:,-1]]))); tot=0;cnt=0; rr=[]; sp=(PT_MM*scale/10)/px
     for i in range(1,n):
         a=st[i,cv2.CC_STAT_AREA]*px*px/1e4
         if i in ext or a<1.5 or a>80: continue
-        tot+=a;cnt+=1
+        tot+=a;cnt+=1; x,y,w,h=st[i,:4]; rr.append(dict(el=f'חלל {cnt}',dims=f'{w*px/100:.2f} × {h*px/100:.2f} (תיבה חוסמת)',val=round(a,2),src='חלל סגור שזוהה בין קירות, דלתות וחלונות',note='',locs=[_loc(path,reg.x0+x/sp,reg.y0+y/sp,reg.x0+(x+w)/sp,reg.y0+(y+h)/sp,f'חלל {cnt}')]))
     if not cnt: return [],{}
-    return [dict(ch=10,sub=1,desc='ריצוף, שטח נטו של חללים סגורים',unit='מ"ר',q=round(tot,1),st='חלקי',src='בסיס אדריכלי בגיליון החשמל: זיהוי חללים סגורים',need='חללים פתוחים (סלון, מטבח, אוכל) נספרים כחלל אחד. נדרש אימות מול השטחים בתוכנית')],dict(rooms=cnt,total_m2=round(tot,1))
+    return [dict(ch=10,sub=1,desc='ריצוף, שטח נטו של חללים סגורים',unit='מ"ר',q=round(tot,1),st='חלקי',src='בסיס אדריכלי בגיליון החשמל: זיהוי חללים סגורים',need='חללים פתוחים (סלון, מטבח, אוכל) נספרים כחלל אחד. נדרש אימות מול השטחים בתוכנית',
+        trace=dict(formula='שטח כל חלל סגור = מספר הפיקסלים הפנויים בין קירות/דלתות/חלונות × גודל פיקסל. חללים עד 1.5 מ"ר או מעל 80 מ"ר, וחללים פתוחים לחוץ, לא נספרים',rows=rr,checks=[dict(ok=False,t='חללים פתוחים נספרים כחלל אחד; השוו לטבלת השטחים בתוכנית'),dict(ok=True,t=f'{cnt} חללים נספרו')],params={}))],dict(rooms=cnt,total_m2=round(tot,1))
