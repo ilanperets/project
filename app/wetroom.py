@@ -120,7 +120,7 @@ def wetroom_plan(path,P,room_label,sheet_file=''):
 
 
 # ---------- fixture symbols (sanitary + electrical) ----------
-SAN_LAYERS={'SANO','SANIT'}; ELEC_LAYERS={'HASHMAL','graff-elc','graff-elc--HUT'}
+SAN_LAYERS={'SANO','SANIT'}; ELEC_LAYERS={'HASHMAL','graff-elc'}; WIRE_LAYERS={'graff-elc--HUT'}
 SAN_LABELS={'toilet':('אסלות',"יח'"),'toilet_acc':('אסלות',"יח'"),'sink':('כיורי רחצה',"יח'"),'sink_acc':('כיורי רחצה',"יח'")}
 SAN_NAMES={'toilet':'אסלה','toilet_acc':'אסלה נגישה','sink':'כיור','sink_acc':'כיור נגיש'}
 
@@ -130,14 +130,14 @@ def _clusters(pg,layers,K,gap=0.4):
         if dr.get('layer') not in layers: continue
         r=dr['rect']*M
         if r.width*K>150 or r.height*K>150: continue
-        items.append((r,len(dr['items'])))
+        items.append((r,len(dr['items']),dr.get('layer') in ELEC_LAYERS))
     n=len(items); par=list(range(n))
     def f(i):
         while par[i]!=i: par[i]=par[par[i]]; i=par[i]
         return i
     import collections
     grid=collections.defaultdict(list)
-    for i,(r,_) in enumerate(items):
+    for i,(r,_,_) in enumerate(items):
         for gx in range(int((r.x0-gap)//20),int((r.x1+gap)//20)+1):
             for gy in range(int((r.y0-gap)//20),int((r.y1+gap)//20)+1): grid[(gx,gy)].append(i)
     for ids in grid.values():
@@ -151,12 +151,12 @@ def _clusters(pg,layers,K,gap=0.4):
     for i in range(n): comp[f(i)].append(i)
     out=[]
     for ids in comp.values():
-        R=fitz.Rect(1e9,1e9,-1e9,-1e9); nit=0
-        for i in ids: R|=items[i][0]; nit+=items[i][1]
+        R=fitz.Rect(1e9,1e9,-1e9,-1e9); nit=0; ek=False
+        for i in ids: R|=items[i][0]; nit+=items[i][1]; ek|=items[i][2]
         w,h=sorted((round(R.width*K/5)*5,round(R.height*K/5)*5))
         if w<20 or h<20: continue
         U=R*D
-        out.append(dict(sig=repr((w,h,nit)),vy=R.y0,x=U.x0,y=U.y0,w=U.width,h=U.height))
+        out.append(dict(sig=repr((w,h,nit)),kind='E' if ek else 'S',vx=R.x0,vy=R.y0,x=U.x0,y=U.y0,w=U.width,h=U.height))
     return out
 
 def fixture_groups(path,P=None):
@@ -164,6 +164,14 @@ def fixture_groups(path,P=None):
     plumbing, electrical), so each signature is counted per view and the largest per-view count is used, never the sum."""
     pg=fitz.open(path)[0]; K=PT_CM*((P or {}).get('room_scale',50))
     cl=_clusters(pg,SAN_LAYERS|ELEC_LAYERS,K)
+    # electrical symbols are only counted inside the wiring extent, so the legend box beside the plan is not counted
+    M=pg.rotation_matrix; wr=None
+    for dr in pg.get_drawings():
+        if dr.get('layer') in WIRE_LAYERS:
+            r=dr['rect']*M; wr=r if wr is None else wr|r
+    if wr is not None:
+        pad=40/K; wr=fitz.Rect(wr.x0-pad,wr.y0-pad,wr.x1+pad,wr.y1+pad)
+        cl=[c for c in cl if c['kind']=='S' or (wr.x0<=c['vx']<=wr.x1 and wr.y0<=c['vy']<=wr.y1)]
     ys=sorted({round(c['vy']) for c in cl}); bands=[]; 
     for y in ys:
         if not bands or y-bands[-1][-1]>450/K: bands.append([y])
