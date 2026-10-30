@@ -212,6 +212,7 @@ def run(pid:str):
             elif t=='wetroom_plan':
                 nr=sum(1 for t2 in sheets[:sheets.index(s)] if t2['type']=='wetroom_plan')+1
                 l,info=WR.wetroom_plan(path(s),BR.params(pr),f'חדר רחצה {nr}',f'גיליון {sheets.index(s)+1}'); lines+=l; log.append(f"{s['file']}: תוכנית חדר רחצה {info}")
+                fl_,fi_=WR.fixtures(path(s),BR.params(pr),labels,f'חדר רחצה {nr}',f'גיליון {sheets.index(s)+1}'); lines+=fl_; log.append(f"{s['file']}: סמלים {fi_}")
             elif t=='elevation':
                 l,info=E.openings(path(s),scale); lines+=l; log.append(f"{s['file']}: פתחים {info}")
             elif t=='electrical':
@@ -389,8 +390,9 @@ def sheet_symbols(pid:str,sid:str):
     if not re.fullmatch(r'[a-f0-9]{6}',sid): raise HTTPException(404,'')
     p=os.path.join(_pdir(pid),'files',sid+'.pdf')
     if not os.path.exists(p): raise HTTPException(404,'')
-    labels=_jl(SYMF,{}); g=SY.groups(p)
-    return dict(labels=SY.LABEL_NAMES,groups=[dict(g=x,label=labels.get(x['sig'])) for x in g if x['n']>=2][:40],total=sum(x['n'] for x in g),labelled=sum(x['n'] for x in g if labels.get(x['sig'])))
+    labels=_jl(SYMF,{}); pr0=_load(pid); st=next((x['type'] for x in pr0['sheets'] if x['sid']==sid),'')
+    g=WR.fixture_groups(p,BR.params(pr0)) if st=='wetroom_plan' else SY.groups(p)
+    return dict(labels=SY.LABEL_NAMES,groups=[dict(g=x,label=labels.get(x['sig'])) for x in g if x['n']>=(1 if st=='wetroom_plan' else 2)][:40],total=sum(x['n'] for x in g),labelled=sum(x['n'] for x in g if labels.get(x['sig'])))
 
 @app.get('/api/projects/{pid}/sheets/{sid}/crop.png')
 def sheet_crop(pid:str,sid:str,x:float,y:float,w:float,h:float):

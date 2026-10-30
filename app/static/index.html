@@ -859,9 +859,9 @@ let SPECITEMS=null;
 async function sheet(){
   const sid=location.hash.split('/')[4];const s=P.sheets.find(x=>x.sid===sid);if(!s)return '<div class="empty">הגיליון לא נמצא</div>';
   if(!SPECITEMS)SPECITEMS=(await api('/spec')).items;
-  const isE=s.type==='electrical';let sym='';
+  const isE=s.type==='electrical'||s.type==='wetroom_plan';let sym='';
   if(isE){const d=await api(`/projects/${P.id}/sheets/${sid}/symbols`);
-    sym=`<div class="card" style="margin-bottom:16px"><h2>סמלי חשמל בתוכנית</h2><p class="sub" style="margin:-6px 0 12px">המערכת מצאה ${d.total} סמלים וקיבצה אותם לפי צורה. סמן מה כל צורה היא פעם אחת, והיא תספור אותה בכל תוכנית חשמל (כרגע סווגו ${d.labelled} מתוך ${d.total}).</p>
+    sym=`<div class="card" style="margin-bottom:16px"><h2>${s.type==='wetroom_plan'?'סמלים בתוכנית (כלים סניטריים וחשמל)':'סמלי חשמל בתוכנית'}</h2><p class="sub" style="margin:-6px 0 12px">המערכת מצאה ${d.total} סמלים וקיבצה אותם לפי צורה. סמן מה כל צורה היא פעם אחת, והיא תספור אותה בכל תוכנית חשמל (כרגע סווגו ${d.labelled} מתוך ${d.total}).</p>
     <div class="sheets" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">${d.groups.map(x=>`<div class="sh"><div class="im" style="aspect-ratio:1;cursor:default;padding:6px"><img src="/api/projects/${P.id}/sheets/${sid}/crop.png?x=${x.g.x}&y=${x.g.y}&w=${x.g.w}&h=${x.g.h}"></div><div class="bd"><div class="row"><b style="font-size:20px">${x.g.n}</b><span class="sub" style="margin:0;font-size:12px">מופעים</span></div>
     <select data-sig="${esc(x.g.sig)}" onchange="labelSym(this)"><option value="">לא מסווג</option>${Object.entries(d.labels).map(([k,t])=>`<option value="${k}" ${x.label===k?'selected':''}>${t}</option>`).join('')}</select></div></div>`).join('')}</div></div>`}
   return `<h1>${bl(s.file)}</h1><p class="sub">${esc(TYPES[s.type])} · הוראות המדידה שתלמד כאן נשמרות ויופעלו אוטומטית על כל גיליון מאותו סוג, גם בפרויקטים הבאים.</p>

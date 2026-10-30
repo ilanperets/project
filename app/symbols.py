@@ -5,7 +5,7 @@ import collections, pymupdf as fitz
 LAYERS={'elect','ELEC'}
 LABELS={'light':('נקודות מאור',"נק'"),'socket':('נקודות תקע',"נק'"),'switch':('מפסקים',"נק'"),'comm':('נקודות תקשורת וטלוויזיה',"נק'"),
         'power':('נקודות כוח (מזגן, תנור, דוד)',"נק'"),'panel':('לוחות חשמל',"יח'"),'ignore':None}
-LABEL_NAMES={'light':'גוף תאורה','socket':'שקע','switch':'מפסק','comm':'תקשורת / טלוויזיה','power':'נקודת כוח','panel':'לוח חשמל','ignore':'התעלם'}
+LABEL_NAMES={'toilet':'אסלה','toilet_acc':'אסלה נגישה','sink':'כיור','sink_acc':'כיור נגיש','light':'גוף תאורה','socket':'שקע','switch':'מפסק','comm':'תקשורת / טלוויזיה','power':'נקודת כוח','panel':'לוח חשמל','ignore':'התעלם'}
 
 def _page(p): return fitz.open(p)[0]
 def clusters(path,gap=1.2):

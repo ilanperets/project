@@ -117,3 +117,88 @@ def wetroom_plan(path,P,room_label,sheet_file=''):
         a=sum(r['val'] for r in rows)
         lines.append(dict(ch=10,sub=3,desc='משטחי שיש/גרניט, בעובי 2 ס"מ',unit='מ"ר',q=round(a,2),st='חלקי',src=f'תוכנית אדריכלות ({room_label})',need='ללא סינר, מגן התזה וחזית. נדרש לאשר מול הפרט',trace=dict(formula='אורך × עומק של המשטח, לפי הצלעות האמיתיות (גם במשטח משופע)',rows=rows,checks=chk,params={})))
     return lines,dict(room=room_label,trays=len(trays),counters=len(ctr))
+
+
+# ---------- fixture symbols (sanitary + electrical) ----------
+SAN_LAYERS={'SANO','SANIT'}; ELEC_LAYERS={'HASHMAL','graff-elc','graff-elc--HUT'}
+SAN_LABELS={'toilet':('אסלות',"יח'"),'toilet_acc':('אסלות',"יח'"),'sink':('כיורי רחצה',"יח'"),'sink_acc':('כיורי רחצה',"יח'")}
+SAN_NAMES={'toilet':'אסלה','toilet_acc':'אסלה נגישה','sink':'כיור','sink_acc':'כיור נגיש'}
+
+def _clusters(pg,layers,K,gap=0.4):
+    M=pg.rotation_matrix; D=pg.derotation_matrix; items=[]
+    for dr in pg.get_drawings():
+        if dr.get('layer') not in layers: continue
+        r=dr['rect']*M
+        if r.width*K>150 or r.height*K>150: continue
+        items.append((r,len(dr['items'])))
+    n=len(items); par=list(range(n))
+    def f(i):
+        while par[i]!=i: par[i]=par[par[i]]; i=par[i]
+        return i
+    import collections
+    grid=collections.defaultdict(list)
+    for i,(r,_) in enumerate(items):
+        for gx in range(int((r.x0-gap)//20),int((r.x1+gap)//20)+1):
+            for gy in range(int((r.y0-gap)//20),int((r.y1+gap)//20)+1): grid[(gx,gy)].append(i)
+    for ids in grid.values():
+        for a in range(len(ids)):
+            for b in range(a+1,len(ids)):
+                i,j=ids[a],ids[b]
+                if f(i)==f(j): continue
+                p,q=items[i][0],items[j][0]
+                if p.x0-gap<=q.x1 and q.x0-gap<=p.x1 and p.y0-gap<=q.y1 and q.y0-gap<=p.y1: par[f(i)]=f(j)
+    comp=collections.defaultdict(list)
+    for i in range(n): comp[f(i)].append(i)
+    out=[]
+    for ids in comp.values():
+        R=fitz.Rect(1e9,1e9,-1e9,-1e9); nit=0
+        for i in ids: R|=items[i][0]; nit+=items[i][1]
+        w,h=sorted((round(R.width*K/5)*5,round(R.height*K/5)*5))
+        if w<20 or h<20: continue
+        U=R*D
+        out.append(dict(sig=repr((w,h,nit)),vy=R.y0,x=U.x0,y=U.y0,w=U.width,h=U.height))
+    return out
+
+def fixture_groups(path,P=None):
+    """symbol groups by rotation-independent signature. The same fixture is drawn in several views on the sheet (architecture,
+    plumbing, electrical), so each signature is counted per view and the largest per-view count is used, never the sum."""
+    pg=fitz.open(path)[0]; K=PT_CM*((P or {}).get('room_scale',50))
+    cl=_clusters(pg,SAN_LAYERS|ELEC_LAYERS,K)
+    ys=sorted({round(c['vy']) for c in cl}); bands=[]; 
+    for y in ys:
+        if not bands or y-bands[-1][-1]>450/K: bands.append([y])
+        else: bands[-1].append(y)
+    def band(y):
+        for i,b in enumerate(bands):
+            if b[0]<=round(y)<=b[-1]: return i
+        return 0
+    g={}
+    for c in cl:
+        e=g.setdefault(c['sig'],dict(sig=c['sig'],per={},x=c['x'],y=c['y'],w=c['w'],h=c['h']))
+        e['per'][band(c['vy'])]=e['per'].get(band(c['vy']),0)+1
+    out=[dict(sig=e['sig'],n=max(e['per'].values()),per=e['per'],x=e['x'],y=e['y'],w=e['w'],h=e['h']) for e in g.values()]
+    return sorted(out,key=lambda e:-e['n'])
+
+def fixtures(path,P,labels,room_label,sheet_file=''):
+    import collections
+    groups=fixture_groups(path,P); lines=[]; tot=collections.defaultdict(list); un=0
+    for g in groups:
+        k=labels.get(g['sig'])
+        if k in SAN_LABELS: tot[SAN_LABELS[k]].append((k,g))
+        elif k in ('light','socket','switch','comm','power'): tot[('E',k)].append((k,g))
+        elif not k and g['n']>=2: un+=g['n']
+    chk=[dict(ok=True,t='כל כלי נספר פעם אחת: אותו סמל מופיע בכמה תצוגות (אדריכלות, אינסטלציה, חשמל), ונלקחת התצוגה עם המספר הגבוה ביותר')]
+    if un: chk.append(dict(ok=False,t=f'{un} סמלים בגיליון עוד לא סווגו. הספירה כוללת רק צורות שסומנו'))
+    from .symbols import LABELS,LABEL_NAMES
+    for key,items in tot.items():
+        if key[0]=='E':
+            k=key[1]; desc,unit=LABELS[k]; ch,sub=8,1
+        else: desc,unit=key; ch,sub=7,1
+        # count per view over every label of this kind, then take the view with the highest total
+        bands=set()
+        for _,g in items: bands|=set(g['per'])
+        best=max(bands,key=lambda b:sum(g['per'].get(b,0) for _,g in items))
+        rows=[dict(el=f'{room_label}, {SAN_NAMES.get(k) or LABEL_NAMES.get(k,k)}',dims='',val=g['per'][best],src=f'סמל שסווג על ידך, {sheet_file}',note='') for k,g in items if g['per'].get(best)]
+        q=sum(r['val'] for r in rows)
+        lines.append(dict(ch=ch,sub=sub,desc=desc,unit=unit,q=q,st='חלקי' if un else 'נמדד',src=f'ספירת סמלים ({room_label})',need=chk[-1]['t'] if un else '',trace=dict(formula='ספירת סמלים שסווגו, בתצוגה שבה יש הכי הרבה מהסוג',rows=rows,checks=chk,params={})))
+    return lines,dict(room=room_label,groups=len(groups),counted={f'{k[1] if k[0]=="E" else k[0]}':sum(g['n'] for _,g in v) for k,v in tot.items()},unlabelled=un)
