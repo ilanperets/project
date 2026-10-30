@@ -5,9 +5,9 @@ import collections, hashlib, json, os, pymupdf as fitz
 TYPES={
  'foundation_piles':'תוכנית יסודות וכלונסאות','structure_plan':'תוכנית קונסטרוקציה (תקרה, קורות, גג)','structure_other':'קונסטרוקציה: פרטים ומדרגות',
  'floor_plan':'תוכנית קומה','elevation':'חזיתות','section':'חתכים','site':'תוכנית פיתוח','details':'פרטי בנייה','openings_details':'פרטי דלתות וחלונות',
- 'waterproofing':'תוכנית איטום','electrical':'תוכנית חשמל','plumbing':'תוכנית אינסטלציה','hvac':'תוכנית מיזוג אוויר','unknown':'לא זוהה'}
+ 'waterproofing':'תוכנית איטום','tile_layout':'פריסת אריחים (חדר רחצה)','wetroom_plan':'חדר רחצה: אדריכלות, אינסטלציה וחשמל','electrical':'תוכנית חשמל','plumbing':'תוכנית אינסטלציה','hvac':'תוכנית מיזוג אוויר','unknown':'לא זוהה'}
 
-DISC={'foundation_piles':'construction','structure_plan':'construction','structure_other':'construction','floor_plan':'arch','elevation':'arch','section':'arch','details':'arch','openings_details':'arch','electrical':'elec','plumbing':'plumb','hvac':'hvac','waterproofing':'seal','site':'dev','unknown':''}
+DISC={'foundation_piles':'construction','structure_plan':'construction','structure_other':'construction','floor_plan':'arch','elevation':'arch','section':'arch','details':'arch','openings_details':'arch','electrical':'elec','plumbing':'plumb','hvac':'hvac','waterproofing':'seal','tile_layout':'arch','wetroom_plan':'plumb','site':'dev','unknown':''}
 DISCS=[('construction','קונסטרוקציה'),('arch','אדריכלות'),('elec','חשמל'),('hvac','מיזוג אוויר'),('plumb','אינסטלציה'),('seal','איטום'),('dev','פיתוח')]
 
 def _ink(path,W=220):
@@ -45,7 +45,11 @@ def features(path):
     for dr in pg.get_drawings():
         L[dr.get('layer') or '']+=1; n+=1
     mb=pg.mediabox
-    return dict(pages=len(d),w_mm=round(mb.width*25.4/72),h_mm=round(mb.height*25.4/72),layers=dict(L),n_draw=n,chars=len(pg.get_text()))
+    try:
+        from .wetroom import _elevations,PT_CM
+        te=len(_elevations(pg,PT_CM*50))
+    except Exception: te=0
+    return dict(pages=len(d),w_mm=round(mb.width*25.4/72),h_mm=round(mb.height*25.4/72),layers=dict(L),n_draw=n,chars=len(pg.get_text()),tile_elev=te)
 
 def sig(layers): return sorted(k for k,v in layers.items() if v>=5)
 
@@ -60,6 +64,9 @@ def classify(feat,rules=()):
     L=feat['layers']; has=lambda k:L.get(k,0)>0
     got=_learned(L,rules)
     if got: return dict(type=got[0],conf='learned',why=got[1])
+    if has('ker') and has('SANO') and has('DOOR') and not has('WL'):
+        if feat.get('tile_elev',0)>=3: return dict(type='tile_layout',conf='high',why='חזיתות פנים בשכבת האריחים: פריסת אריחים של חדר רחצה')
+        if has('graff-elc') or has('SANIT'): return dict(type='wetroom_plan',conf='med',why='כלים סניטריים ושכבת חשמל בגיליון קטן: תוכנית חדר רחצה')
     if has('ELC') or L.get('elect',0)>=300: return dict(type='electrical',conf='high',why='שכבות חשמל ELC/elect עם מאות אלמנטים')
     if has('fl00d') and not has('WL'): return dict(type='foundation_piles',conf='high',why='שכבות כלונסאות fl00/fl00d ובלי שכבת קירות')
     if (has('fl1zb') or has('0kon')) and (has('WL') or has('fl00d')): return dict(type='structure_plan',conf='med',why='שכבות קונסטרוקציה ו-WL, כנראה תקרה או קורות')

@@ -10,7 +10,7 @@ from .phrasing import FULL,NOTES
 SUB={(2,2):'תבניות וזיון',(4,2):'אלמנטים משולבים',(6,2):'מעקות ומסגרות',(7,2):'צנרת',(8,2):'תעלות וכבלים',(8,3):'לוחות',(10,2):'חיפוי קירות',(40,2):'אדמה וגינון'}
 def _sub(ch,sub): return SUB.get((ch,sub),'סעיפים ראשיים' if sub==1 else 'סעיפים נוספים')
 EXPECTED=[(s['ch'],s['sub'],s['desc'],s['unit'],s['plan'],'לקבלת הכמות: '+s['method'],s) for s in SPEC]
-BUILT={'foundation_piles','floor_plan','elevation','electrical'}
+BUILT={'foundation_piles','floor_plan','elevation','electrical','tile_layout'}
 def _spec_for(ch,desc,unit):
     T=toks(desc);best=None
     for s in SPEC:
@@ -24,7 +24,7 @@ def build(name,lines,present_types,ov=None,hidden=(),chnames=None):
     items={}   # (ch,sub) -> list of dict
     for l in lines:
         sp=_spec_for(l['ch'],l['desc'],l['unit']); l['method']=sp['method'] if sp else ''; l['vsrc']=sp['src'] if sp else ''
-    for l in lines: items.setdefault((l['ch'],l.get('sub',1)),[]).append(dict(desc=l['desc'],unit=l['unit'],q=l['q'],st=l['st'],src=l['src'],need=l.get('need',''),method=l.get('method',''),vsrc=l.get('vsrc','')))
+    for l in lines: items.setdefault((l['ch'],l.get('sub',1)),[]).append(dict(trace=l.get('trace'),desc=l['desc'],unit=l['unit'],q=l['q'],st=l['st'],src=l['src'],need=l.get('need',''),method=l.get('method',''),vsrc=l.get('vsrc','')))
     covered={l['desc'] for l in lines}
     for l in lines: covered.update(l.get('cover') or [])
     for pre,L in (('קירות',['קירות בלוקים בעובי 10 ס"מ','קירות בלוקים בעובי 15 ס"מ','קירות בלוקים בעובי 20 ס"מ']),):
@@ -52,7 +52,7 @@ def build(name,lines,present_types,ov=None,hidden=(),chnames=None):
             rows.append(dict(kind='sub',code=f'{ch:02d}.{sub:02d}.0000',desc=_sub(ch,sub)))
             for j,t in enumerate(NOTES.get((ch,sub),[]),1): rows.append(dict(kind='note',code=f'{ch:02d}.{sub:02d}.{j:04d}',desc=f'{"אבגדהו"[j-1]}. {t}',unit='הערה'))
             for i,it in enumerate(items[(ch,sub)],1):
-                rows.append(dict(kind='item',code=f'{ch:02d}.{sub:02d}.{i*10:04d}',desc=it['desc'],full=FULL.get(it['desc'],it['desc']),unit=it['unit'],q=it['q'],src=f"{it['st']} · {it['src']}",need=it['need'],st=it['st'],method=it.get('method',''),vsrc=it.get('vsrc','')))
+                rows.append(dict(kind='item',code=f'{ch:02d}.{sub:02d}.{i*10:04d}',desc=it['desc'],full=FULL.get(it['desc'],it['desc']),unit=it['unit'],q=it['q'],src=f"{it['st']} · {it['src']}",need=it['need'],st=it['st'],method=it.get('method',''),vsrc=it.get('vsrc',''),trace=it.get('trace')))
     return rows
 
 def needs(sheets,missing_types,unbuilt_types,assumptions):
@@ -183,6 +183,21 @@ def to_xlsx(rows,name,path,needs_list=(),prices=None,meta=None,hide=()):
         me.cell(me.max_row,2).alignment=Alignment(wrap_text=True,vertical='top')
     for col,w in zip('ABCDEF',[12,50,8,60,28,14]): me.column_dimensions[col].width=w
     me.freeze_panes='A2'
+    tr=[r for r in items if r.get('trace')]
+    if tr:
+        tc=wb.create_sheet('דפי חישוב'); tc.sheet_view.rightToLeft=True
+        for r in tr:
+            t_=r['trace']; tc.append([r['code'],r.get('full') or r['desc'],r['unit']]); 
+            for c in tc[tc.max_row]: c.font=F(bold=True); c.fill=CHF
+            tc.append(['','שיטה: '+t_.get('formula','')]); 
+            tc.append(['','אלמנט','מידות (מ\')','כמות','מקור','הערה'])
+            for c in tc[tc.max_row]: c.font=F(bold=True,color='FFFFFF'); c.fill=DK
+            for x in t_.get('rows',[]): tc.append(['',x['el'],x.get('dims',''),x['val'],x.get('src',''),x.get('note','')])
+            tc.append(['','סה"כ בסעיף','',r['q'],'',''])
+            for c in tc[tc.max_row]: c.font=F(bold=True)
+            for c_ in t_.get('checks',[]): tc.append(['',('✓ ' if c_['ok'] else '✗ ')+c_['t']])
+            tc.append([])
+        for col,w in zip('ABCDEF',[12,46,18,10,30,40]): tc.column_dimensions[col].width=w
     for ws_ in (cv,sm,me):
         ws_.page_setup.orientation='landscape' if ws_ is not cv else 'portrait'; ws_.page_setup.fitToWidth=1; ws_.page_setup.fitToHeight=0; ws_.sheet_properties.pageSetUpPr=openpyxl.worksheet.properties.PageSetupProperties(fitToPage=True)
     H={'price':('E','G'),'total':('F','H'),'src':('I',),'rum':('G','H')}

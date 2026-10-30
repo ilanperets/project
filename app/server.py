@@ -2,7 +2,7 @@ import json, os, re, shutil, time, uuid
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from . import classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP
+from . import wetroom as WR, classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP
 import datetime
 
 ROOT=os.environ.get('KAMUYOT_DATA',os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'data'))
@@ -206,6 +206,12 @@ def run(pid:str):
                         if ri.get('area_m2'): slab_areas.append(ri['area_m2'])
                     except Exception: pass
                     if info.get('extra_plan'): assumptions.append(dict(t=f"בגיליון \"{s['file']}\" זוהו שתי תוכניות דומות",why='נבחרה הגדולה מביניהן',how='אשר שזו הנכונה'))
+            elif t=='tile_layout':
+                nr=sum(1 for t2 in sheets[:sheets.index(s)] if t2['type']=='tile_layout')+1
+                l,info=WR.tile_layout(path(s),BR.params(pr),f'חדר רחצה {nr}',f'גיליון {sheets.index(s)+1}'); lines+=l; log.append(f"{s['file']}: פריסת אריחים {info}")
+            elif t=='wetroom_plan':
+                nr=sum(1 for t2 in sheets[:sheets.index(s)] if t2['type']=='wetroom_plan')+1
+                l,info=WR.wetroom_plan(path(s),BR.params(pr),f'חדר רחצה {nr}',f'גיליון {sheets.index(s)+1}'); lines+=l; log.append(f"{s['file']}: תוכנית חדר רחצה {info}")
             elif t=='elevation':
                 l,info=E.openings(path(s),scale); lines+=l; log.append(f"{s['file']}: פתחים {info}")
             elif t=='electrical':
@@ -226,7 +232,10 @@ def run(pid:str):
     merged={}
     for l in lines:
         k=(l['ch'],l.get('sub',1),l['desc'],l['unit'])
-        if k in merged and l['q'] is not None and merged[k]['q'] is not None: merged[k]['q']=round(merged[k]['q']+l['q'],2)
+        if k in merged and l['q'] is not None and merged[k]['q'] is not None:
+            merged[k]['q']=round(merged[k]['q']+l['q'],2)
+            a,b=merged[k].get('trace'),l.get('trace')
+            if a and b: a['rows']=a['rows']+b['rows']; a['checks']=a['checks']+b['checks']
         else: merged[k]=l
     lines=list(merged.values())
     pr['lines']=lines; pr['asm']=assumptions; pr['log']=log
@@ -247,7 +256,7 @@ def run(pid:str):
 def rebuild(pr):
     """BOQ = engine lines + manual items, with quantity overrides and hidden items; then materials and needs"""
     P=BR.params(pr); sheets=pr['sheets']; lines=list(pr.get('lines',[]))
-    for m in pr.get('manual',[]): lines.append(dict(ch=m['ch'],sub=m.get('sub',1),desc=m['desc'],unit=m['unit'],q=m['q'],st='ידני',src='הוזן ידנית',need=''))
+    for m in pr.get('manual',[]): lines.append(dict(ch=m['ch'],sub=m.get('sub',1),desc=m['desc'],unit=m['unit'],q=m['q'],st='ידני',src=m.get('src') or 'הוזן ידנית',need=m.get('need',''),trace=m.get('trace')))
     present={s['type'] for s in sheets}; needed={e[4] for e in B.EXPECTED}
     missing=sorted(t for t in needed if t not in present)
     unbuilt=sorted(t for t in present if t not in B.BUILT and t in needed or t=='unknown' and t in present)
@@ -263,7 +272,7 @@ def builder(pid:str,body:dict):
     if 'lines' not in pr: pr['lines']=[]
     if a=='add':
         if not body.get('desc') or not body.get('unit'): raise HTTPException(400,'חסר תיאור או יחידה')
-        pr.setdefault('manual',[]).append(dict(ch=int(body.get('ch') or 99),sub=int(body.get('sub') or 1),desc=body['desc'].strip(),unit=body['unit'].strip(),q=float(body['q']) if body.get('q') not in ('',None) else None))
+        pr.setdefault('manual',[]).append(dict(ch=int(body.get('ch') or 99),sub=int(body.get('sub') or 1),desc=body['desc'].strip(),unit=body['unit'].strip(),q=float(body['q']) if body.get('q') not in ('',None) else None,src=body.get('src'),need=body.get('need',''),trace=body.get('trace')))
         if body.get('chname'): pr.setdefault('chnames',{})[str(int(body['ch']))]=body['chname']
     elif a=='qty':
         pr.setdefault('ov',{})[body['desc']]=float(body['q']) if body.get('q') not in ('',None) else None
