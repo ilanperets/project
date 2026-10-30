@@ -1,6 +1,6 @@
 """Builds a hierarchical BOQ (NN.00.0000 chapter / NN.SS.0000 sub / NN.SS.IIII item) from engine lines,
 adds the items every project is expected to have (missing ones stay without quantity), and lists what the brain needs."""
-import datetime, openpyxl, openpyxl.worksheet.properties
+import datetime, io, os, openpyxl, openpyxl.worksheet.properties
 from openpyxl.styles import Font, PatternFill, Alignment
 from .classify import TYPES
 
@@ -64,7 +64,7 @@ def needs(sheets,missing_types,unbuilt_types,assumptions):
     for a in assumptions: out.append(dict(p='med',t=a['t'],why=a['why'],gives=a.get('gives','דיוק הכמויות'),how=a['how']))
     return out
 
-def to_xlsx(rows,name,path,needs_list=(),prices=None,meta=None,hide=()):
+def to_xlsx(rows,name,path,needs_list=(),prices=None,meta=None,hide=(),ctx=None):
     meta=meta or {}
     prices=prices or {}
     NF='#,###,##0.00;[Red]\\-#,###,##0.00'; F=lambda **k:Font(name='Arial',size=k.pop('size',11),**k)
@@ -210,8 +210,48 @@ def to_xlsx(rows,name,path,needs_list=(),prices=None,meta=None,hide=()):
             tc.append(['','סה"כ בסעיף','',r['q'],'',''])
             for c in tc[tc.max_row]: c.font=F(bold=True)
             for c_ in t_.get('checks',[]): tc.append(['',('✓ ' if c_['ok'] else '✗ ')+c_['t']])
+            if ctx:
+                try:
+                    from . import report as RP
+                    from openpyxl.drawing.image import Image as XI
+                    imgs,_n=RP.item_images(ctx['pr'],ctx['files_dir'],t_,760)
+                    for cap,png in imgs[:2]:
+                        tc.append(['','תמונה: '+cap]); im=XI(io.BytesIO(png)); sc=min(1.0,720/im.width); im.width*=sc; im.height*=sc
+                        tc.add_image(im,f'B{tc.max_row+1}'); tc.append([]); 
+                        for _ in range(int(im.height/20)+1): tc.append([])
+                except Exception: pass
             tc.append([])
         for col,w in zip('ABCDEF',[12,46,18,10,30,40]): tc.column_dimensions[col].width=w
+    if ctx:
+        from . import report as RP
+        from .classify import TYPES
+        pr_=ctx['pr']; used={}; cur=''; chs=[]; ccur=None
+        for rw in pr_.get('boq') or []:
+            if rw['kind']=='ch' and rw['desc']!=pr_['name']: cur=rw['desc']; ccur=(cur,[]); chs.append(ccur)
+            elif rw['kind']=='item':
+                if ccur: ccur[1].append(rw)
+                for x in (rw.get('trace') or {}).get('rows',[]):
+                    for lc in x.get('locs') or []: used.setdefault(lc['sid'],set()).add(cur)
+        pl=wb.create_sheet('תוכניות שהסתמכנו'); pl.sheet_view.rightToLeft=True
+        pl.append(['#','תצוגה','סוג שזוהה','קומה','פרקים שנשענים על הגיליון']); 
+        for c in pl[1]: c.font=F(bold=True,color='FFFFFF'); c.fill=DK
+        from openpyxl.drawing.image import Image as XI
+        for i,s in enumerate(pr_['sheets']):
+            pl.append([i+1,'',TYPES.get(s.get('type'),'לא זוהה'),s.get('floor') or '',', '.join(sorted(used.get(s['sid'],[]))) or 'לא שימש לחישוב'])
+            pl.row_dimensions[pl.max_row].height=70
+            try:
+                p=os.path.join(ctx['files_dir'],s['sid']+'.pdf'); import base64
+                im=XI(io.BytesIO(base64.b64decode(RP.thumb(p,150)))); pl.add_image(im,f'B{pl.max_row}')
+            except Exception: pass
+            pl.cell(pl.max_row,5).alignment=Alignment(wrap_text=True,vertical='top')
+        for col,w in zip('ABCDE',[5,24,26,10,70]): pl.column_dimensions[col].width=w
+        wc=wb.create_sheet('שימו לב לפי פרק'); wc.sheet_view.rightToLeft=True
+        wc.append(['פרק','מה כדאי לשים לב / מה אולי לא חושב']);
+        for c in wc[1]: c.font=F(bold=True,color='FFFFFF'); c.fill=DK
+        for nm,its in chs:
+            for x in RP.cautions(nm,its):
+                wc.append([nm,x]); wc.cell(wc.max_row,2).alignment=Alignment(wrap_text=True,vertical='top')
+        wc.column_dimensions['A'].width=30; wc.column_dimensions['B'].width=110
     for ws_ in (cv,sm,me):
         ws_.page_setup.orientation='landscape' if ws_ is not cv else 'portrait'; ws_.page_setup.fitToWidth=1; ws_.page_setup.fitToHeight=0; ws_.sheet_properties.pageSetUpPr=openpyxl.worksheet.properties.PageSetupProperties(fitToPage=True)
     H={'price':('E','G'),'total':('F','H'),'src':('I',),'rum':('G','H')}

@@ -359,7 +359,7 @@ def _filter_rows(rows,ch='',only='',missing='show'):
 def export(pid:str,ch:str='',only:str='',missing:str='show',hide:str=''):
     pr=_load(pid)
     if not pr.get('boq'): raise HTTPException(400,'עוד לא חושב כתב')
-    out=os.path.join(_pdir(pid),'boq.xlsx'); B.to_xlsx(_filter_rows(pr['boq'],ch,only,missing),pr['name'],out,pr['needs'],prices=pr['prices'],hide=hide.split(','),meta=dict(client=pr.get('client',''),version='v%s'%pr.get('version',1),measurer=pr.get('measurer',''),reviewer=pr.get('reviewer',''),status=pr.get('status',''))); return FileResponse(out,filename='kamuyot_boq.xlsx')
+    out=os.path.join(_pdir(pid),'boq.xlsx'); B.to_xlsx(_filter_rows(pr['boq'],ch,only,missing),pr['name'],out,pr['needs'],prices=pr['prices'],hide=hide.split(','),ctx=dict(pr=pr,files_dir=os.path.join(_pdir(pid),'files')),meta=dict(client=pr.get('client',''),version='v%s'%pr.get('version',1),measurer=pr.get('measurer',''),reviewer=pr.get('reviewer',''),status=pr.get('status',''))); return FileResponse(out,filename='kamuyot_boq.xlsx')
 
 
 
