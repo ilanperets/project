@@ -102,30 +102,36 @@ def dwg_to_pdf(src,out,J=None):
         for pts,_,hh in d['poly']:
             for x,y in pts[:: max(1,len(pts)//3)]: xs.append(x*f); ys.append(y*f)
     if not xs: raise RuntimeError('אין גיאומטריה בקובץ')
-    xs.sort(); ys.sort(); k=len(xs); lo=int(k*.003); hi=k-1-lo
-    x0,x1,y0,y1=xs[lo],xs[hi],ys[lo],ys[hi]; cropped=False
+    k=len(xs); mnx,mxx,mny,mxy=min(xs),max(xs),min(ys),max(ys); G=48   # dense-region crop: drops far-away strays
+    gx=max((mxx-mnx)/G,1e-9); gy=max((mxy-mny)/G,1e-9); cnt=collections.Counter(min(G-1,int((x-mnx)/gx))*G+min(G-1,int((y-mny)/gy)) for x,y in zip(xs,ys))
+    thr=max(3,k*0.004); keep=[c for c,v in cnt.items() if v>=thr] or list(cnt)
+    ci=[c//G for c in keep]; cj=[c%G for c in keep]
+    x0,x1=mnx+min(ci)*gx,mnx+(max(ci)+1)*gx; y0,y1=mny+min(cj)*gy,mny+(max(cj)+1)*gy; cropped=False
+    px_=(x1-x0)*.03+1; py_=(y1-y0)*.03+1; x0-=px_; x1+=px_; y0-=py_; y1+=py_
     if (x1-x0)*PT_PER_M>13500 or (y1-y0)*PT_PER_M>13500: cropped=True; x1=min(x1,x0+13400/PT_PER_M); y1=min(y1,y0+13400/PT_PER_M)
     M=30; W=(x1-x0)*PT_PER_M+2*M; H=(y1-y0)*PT_PER_M+2*M
     doc=fitz.open(); pg=doc.new_page(width=W,height=H); has_font=os.path.exists(FONT); fl=False
     P=lambda x,y:(M+(x*f-x0)*PT_PER_M,M+(y1-y*f)*PT_PER_M)
     n=0
     for name,d in sorted(lay.items()):
-        oc=doc.add_ocg(name,on=True)
+        oc=doc.add_ocg(name,on=True); sh=pg.new_shape()
         for pts,closed,hatch in d['poly']:
             pp=[P(x,y) for x,y in pts]
             if all(not(-5<=a<=W+5 and -5<=b<=H+5) for a,b in pp[:: max(1,len(pp)//4)]): continue
-            if hatch: pg.draw_polyline(pp,color=None,fill=(0.35,0.35,0.35),closePath=True,oc=oc,fill_opacity=.4)
-            else: pg.draw_polyline(pp,color=(0,0,0),width=0.35,closePath=closed,oc=oc)
+            sh.draw_polyline(pp)
+            if hatch: sh.finish(color=None,fill=(0.35,0.35,0.35),closePath=True,fill_opacity=.4,oc=oc)
+            else: sh.finish(color=(0,0,0),width=0.35,closePath=closed,oc=oc)
             n+=1
         for x,y,h,rot,tx in d['text']:
-            px,py=P(x,y); fs=max(4.0,min(60.0,(h or 0.25*(1 if f==1 else 1))*f*PT_PER_M)) if h else 7.0
+            px,py=P(x,y); fs=max(4.0,min(24.0,(h or 0.25*(1 if f==1 else 1))*f*PT_PER_M)) if h else 7.0
             if not(-5<=px<=W+5 and -5<=py<=H+5): continue
             heb=any('֐'<=c<='׿' for c in tx); ang=int(round(math.degrees(rot)/90))*90%360
             try:
                 if heb and has_font:
                     if not fl: pg.insert_font(fontname='dj',fontfile=FONT); fl=True
-                    pg.insert_text((px,py),tx[:120].split('\n')[0],fontsize=fs,fontname='dj',rotate=ang,oc=oc)
-                else: pg.insert_text((px,py),tx[:120].split('\n')[0],fontsize=fs,rotate=ang,oc=oc)
+                    sh.insert_text((px,py),tx[:120].split('\n')[0],fontsize=fs,fontname='dj',rotate=ang,oc=oc)
+                else: sh.insert_text((px,py),tx[:120].split('\n')[0],fontsize=fs,rotate=ang,oc=oc)
             except Exception: pass
+        sh.commit()
     doc.save(out,deflate=True,garbage=3); doc.close()
     return dict(units=u,factor=f,span=round(span,1),prims=n,layers=len(lay),width_m=round(x1-x0,1),height_m=round(y1-y0,1),cropped=cropped,hdr_units=J.get('units',0))

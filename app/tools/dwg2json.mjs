@@ -9,7 +9,7 @@ const dwg=lib.dwg_read_data(buf.buffer.slice(buf.byteOffset,buf.byteOffset+buf.b
 if(!dwg){console.error('READ FAIL');process.exit(2)}
 const db=lib.convert(dwg);
 const p=(o)=>o?[o.x,o.y]:[0,0];
-const clean=s=>String(s||'').replace(/\\P/g,'\n').replace(/\\[A-Za-z][^;]*;/g,'').replace(/[{}]/g,'').replace(/%%[cC]/g,'Ø').replace(/%%[dD]/g,'°').replace(/%%[pP]/g,'±');
+const clean=s=>String((s&&typeof s==='object')?(s.text||''):(s||'')).replace(/\\P/g,'\n').replace(/\\[A-Za-z][^;]*;/g,'').replace(/[{}]/g,'').replace(/%%[cC]/g,'Ø').replace(/%%[dD]/g,'°').replace(/%%[pP]/g,'±');
 function simp(e){
   const L=e.layer||'0',t=e.type;
   switch(t){
