@@ -235,7 +235,9 @@ def plumbing_points(lines):
 
 def plumbing_pipes(lines,P):
     """pipe length and trim items derived from the counted fixtures. Lengths per point are assumptions (params)."""
-    cnt={l['desc']:l['q'] for l in lines if l['ch']==7 and l.get('q') and l['desc'] in POINTS}
+    cnt={}
+    for l in lines:
+        if l['ch']==7 and l.get('q') and l['desc'] in POINTS: cnt[l['desc']]=cnt.get(l['desc'],0)+l['q']
     t=cnt.get('אסלות',0); s=cnt.get('כיורי רחצה',0); h=cnt.get('תאי מקלחת (אגן, ניקוז ומערבל)',0)
     if not (t or s or h): return []
     water=t*1+s*2+h*2; drain=t+s+h; a=P.get('pipe_water_m',4); b=P.get('pipe_drain_m',3)
