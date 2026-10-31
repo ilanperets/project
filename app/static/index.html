@@ -356,6 +356,65 @@ tr.ch{cursor:pointer}tr.hid{display:none}tr.m td{background:color-mix(in srgb,va
 .bl-cum{display:flex;align-items:flex-end;gap:14px;height:170px;padding:0 6px}.bl-cum div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px;font-size:12.5px;color:#43536A}.bl-cum i{display:block;width:100%;border-radius:7px 7px 0 0;background:#9DB9DE}.bl-cum .hcur i{background:var(--acc)}
 .bl-add{display:flex;gap:8px;padding:14px 18px;border-top:1px solid var(--line);background:#F9FBFE;flex-wrap:wrap}.bl-add input{border:1.5px solid var(--line);border-radius:9px;padding:8px 10px;font-family:inherit;flex:1;min-width:120px}
 @media(max-width:1100px){.bl-work,.bl-dtl{grid-template-columns:1fr}.bl-rc{position:static}}
+/* ===== workbook (כתב כמויות עריך) ===== */
+.wxw{--w-ink2:#43536A;--w-line:#D9DEE5;--w-hd:#EEF1F5;display:flex;flex-direction:column;height:calc(100vh - 200px);min-height:520px;background:#fff;border:1px solid #C5CFDD;border-radius:12px;overflow:hidden;font-size:14px}
+.wxw *{box-sizing:border-box}
+.wxt{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--w-line);flex-wrap:wrap}
+.wxt h1{font:600 17px var(--fd);margin:0}.wxt .pth{color:var(--mut);font-size:13px}.wxt .spc{flex:1}
+.wxb{all:unset;cursor:pointer;display:inline-flex;gap:6px;align-items:center;height:30px;padding:0 12px;border:1px solid #CBD2DC;border-radius:5px;font-weight:500;font-size:13px;color:var(--ink);background:#fff}.wxb:hover{background:#F2F5F9}.wxb.p{background:var(--pri);border-color:var(--pri);color:#fff}.wxb.on{background:#E3ECF8;border-color:#9FB9DC;color:var(--pri)}
+.wxs{display:flex;align-items:center;gap:7px;height:30px;border:1px solid #CBD2DC;border-radius:5px;padding:0 10px;width:210px;color:var(--mut)}.wxs input{all:unset;flex:1;color:var(--ink);font-size:13px}
+.wxg{display:inline-flex;border:1px solid #CBD2DC;border-radius:5px;overflow:hidden}.wxg button{all:unset;cursor:pointer;height:28px;padding:0 11px;font-size:13px;color:var(--w-ink2);border-inline-start:1px solid #CBD2DC}.wxg button:first-child{border:0}.wxg button.on{background:#E3ECF8;color:var(--pri);font-weight:600}
+.wxf{display:flex;align-items:stretch;border-bottom:1px solid var(--w-line);background:#F7F9FC;min-height:38px}
+.wxf .wnm{min-width:104px;padding:0 10px;display:grid;place-items:center;border-inline-end:1px solid var(--w-line);font:600 12.5px var(--fd);color:var(--w-ink2);background:#fff;direction:ltr}
+.wxf .wfm{flex:1;padding:6px 14px;display:flex;gap:18px;align-items:center;font-size:13px;color:var(--w-ink2);min-width:0}.wxf .wfm b{color:var(--ink);font-weight:600}.wxf .wtr{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wxf .wlk{color:var(--pri2);cursor:pointer;font-weight:500;white-space:nowrap}
+.wxm{flex:1;min-height:0;display:flex;position:relative}
+.wxr{width:200px;flex:none;border-inline-end:1px solid var(--w-line);background:#F7F9FC;overflow:auto;padding:8px 0}
+.wxr h3{font:600 12px var(--fd);color:var(--mut);margin:6px 14px}.wxr a{display:block;padding:7px 14px;cursor:pointer;border-inline-start:3px solid transparent;font-size:13px}.wxr a:hover{background:#EDF2F9}
+.wxr a b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wxr a span{display:flex;justify-content:space-between;color:var(--mut);font-size:12px;margin-top:2px}.wxr .pb{height:3px;background:#E1E7EF;margin-top:5px;border-radius:2px}.wxr .pb i{display:block;height:100%;background:var(--pri2);border-radius:2px}
+.wxy{flex:1;overflow:auto;min-width:0}
+table.wxg2{border-collapse:separate;border-spacing:0;width:100%;table-layout:fixed;font-size:13.5px}
+.wxg2 th{position:sticky;top:0;z-index:3;background:var(--w-hd);height:30px;font-weight:600;font-size:12.5px;color:var(--w-ink2);border-bottom:1px solid #B9C2CF;border-inline-start:1px solid #D3D9E2;text-align:center;padding:0 8px}
+.wxg2 th:first-child{border-inline-start:0}
+.wxg2 td{height:var(--rh,32px);border-bottom:1px solid #E4E8EE;border-inline-start:1px solid #E4E8EE;padding:0;position:relative;white-space:nowrap}
+.wxg2 td:first-child{border-inline-start:0}
+.wxw.dn{--rh:26px}
+.wxg2 td.rn{background:var(--w-hd);color:var(--mut);font-size:11.5px;text-align:center;border-inline-end:1px solid #D3D9E2;cursor:pointer;width:40px}.wxg2 td.rn:hover{background:#DCE5F2}
+.wxg2 td.c{padding:0 10px;outline:0;overflow:hidden;text-overflow:ellipsis}.wxg2 td.nu{text-align:left}.wxg2 td.cd{color:var(--w-ink2);font-size:12.5px;text-align:center;background:#F7F9FC;padding:0 6px}
+.wxg2 td.un{text-align:center}.wxg2 td.un select{all:unset;width:100%;text-align:center;cursor:pointer}
+.wxg2 td.c:focus{background:#fff;box-shadow:inset 0 0 0 2px var(--pri2);text-overflow:clip}
+.wxg2 td.cur{box-shadow:inset 0 0 0 2px var(--pri2)}
+.wxg2 tr.h td{background:var(--bp1,#06255A);color:#fff;font-weight:600;height:30px;border-color:rgba(255,255,255,.12)}.wxg2 tr.h td.rn{background:var(--bp1,#06255A);color:rgba(255,255,255,.55)}
+.wxg2 tr.s td{background:#F2F5F9;font-weight:600;height:28px}.wxg2 tr.s td.rn{background:#E8ECF2}
+.wxg2 tr.nt td{height:auto;padding:5px 12px;color:var(--mut);font-size:12.5px;white-space:normal;font-style:italic}
+.wxg2 tr.t td{font-weight:600;border-top:1px solid #B9C2CF;height:30px;background:#fff}.wxg2 tr.t td.rn{background:var(--w-hd)}
+.wxg2 tr.i:hover td:not(.rn):not(.cd){background:#F5F9FF}.wxg2 tr.i.pk td:not(.rn){background:#EAF2FE}
+.wxg2 .mk{position:absolute;inset-inline-start:0;top:0;bottom:0;width:3px}.wxg2 .mk.m{background:#C0392B}.wxg2 .mk.p{background:#E0A100}.wxg2 .mk.u{background:#1F6FD1}
+.wxg2 .pr{background:#FFFDF2}.wxg2 .qm{color:#C0392B;background:#FDF0EE}.wxg2 .qp{background:#FFF9E5}
+.wxg2 .chg:after{content:"";position:absolute;top:0;inset-inline-end:0;border:5px solid transparent;border-top-color:#1F6FD1;border-inline-end-color:#1F6FD1}
+.wxac{display:flex;gap:1px;justify-content:center;opacity:0}.wxg2 tr.i:hover .wxac,.wxg2 tr.i.sl .wxac{opacity:1}.wxac button{all:unset;cursor:pointer;width:24px;height:24px;display:grid;place-items:center;border-radius:4px;color:var(--w-ink2)}.wxac button:hover{background:#E3E8F0}.wxac button.d:hover{background:#FBE5E2;color:#C0392B}
+.wxad{color:var(--pri2);font-size:12.5px;cursor:pointer;padding:0 10px}.wxad:hover{text-decoration:underline}
+.wxg2.nopr .pc{display:none}
+.wxbot{display:flex;align-items:stretch;border-top:1px solid #B9C2CF;background:var(--w-hd);height:36px}
+.wxst{display:flex}.wxst button{all:unset;cursor:pointer;padding:0 16px;display:flex;align-items:center;gap:7px;font-size:13px;color:var(--w-ink2);border-inline-end:1px solid #D3D9E2}.wxst button:hover{background:#E4E9F0}.wxst button.on{background:#fff;color:var(--pri);font-weight:600;box-shadow:inset 0 -2px 0 var(--pri2)}
+.wxst .n{font-size:11px;font-weight:700;background:var(--acc);color:#fff;border-radius:9px;padding:0 6px}
+.wxsb{margin-inline-start:auto;display:flex;align-items:center;gap:20px;padding:0 16px;font-size:12.5px;color:var(--w-ink2)}.wxsb b{color:var(--ink);font-weight:600}
+.wxk{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--w-line)}.wxk>div{padding:16px 22px;border-inline-start:1px solid #E4E8EE}.wxk>div:first-child{border:0}
+.wxk .l{font-size:12.5px;color:var(--mut)}.wxk .v{font:600 26px/1.2 var(--fd);margin-top:3px}.wxk .d{font-size:12.5px;color:var(--w-ink2);margin-top:2px}
+.wxd{display:grid;grid-template-columns:1fr 380px}.wxd>section{padding:16px 22px}.wxd>section+section{border-inline-start:1px solid #E4E8EE}.wxd h2{font:600 14px var(--fd);margin:0 0 10px}
+table.wxmini{width:100%;border-collapse:collapse;font-size:13.5px}.wxmini th{font-weight:500;font-size:12px;color:var(--mut);text-align:right;padding:6px 8px;border-bottom:1px solid #D3D9E2}.wxmini td{padding:8px;border-bottom:1px solid #EDF0F4;vertical-align:top}.wxmini td.n{text-align:left}
+.wxdb{position:relative;height:18px;background:#F0F3F7;border-radius:2px}.wxdb i{position:absolute;inset-block:0;inset-inline-start:0;background:#9DBDE6;border-radius:2px}.wxdb span{position:absolute;inset-inline-start:8px;top:0;line-height:18px;font-size:12px;font-weight:600}
+.wxsk{display:flex;height:10px;border-radius:2px;overflow:hidden;gap:1px;margin:2px 0 16px}.wxsk i{display:block}
+.wxis{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #EDF0F4;font-size:13.5px}.wxis:before{content:"";width:3px;border-radius:2px;background:var(--c);flex:none}.wxis small{display:block;color:var(--mut);font-size:12px}.wxis a{margin-inline-start:auto;color:var(--pri2);font-weight:500;cursor:pointer;white-space:nowrap}
+.wxpg{padding:18px 24px;color:var(--w-ink2);line-height:1.7}.wxpg h2{color:var(--ink);font:600 16px var(--fd);margin:0 0 6px}.wxpg h3{color:var(--ink);font:600 14px var(--fd);margin:16px 0 4px}
+.wxbulk{display:flex;gap:12px;align-items:center;padding:0 14px;width:100%;background:#E3ECF8;color:var(--pri);font-size:13px;font-weight:500}.wxbulk a{cursor:pointer;text-decoration:underline}
+.wxdr{position:absolute;inset-block:0;inset-inline-end:0;width:400px;background:#fff;border-inline-start:1px solid #B9C2CF;box-shadow:-12px 0 24px -18px rgba(14,27,43,.35);z-index:6;display:flex;flex-direction:column}
+.wxdr header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--w-line)}.wxdr header b{font:600 15px var(--fd)}.wxdr header button{all:unset;margin-inline-start:auto;cursor:pointer;color:var(--mut);padding:4px 8px}
+.wxdr .cn{padding:14px 16px;overflow:auto;font-size:13.5px}.wxdr h4{font:600 12.5px var(--fd);color:var(--mut);margin:16px 0 6px}.wxdr h4:first-child{margin-top:0}
+.wxdr .im{border:1px solid #D3D9E2;border-radius:5px;margin-bottom:8px;overflow:hidden}.wxdr .im img{display:block;width:100%}
+.wxdr .fxb{background:#F5F8FC;border:1px solid var(--w-line);border-radius:5px;padding:10px 12px}
+.wxdisc{width:44px;border:1px solid #CBD2DC;border-radius:4px;text-align:center;font:inherit;padding:1px;background:#FFFDF2}
+.wxst button{white-space:nowrap}.wxst{overflow-x:auto;min-width:0;flex:1}.wxsb{flex:none;white-space:nowrap;gap:14px;padding:0 12px}
 </style>
 </head>
 <body>
@@ -673,7 +732,7 @@ function boqModel(){
   return chs}
 function itemSt(r){const p=P.prices[r.code];return r.q==null?'miss':r.st==='חלקי'?'part':r.st==='ידני'?'man':p?'priced':'ok'}
 function boqStats(){const it=P.boq.filter(r=>r.kind==='item');return{n:it.length,meas:it.filter(r=>r.q!=null&&r.st!=='ידני'&&r.st!=='חלקי').length,man:it.filter(r=>r.st==='ידני').length,miss:it.filter(r=>r.q==null).length,part:it.filter(r=>r.st==='חלקי').length,priced:it.filter(r=>P.prices[r.code]).length}}
-async function boq(){
+async function boqOld(){
   if(!P.boq)return `<h1>כתב כמויות</h1><div class="card empty">עוד לא חושב. <a href="#/p/${P.id}/plans">העלה תוכניות</a> והרץ חישוב, או <button class="btn sec" onclick="startEmpty()">התחל כתב ריק</button></div>`;
   const chs=boqModel(),S=boqStats(),hid=(P.hidden||[]),man=new Set((P.manual||[]).map(m=>m.desc));
   const q=BQ.trim();
@@ -720,7 +779,7 @@ function inspH(r,man){const st=itemSt(r),isM=man.has(r.desc),i=r._i;
 function selCh(c){CHSEL=c;SELC=null;render()}
 function selItem(c){SELC=c;render()}
 function setFlt(k){FLT=k;render()}
-window.after_boq=()=>{};
+
 function dlgAdd(newCh){
   const chs=boqModel();let spec=window.__spec;
   const d=document.createElement('div');d.className='ov2';
@@ -996,6 +1055,112 @@ async function brain(){
   return `<h1>המוח</h1><p class="sub">מה המערכת יודעת לחשב, מה היא הניחה, ומה חסר לה כדי להשלים את הכתב.</p>
   <div class="card brain" style="margin-bottom:16px"><div class="ic">✦</div><div><b>${P.boq?`חישבתי ${SUM.measured} מתוך ${SUM.items} סעיפים.`:'עוד לא חישבתי כלום.'}</b><div>${N.length?`יש ${N.length} דברים שיעזרו לי להשלים את השאר.`:'אין חסרים.'}</div></div></div>
   <div class="card">${N.length?['high','med','low'].map(p=>g(p).map(n=>`<div class="need"><span class="dot d-${p}"></span><div><b>${esc(n.t)}</b> <span class="tag ${p==='high'?'t-b':p==='med'?'t-w':'t-ok'}">${L[p]}</span><div class="sub" style="margin:2px 0">${esc(n.why)}</div><div style="font-size:13px">מה לעשות: ${esc(n.how)}</div></div></div>`).join('')).join(''):'<div class="empty">אין מה להוסיף</div>'}</div>`}
+
+/* ===== workbook: editable bill of quantities ===== */
+const WX={tab:'dash',flt:'all',qs:'',coll:{},sel:new Set(),cur:null,dens:false,showP:true,drawer:null,chg:new Set(),hist:[],by:{}};
+const WI=(p,s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const WIC={up:'<path d="M12 19V5M5 12l7-7 7 7"/>',dn:'<path d="M12 5v14M5 12l7 7 7-7"/>',cp:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',tr:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',ch:'<path d="M9 6l6 6-6 6"/>',sr:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>'};
+const wxVat=()=>P.params&&P.params.vat!=null?+P.params.vat:0.18;
+const wxMiss=r=>r.q==null,wxPart=r=>r.st==='חלקי',wxMan=r=>r.st==='ידני';
+const wxPrice=r=>{const p=(P.prices||{})[r.code];return p===''||p==null?0:+p};
+const wxTot=r=>r.q!=null?(+r.q||0)*wxPrice(r):0;
+function wxModel(){const chs=[];let cur=null,sub=null;WX.by={};
+  (P.boq||[]).forEach((r,i)=>{if(r.kind==='ch'){if(i===0)return;cur={code:r.code.slice(0,2),name:r.desc,subs:[]};chs.push(cur);sub=null}
+   else if(r.kind==='sub'&&cur){sub={code:r.code.slice(0,5),name:r.desc,rows:[]};cur.subs.push(sub)}
+   else if(cur&&sub){if(r.kind==='note')sub.rows.push(r);else if(r.kind==='item'){r.key=r.key||r.desc;WX.by[r.code]=r;sub.rows.push(r)}}});
+  chs.forEach(c=>{c.items=c.subs.flatMap(s=>s.rows.filter(x=>x.kind==='item'));c.g=c.items.reduce((a,r)=>a+wxTot(r),0);c.disc=+((P.disc||{})[+c.code]||0);c.t=c.g*(1-c.disc/100)});
+  return chs}
+const wxAll=chs=>chs.reduce((a,c)=>a+c.t,0);
+function wxSnap(){WX.hist.push(JSON.stringify(['ov','hidden','manual','ren','un','ord','disc','prices','chnames'].reduce((o,k)=>(o[k]=P[k],o),{})));if(WX.hist.length>40)WX.hist.shift()}
+async function wxUndo(){if(!WX.hist.length)return toast('אין מה לבטל');P=await api(`/projects/${P.id}/restore`,{method:'POST',body:JSON.parse(WX.hist.pop())});wxDraw();toast('הפעולה בוטלה')}
+async function wxBld(b,quiet){wxSnap();try{P=await api(`/projects/${P.id}/builder`,{method:'POST',body:b})}catch(e){WX.hist.pop();toast(e.message);wxDraw();return}if(!quiet){wxDraw();toast('נשמר')}}
+async function wxPriceSet(code,v){wxSnap();try{await api(`/projects/${P.id}/prices`,{method:'POST',body:{items:{[code]:v}}});P=await api('/projects/'+P.id)}catch(e){WX.hist.pop();toast(e.message)}WX.chg.add(code+'p');wxDraw();toast('נשמר')}
+function wxEd(el,code,k){const r=WX.by[code];if(!r)return;const v=(el.textContent||'').trim();
+  if(k==='d'){if(v&&v!==(r.full||r.desc)){WX.chg.add(code+'d');wxBld({action:'rename',desc:r.key,new:v})}else if(!v)wxDraw();return}
+  const n=v.replace(/[^0-9.\-]/g,'');
+  if(k==='q'){if(v==='חסר')return;const nv=n===''?'':+n;if((nv===''&&r.q==null)||nv===r.q)return;WX.chg.add(code+'q');wxBld({action:'qty',desc:r.key,q:nv});return}
+  if(k==='pr'){const cur=(P.prices||{})[code];if((n===''&&(cur==null||cur===''))||(n!==''&&+n===+cur))return;wxPriceSet(code,n===''?'':+n)}}
+function wxUnit(code,u){const r=WX.by[code];if(r&&u!==r.unit)wxBld({action:'unit',desc:r.key,unit:u})}
+function wxKd(e){const t=e.target,tr=t.closest('tr'),rows=[...document.querySelectorAll('.wxg2 tr.i')],i=rows.indexOf(tr),ci=[...tr.children].indexOf(t.closest('td'));
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){const nx=rows[i+(e.key==='ArrowDown'?1:-1)];if(nx){e.preventDefault();t.blur();setTimeout(()=>{const c=document.querySelector(`.wxg2 tr.i[data-c="${nx.dataset.c}"]`);c&&c.children[ci]&&c.children[ci].focus()},120)}return}
+  if(e.key==='Enter'){e.preventDefault();const nx=rows[i+1];t.blur();if(nx)setTimeout(()=>{const c=document.querySelector(`.wxg2 tr.i[data-c="${nx.dataset.c}"]`);c&&c.children[ci]&&c.children[ci].focus()},120)}
+  if(e.key==='Escape'){wxDraw()}}
+function wxPick(code){if(WX.cur===code)return;WX.cur=code;wxFx();document.querySelectorAll('.wxg2 tr.i').forEach(t=>t.classList.toggle('sl',t.dataset.c===code))}
+function wxSel(code){WX.sel.has(code)?WX.sel.delete(code):WX.sel.add(code);wxDraw()}
+function wxMv(code,d){const r=WX.by[code];if(!r)return;const ch=wxModel();let g=null;ch.forEach(c=>c.subs.forEach(s=>{if(s.rows.includes(r))g=s}));if(!g)return;const its=g.rows.filter(x=>x.kind==='item');
+  wxBld({action:'move',desc:r.key,dir:d,group:`${+code.slice(0,2)}.${+code.slice(3,5)}`,keys:its.map(x=>x.key),codes:its.map(x=>x.code)})}
+const wxIsMan=r=>(P.manual||[]).some(m=>m.desc===r.desc);
+function wxDel(code){const r=WX.by[code];if(!r)return;WX.cur=null;wxBld(wxIsMan(r)?{action:'rm_manual',desc:r.desc}:{action:'hide',desc:r.key});toast('הסעיף הוסר. אפשר לבטל')}
+function wxDup(code){const r=WX.by[code];if(r)wxBld({action:'dup',desc:r.key})}
+async function wxBulk(kind){const codes=[...WX.sel];wxSnap();for(const c of codes){const r=WX.by[c];if(!r)continue;const b=kind==='del'?(wxIsMan(r)?{action:'rm_manual',desc:r.desc}:{action:'hide',desc:r.key}):{action:'dup',desc:r.key};try{P=await api(`/projects/${P.id}/builder`,{method:'POST',body:b})}catch(e){toast(e.message)}}WX.sel.clear();WX.cur=null;wxDraw()}
+function wxDisc(ch,v){wxBld({action:'disc',ch:+ch,pct:+v||0})}
+function wxAdd(ch,sub){CHSEL=ch;dlgAdd();setTimeout(()=>{const e=document.getElementById('a-sub');if(e)e.value=+sub},0)}
+function wxGo(c){const e=document.getElementById('wxc'+c),y=document.querySelector('.wxy');if(e&&y)y.scrollTo({top:e.offsetTop-30,behavior:'smooth'})}
+function wxOpen(code){WX.tab='boq';WX.cur=code;wxDraw();setTimeout(()=>{const t=document.querySelector(`.wxg2 tr.i[data-c="${code}"]`),y=document.querySelector('.wxy');if(t&&y)y.scrollTo({top:t.offsetTop-90,behavior:'smooth'})},50)}
+const WTABS=()=>{const c=wxModel(),its=c.flatMap(x=>x.items);return [['dash','דשבורד'],['boq','כתב כמויות'],['sum','סיכום פרקים'],['calc','דפי חישוב'],['need','מה חסר',its.filter(r=>wxMiss(r)||wxPart(r)).length],['mat','חומרים והזמנות'],['how','שיטות ומקורות'],['guide','הנחיות'],['prm','הנחות חישוב']]};
+function wxFx(){const fx=document.getElementById('wxfx');if(!fx)return;const r=WX.by[WX.cur];
+  if(WX.tab==='boq'&&WX.sel.size){const ss=[...WX.sel].map(c=>WX.by[c]).filter(Boolean);fx.innerHTML=`<div class="wxbulk"><b>נבחרו ${ss.length} סעיפים</b><span>סכום ${money(ss.reduce((a,x)=>a+wxTot(x),0))}</span><span style="flex:1"></span><a onclick="wxBulk('del')">הסר מהכתב</a><a onclick="wxBulk('dup')">שכפל</a><a onclick="WX.sel.clear();wxDraw()">נקה בחירה</a></div>`;return}
+  if(WX.tab==='boq'&&r){const p=wxPrice(r);fx.innerHTML=`<div class="wnm">${r.code}</div><div class="wfm"><span><b>${r.q!=null?nf(r.q,2):'—'} ${esc(r.unit)}</b> × ${p?money(p):'ללא מחיר'} = <b>${wxTot(r)?money(wxTot(r)):'—'}</b></span><span class="wtr" title="${esc(r.src||'')}">${esc(r.src||'')}${r.need?' · '+esc(r.need):''}</span><span class="wlk" style="margin-inline-start:auto" onclick="WX.drawer='${r.code}';wxDraw()">פתח דף חישוב</span></div>`;return}
+  fx.innerHTML=`<div class="wnm">${WX.tab==='boq'?'—':'סקירה'}</div><div class="wfm"><span class="wtr">${WX.tab==='boq'?'בחר תא כדי לראות מאיפה הכמות הגיעה ואיזו תוכנית נשענת עליה':'כל מספר כאן מחושב מהכתב'}</span></div>`}
+function wxDash(chs){const its=chs.flatMap(c=>c.items),n=its.length,m=its.filter(wxMiss).length,p=its.filter(wxPart).length,T=wxAll(chs),mx=Math.max(...chs.map(c=>c.t),1),V=wxVat();const sh=['#0D43A0','#1F6FD1','#5A98E0','#9DBDE6','#C9DAF0','#E3ECF8'];
+  const iss=its.filter(r=>wxMiss(r)||wxPart(r)).slice(0,12).map(r=>`<div class="wxis" style="--c:${wxMiss(r)?'#C0392B':'#E0A100'}"><div>${esc(r.full||r.desc)}<small>${esc(r.need||r.src||'')}</small></div><a onclick="wxOpen('${r.code}')">פתח</a></div>`).join('');
+  return `<div class="wxk"><div><div class="l">סה"כ לפני מע"מ</div><div class="v">${money(T)}</div><div class="d">לפי המחירים שהוזנו</div></div><div><div class="l">כולל מע"מ ${Math.round(V*100)}%</div><div class="v">${money(T*(1+V))}</div><div class="d">מחושב אוטומטית</div></div><div><div class="l">סעיפים עם כמות</div><div class="v">${n-m} מתוך ${n}</div><div class="d">${n?Math.round((n-m)/n*100):0}% כיסוי</div></div><div><div class="l">דורשים טיפול</div><div class="v" style="color:#C0392B">${m+p}</div><div class="d">${m} חסרים · ${p} חלקיים</div></div></div>
+  <div class="wxd"><section><h2>התפלגות השווי לפי פרק</h2><div class="wxsk">${chs.map((c,i)=>`<i style="flex:${Math.max(c.t,1)};background:${sh[i%6]}" title="${esc(c.name)}"></i>`).join('')}</div>
+  <table class="wxmini"><tr><th>פרק</th><th style="width:70px">סעיפים</th><th style="width:90px">עם כמות</th><th style="width:230px">שווי</th></tr>${chs.map((c,i)=>{const k=c.items.filter(r=>!wxMiss(r)).length;return `<tr><td><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${sh[i%6]};margin-inline-end:8px"></span>${c.code} · ${esc(c.name)}</td><td class="n">${c.items.length}</td><td class="n">${c.items.length?Math.round(k/c.items.length*100):0}%</td><td><div class="wxdb"><i style="width:${c.t/mx*100}%"></i><span>${money(c.t)}</span></div></td></tr>`}).join('')}</table></section>
+  <section><h2>דורש טיפול</h2>${iss||'<div class="wxpg">הכל מלא</div>'}</section></div>`}
+function wxGrid(chs){const q=WX.qs.trim(),F=WX.flt;
+  const f=r=>(F==='all'||(F==='miss'&&wxMiss(r))||(F==='part'&&wxPart(r))||(F==='man'&&wxMan(r)))&&(!q||((r.full||r.desc)+r.code).includes(q));
+  let h=`<table class="wxg2 ${WX.showP?'':'nopr'}"><colgroup><col style="width:40px"><col style="width:112px"><col><col style="width:64px"><col style="width:96px"><col class="pc" style="width:104px"><col class="pc" style="width:120px"><col style="width:112px"></colgroup><tr><th></th><th>מספר</th><th>תיאור</th><th>יח'</th><th>כמות</th><th class="pc">מחיר יחידה</th><th class="pc">סה"כ</th><th></th></tr>`;let rn=0;
+  for(const c of chs){const open=!WX.coll[c.code];h+=`<tr class="h" id="wxc${c.code}"><td class="rn">${++rn}</td><td colspan="5"><span style="padding:0 12px"><span style="display:inline-block;width:14px;margin-inline-end:8px;cursor:pointer;transition:transform .15s;${open?'':'transform:rotate(90deg)'}" onclick="WX.coll['${c.code}']=!WX.coll['${c.code}'];wxDraw()">${WI(WIC.ch,13)}</span>פרק ${c.code} — ${esc(c.name)}</span></td><td class="nu pc" style="padding:0 10px">${money(c.t)}</td><td></td></tr>`;
+   if(!open)continue;
+   for(const s of c.subs){const rows=s.rows.filter(x=>x.kind==='note'||f(x));if(!rows.some(x=>x.kind==='item')&&(q||F!=='all'))continue;
+    h+=`<tr class="s"><td class="rn">${++rn}</td><td class="cd" style="font-weight:500">${s.code}</td><td colspan="6" style="padding:0 10px">${esc(s.name)}</td></tr>`;
+    for(const r of rows){if(r.kind==='note'){h+=`<tr class="nt"><td class="rn"></td><td colspan="7">${esc(r.desc)}</td></tr>`;continue}
+     const k=r.code,sl=WX.cur===k,mk=wxMiss(r)?'m':wxPart(r)?'p':wxMan(r)?'u':'';
+     h+=`<tr class="i ${sl?'sl':''} ${WX.sel.has(k)?'pk':''}" data-c="${k}"><td class="rn" onclick="wxSel('${k}')" title="סמן שורה">${WX.sel.has(k)?'✓':++rn}</td><td class="cd">${k}</td>
+      <td class="c ${WX.chg.has(k+'d')?'chg':''}" contenteditable onfocus="wxPick('${k}')" onblur="wxEd(this,'${k}','d')" onkeydown="wxKd(event)">${mk?`<i class="mk ${mk}"></i>`:''}${esc(r.full||r.desc)}</td>
+      <td class="un"><select onfocus="wxPick('${k}')" onchange="wxUnit('${k}',this.value)">${[...new Set(['מ"ר','מ"ק','מ"א','יח\'','טון','ק"ג','קומפ\'','נק\'','ש"ע','ליטר',r.unit])].map(u=>`<option ${u===r.unit?'selected':''}>${esc(u)}</option>`).join('')}</select></td>
+      <td class="c nu ${wxMiss(r)?'qm':wxPart(r)?'qp':''} ${WX.chg.has(k+'q')?'chg':''}" contenteditable onfocus="wxPick('${k}')" onblur="wxEd(this,'${k}','q')" onkeydown="wxKd(event)">${wxMiss(r)?'חסר':nf(r.q,2)}</td>
+      <td class="c nu pr pc ${WX.chg.has(k+'p')?'chg':''}" contenteditable onfocus="wxPick('${k}')" onblur="wxEd(this,'${k}','pr')" onkeydown="wxKd(event)">${wxPrice(r)?nf(wxPrice(r),2):''}</td>
+      <td class="c nu pc" style="font-weight:600">${wxTot(r)?money(wxTot(r)):'—'}</td>
+      <td><div class="wxac"><button title="למעלה" onclick="wxMv('${k}',-1)">${WI(WIC.up)}</button><button title="למטה" onclick="wxMv('${k}',1)">${WI(WIC.dn)}</button><button title="שכפל" onclick="wxDup('${k}')">${WI(WIC.cp)}</button><button class="d" title="הסר מהכתב" onclick="wxDel('${k}')">${WI(WIC.tr)}</button></div></td></tr>`}
+    h+=`<tr><td class="rn">${++rn}</td><td></td><td colspan="6"><span class="wxad" onclick="wxAdd('${c.code}','${s.code.slice(3,5)}')">+ סעיף חדש</span></td></tr>`}
+   h+=`<tr class="t"><td class="rn">${++rn}</td><td></td><td colspan="2" style="padding:0 10px">סה"כ ${esc(c.name)}</td><td class="pc" style="text-align:left;padding:0 10px;font-weight:500;color:var(--w-ink2)">הנחה <input class="wxdisc" value="${c.disc||0}" onchange="wxDisc('${c.code}',this.value)">%</td><td class="pc" style="text-align:center;font-weight:500;color:var(--w-ink2)">${c.disc?money(c.g):''}</td><td class="nu c pc">${money(c.t)}</td><td></td></tr>`}
+  return h+'</table>'}
+function wxSum(chs){return `<div style="padding:16px 24px"><table class="wxmini"><tr><th>פרק</th><th>סעיפים</th><th>עם כמות</th><th>הנחה</th><th>סה"כ</th></tr>${chs.map(c=>`<tr><td>${c.code} · ${esc(c.name)}</td><td class="n">${c.items.length}</td><td class="n">${c.items.filter(r=>!wxMiss(r)).length}</td><td class="n">${c.disc?c.disc+'%':'—'}</td><td class="n"><b>${money(c.t)}</b></td></tr>`).join('')}<tr><td colspan="4"><b>סה"כ לפני מע"מ</b></td><td class="n"><b>${money(wxAll(chs))}</b></td></tr></table></div>`}
+function wxCalc(chs){const its=chs.flatMap(c=>c.items).filter(r=>r.trace);return `<div style="padding:16px 24px"><div class="mu" style="margin-bottom:10px">${its.length} סעיפים עם דף חישוב. לחיצה פותחת את הפירוט והחיתוך מהתוכנית.</div><table class="wxmini"><tr><th>מספר</th><th>סעיף</th><th>כמות</th><th>נוסחה</th></tr>${its.map(r=>`<tr style="cursor:pointer" onclick="WX.drawer='${r.code}';WX.tab='boq';WX.cur='${r.code}';wxDraw()"><td>${r.code}</td><td>${esc(r.full||r.desc)}</td><td class="n">${nf(r.q,2)} ${esc(r.unit)}</td><td>${esc((r.trace.formula||'').slice(0,90))}</td></tr>`).join('')}</table></div>`}
+function wxNeed(){const L={high:'דחוף',med:'חשוב',low:'כשיהיה זמן'};return `<div style="padding:16px 24px"><table class="wxmini"><tr><th style="width:90px">דחיפות</th><th>מה חסר</th><th>למה</th><th>מה לעשות</th></tr>${(P.needs||[]).map(n=>`<tr><td style="font-weight:600;color:${n.p==='high'?'#C0392B':n.p==='med'?'#946300':'#43536A'}">${L[n.p]||''}</td><td>${esc(n.t)}</td><td>${esc(n.why||'')}</td><td>${esc(n.how||'')}</td></tr>`).join('')||'<tr><td colspan="4">אין חוסרים</td></tr>'}</table></div>`}
+function wxHow(chs){return `<div style="padding:16px 24px"><table class="wxmini"><tr><th>מספר</th><th>סעיף</th><th>יח'</th><th>אופן המדידה</th><th>מקור הכמות</th></tr>${chs.flatMap(c=>c.items).map(r=>`<tr><td>${r.code}</td><td>${esc(r.full||r.desc)}</td><td>${esc(r.unit)}</td><td>${esc(r.method||'')}</td><td>${esc(r.src||'')}</td></tr>`).join('')}</table></div>`}
+const WGUIDE=[['מספור הסעיפים','מספר סעיף = פרק.תת-פרק.פריט, למשל 10.01.0020. מספרי הפרקים לפי המפרט הכללי לעבודות בנייה ("הספר הכחול"). הפריטים ממוספרים בקפיצות של 10 כדי להשאיר מקום לתוספות.'],['כללי מדידה','כל הכמויות נטו לפי העבודה הגמורה. פחת, חיתוכים וחפיפות כלולים במחיר היחידה. טיח, חיפוי וצבע: היקף × גובה בניכוי פתחים מעל 0.5 מ"ר. ריצוף: שטח נטו, המצע והדבק כלולים. איטום רצפות כולל עלייה על הקירות. תקרות גבס לפי ההיטל האופקי. נקודה בחשמל היא מהלוח עד האביזר הסופי. קומפלט הוא עבודה שלמה ומושלמת. שעת עבודה לפי יומנים חתומים בלבד.'],['מה כלול במחיר','חומרים, עבודה, ציוד והרמה, הובלה, פחת, הגנות, בדיקות, אחריות, ביטוחים, ניהול ורווח. אין סעיף "שונות": מה שנדרש לביצוע מושלם כלול בסעיף. המחירים ללא מע"מ.'],['איך עובדים בגריד','לחיצה על תא מאפשרת עריכה. Enter ממשיך לשורה הבאה. לחיצה על מספר השורה בוחרת אותה. כל שינוי נשמר מיד, ואפשר לבטל את הפעולה האחרונה.']];
+const wxGuide=()=>`<div class="wxpg" style="max-width:860px">${WGUIDE.map(g=>`<h3>${g[0]}</h3><div>${g[1]}</div>`).join('')}</div>`;
+function wxPrm(){return `<div style="padding:16px 24px"><div class="mu" style="margin-bottom:10px">משנים ערך וכל הכתב מחושב מחדש.</div><div class="grid g4">${Object.entries(PARAMS).map(([k,d])=>`<div class="fld"><label>${d.label}</label><input class="num" style="width:100%" id="pp-${k}" value="${(P.params||{})[k]??d.v}"></div>`).join('')}</div><button class="btn" style="margin-top:12px" onclick="saveParams()">שמור וחשב מחדש</button></div>`}
+function wxMat(){return `<div class="wxpg"><h2>חומרים והזמנות וחשבונות</h2><div>פירוק הכתב לחומרים, הזמנות לספקים וחשבונות חלקיים.</div><div style="margin-top:14px;display:flex;gap:10px"><a class="btn" href="#/p/${P.id}/materials">חומרים והזמנות</a><a class="btn sec" href="#/p/${P.id}/bills">חשבונות</a></div></div>`}
+function wxDrawer(){const el=document.getElementById('wxdr');if(!el)return;const r=WX.by[WX.drawer];if(!r||WX.tab!=='boq'){el.innerHTML='';return}
+  const t=r.trace,seen=new Set(),crops=[];((t&&t.rows)||[]).forEach(x=>(x.locs||[]).forEach(l=>{const k=l.sid+(l.r||[]).join();if(seen.has(k)||crops.length>=3||!l.r)return;seen.add(k);crops.push(l)}));
+  el.innerHTML=`<div class="wxdr"><header><b>דף חישוב · ${r.code}</b><button onclick="WX.drawer=null;wxDraw()">סגור ✕</button></header><div class="cn">
+  <h4>הסעיף</h4><div>${esc(r.full||r.desc)}</div>
+  <h4>כמות</h4><div class="wxk" style="border:0;display:block"><div class="v" style="padding:0">${r.q!=null?nf(r.q,2):'—'} <span style="font-size:14px;font-weight:400">${esc(r.unit)}</span></div></div>
+  <h4>מאיפה הגיעה</h4><div class="wxfxb fxb">${esc(r.src||'')}${r.need?`<br><span style="color:#C0392B">${esc(r.need)}</span>`:''}</div>
+  ${t?traceH(t,r.unit):'<h4>פירוט המדידה</h4><div class="mu">אין עדיין פירוט מדידה לסעיף הזה.</div>'}
+  ${crops.length?`<h4>התוכנית שהסתמכנו עליה</h4>${crops.map(l=>{const [a,b,c,d]=l.r,w=Math.max(c-a,20),h=Math.max(d-b,20);return `<div class="im"><img loading="lazy" src="/api/projects/${P.id}/sheets/${l.sid}/crop.png?x=${Math.max(a-30,0)}&y=${Math.max(b-30,0)}&w=${w+60}&h=${h+60}"></div>`}).join('')}`:''}
+  ${r.method?`<h4>אופן המדידה</h4><div>${esc(r.method)}</div>`:''}</div></div>`}
+function wxDraw(){const root=document.getElementById('wxroot');if(!root)return;const chs=wxModel(),y=document.querySelector('.wxy'),sc=y?y.scrollTop:0,tabs=WTABS(),its=chs.flatMap(c=>c.items),n=its.length,T=wxAll(chs),V=wxVat();
+  root.classList.toggle('dn',WX.dens);const isB=WX.tab==='boq';
+  root.innerHTML=`<div class="wxt"><h1>כתב כמויות</h1><span class="pth">${esc(P.name)} · גרסה ${P.version} · נשמר אוטומטית</span><span class="spc"></span>
+   ${isB?`<div class="wxs">${WI(WIC.sr)}<input id="wxq" placeholder="חיפוש סעיף או קוד" value="${esc(WX.qs)}" oninput="WX.qs=this.value;clearTimeout(window.__wq);window.__wq=setTimeout(()=>{wxDraw();const e=document.getElementById('wxq');e.focus();e.setSelectionRange(e.value.length,e.value.length)},220)"></div>
+   <div class="wxg">${[['all','הכל'],['miss','חסר'],['part','חלקי'],['man','ידני']].map(x=>`<button class="${WX.flt===x[0]?'on':''}" onclick="WX.flt='${x[0]}';wxDraw()">${x[1]}</button>`).join('')}</div>
+   <button class="wxb ${WX.dens?'on':''}" onclick="WX.dens=!WX.dens;wxDraw()">צפיפות</button><button class="wxb ${WX.showP?'on':''}" onclick="WX.showP=!WX.showP;wxDraw()">מחירים</button>`:''}
+   <button class="wxb" onclick="wxUndo()">ביטול</button><button class="wxb" onclick="dlgAdd(true)">פרק חדש</button><button class="wxb p" onclick="dlgExport()">ייצוא</button></div>
+   <div class="wxf" id="wxfx"></div>
+   <div class="wxm">${isB?`<nav class="wxr"><h3>פרקים</h3>${chs.map(c=>`<a onclick="wxGo('${c.code}')"><b>${c.code} · ${esc(c.name)}</b><span><em style="font-style:normal">${c.items.length} סעיפים</em><em style="font-style:normal">${money(c.t)}</em></span><div class="pb"><i style="width:${c.items.length?c.items.filter(r=>!wxMiss(r)).length/c.items.length*100:0}%"></i></div></a>`).join('')}</nav>`:''}
+   <div class="wxy">${{dash:()=>wxDash(chs),boq:()=>wxGrid(chs),sum:()=>wxSum(chs),calc:()=>wxCalc(chs),need:wxNeed,mat:wxMat,how:()=>wxHow(chs),guide:wxGuide,prm:wxPrm}[WX.tab]()}</div><div id="wxdr"></div></div>
+   <div class="wxbot"><div class="wxst">${tabs.map(t=>`<button class="${WX.tab===t[0]?'on':''}" onclick="WX.tab='${t[0]}';WX.cur=null;WX.sel.clear();WX.drawer=null;wxDraw()">${t[1]}${t[2]?`<span class="n">${t[2]}</span>`:''}</button>`).join('')}</div>
+   <div class="wxsb"><span>סעיפים <b>${n}</b></span><span>כיסוי כמויות <b>${n?Math.round(its.filter(r=>!wxMiss(r)).length/n*100):0}%</b></span><span>סה"כ <b>${money(T)}</b></span><span>כולל מע"מ ${Math.round(V*100)}% <b>${money(T*(1+V))}</b></span></div></div>`;
+  const y2=document.querySelector('.wxy');if(y2)y2.scrollTop=sc;wxFx();wxDrawer()}
+async function boq(){
+  if(!P.boq)return `<h1>כתב כמויות</h1><div class="card empty">עוד לא חושב. <a href="#/p/${P.id}/plans">העלה תוכניות</a> והרץ חישוב, או <button class="btn sec" onclick="startEmpty()">התחל כתב ריק</button></div>`;
+  return `<div class="wxw" id="wxroot"></div>`}
+window.after_boq=()=>{if(document.getElementById('wxroot'))wxDraw()};
 
 (async()=>{try{TYPES=(await api('/health')).types;PARAMS=await api('/params')}catch(e){}if(!location.hash)location.hash='#/';render()})();
 </script>

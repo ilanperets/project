@@ -19,7 +19,8 @@ def _spec_for(ch,desc,unit):
         if not best or j>best[0]: best=(j,s)
     return best[1] if best and best[0]>=0.15 else None   # types that have an engine today
 
-def build(name,lines,present_types,ov=None,hidden=(),chnames=None):
+def build(name,lines,present_types,ov=None,hidden=(),chnames=None,edits=None):
+    ed=edits or {}; ren=ed.get('ren',{}); unm=ed.get('un',{}); ordr=ed.get('ord',{})
     ov=ov or {}; CHN=dict(CH); CHN.update({int(k):v for k,v in (chnames or {}).items()})
     items={}   # (ch,sub) -> list of dict
     for l in lines:
@@ -51,8 +52,11 @@ def build(name,lines,present_types,ov=None,hidden=(),chnames=None):
         for sub in sorted(k[1] for k in items if k[0]==ch):
             rows.append(dict(kind='sub',code=f'{ch:02d}.{sub:02d}.0000',desc=_sub(ch,sub)))
             for j,t in enumerate(NOTES.get((ch,sub),[]),1): rows.append(dict(kind='note',code=f'{ch:02d}.{sub:02d}.{j:04d}',desc=f'{"אבגדהו"[j-1]}. {t}',unit='הערה'))
-            for i,it in enumerate(items[(ch,sub)],1):
-                rows.append(dict(kind='item',code=f'{ch:02d}.{sub:02d}.{i*10:04d}',desc=it['desc'],full=FULL.get(it['desc'],it['desc']),unit=it['unit'],q=it['q'],src=f"{it['st']} · {it['src']}",need=it['need'],st=it['st'],method=it.get('method',''),vsrc=it.get('vsrc',''),trace=it.get('trace')))
+            lst=items[(ch,sub)]; od=ordr.get(f'{ch}.{sub}')
+            if od: lst=sorted(lst,key=lambda x:(od.index(x['desc']) if x['desc'] in od else 10**6))
+            for i,it in enumerate(lst,1):
+                nd=ren.get(it['desc'])
+                rows.append(dict(kind='item',code=f'{ch:02d}.{sub:02d}.{i*10:04d}',desc=nd or it['desc'],key=it['desc'],full=nd or FULL.get(it['desc'],it['desc']),unit=unm.get(it['desc'],it['unit']),q=it['q'],src=f"{it['st']} · {it['src']}",need=it['need'],st=it['st'],method=it.get('method',''),vsrc=it.get('vsrc',''),trace=it.get('trace')))
     return rows
 
 def needs(sheets,missing_types,unbuilt_types,assumptions):

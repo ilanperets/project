@@ -284,7 +284,7 @@ def rebuild(pr):
     present={s['type'] for s in sheets}; needed={e[4] for e in B.EXPECTED}
     missing=sorted(t for t in needed if t not in present)
     unbuilt=sorted(t for t in present if t not in B.BUILT and t in needed or t=='unknown' and t in present)
-    rows=B.build(pr['name'],lines,present,pr.get('ov'),set(pr.get('hidden',[])),pr.get('chnames'))
+    rows=B.build(pr['name'],lines,present,pr.get('ov'),set(pr.get('hidden',[])),pr.get('chnames'),edits=dict(ren=pr.get('ren',{}),un=pr.get('un',{}),ord=pr.get('ord',{})))
     mats,used=BR.explode(rows,P); asm=list(pr.get('asm',[]))
     for k in used: asm.append(dict(t=f"הנחה: {BR.DEFAULT_PARAMS[k]['label']} = {P[k]}",why=BR.DEFAULT_PARAMS[k]['why'],gives='פירוק לחומרים',how='עדכן בהגדרות הפרויקט'))
     pr['boq']=rows; pr['materials']=mats; pr['needs']=B.needs(sheets,missing,unbuilt,asm)
@@ -323,10 +323,43 @@ def builder(pid:str,body:dict):
         if body.get('chname'): pr.setdefault('chnames',{})[str(int(body['ch']))]=body['chname']
     elif a=='qty':
         pr.setdefault('ov',{})[body['desc']]=float(body['q']) if body.get('q') not in ('',None) else None
+    elif a=='rename':
+        k=body['desc']; nd=(body.get('new') or '').strip()
+        if not nd: raise HTTPException(400,'התיאור ריק')
+        m=next((m for m in pr.get('manual',[]) if m['desc']==k),None)
+        if m: m['desc']=nd
+        else: pr.setdefault('ren',{})[k]=nd
+    elif a=='unit':
+        k=body['desc']; m=next((m for m in pr.get('manual',[]) if m['desc']==k),None)
+        if m: m['unit']=body['unit']
+        else: pr.setdefault('un',{})[k]=body['unit']
+    elif a=='dup':
+        src=next((r for r in pr.get('boq',[]) if r.get('kind')=='item' and (r.get('key') or r['desc'])==body['desc']),None)
+        if not src: raise HTTPException(404,'סעיף לא נמצא')
+        ch,sub=int(src['code'][:2]),int(src['code'][3:5])
+        pr.setdefault('manual',[]).append(dict(ch=ch,sub=sub,desc=src['desc']+' (העתק)',unit=src['unit'],q=src['q'],src='שוכפל מסעיף קיים',need=''))
+    elif a=='move':
+        grp=body['group']; keys=list(body['keys']); i=keys.index(body['desc']); j=i+int(body['dir'])
+        if 0<=j<len(keys):
+            keys[i],keys[j]=keys[j],keys[i]; pr.setdefault('ord',{})[grp]=keys
+            ca,cb=body['codes'][i],body['codes'][j]; pz=pr.setdefault('prices',{}); pa,pb=pz.get(ca),pz.get(cb)
+            for c,v in ((ca,pb),(cb,pa)):
+                if v is None: pz.pop(c,None)
+                else: pz[c]=v
+    elif a=='disc':
+        pr.setdefault('disc',{})[str(int(body['ch']))]=float(body.get('pct') or 0)
     elif a=='hide': pr.setdefault('hidden',[]).append(body['desc'])
     elif a=='unhide': pr['hidden']=[d for d in pr.get('hidden',[]) if d!=body['desc']]
     elif a=='rm_manual': pr['manual']=[m for m in pr.get('manual',[]) if m['desc']!=body['desc']]
     else: raise HTTPException(400,'פעולה לא מוכרת')
+    rebuild(pr); _save(pr); return pr
+
+@app.post('/api/projects/{pid}/restore')
+def restore_edits(pid:str,body:dict):
+    """undo support for the workbook: put back the user-editable parts of the bill exactly as they were"""
+    pr=_load(pid)
+    for k in ('ov','hidden','manual','ren','un','ord','disc','prices','chnames'):
+        if k in body: pr[k]=body[k]
     rebuild(pr); _save(pr); return pr
 
 @app.post('/api/projects/{pid}/start')

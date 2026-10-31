@@ -1,0 +1,234 @@
+<!doctype html><html lang="he" dir="rtl"><meta charset="utf-8"><style>@font-face{font-family:Rubik;font-weight:400;src:url(/fonts/rubik-hebrew-400-normal.woff2);unicode-range:U+0590-05FF,U+20AA}@font-face{font-family:Rubik;font-weight:400;src:url(/fonts/rubik-latin-400-normal.woff2);unicode-range:U+0000-00FF}@font-face{font-family:Rubik;font-weight:500;src:url(/fonts/rubik-hebrew-500-normal.woff2);unicode-range:U+0590-05FF,U+20AA}@font-face{font-family:Rubik;font-weight:500;src:url(/fonts/rubik-latin-500-normal.woff2);unicode-range:U+0000-00FF}@font-face{font-family:Rubik;font-weight:700;src:url(/fonts/rubik-hebrew-700-normal.woff2);unicode-range:U+0590-05FF,U+20AA}@font-face{font-family:Rubik;font-weight:700;src:url(/fonts/rubik-latin-700-normal.woff2);unicode-range:U+0000-00FF}@font-face{font-family:Assistant;font-weight:400;src:url(/fonts/assistant-hebrew-400-normal.woff2);unicode-range:U+0590-05FF,U+20AA}@font-face{font-family:Assistant;font-weight:400;src:url(/fonts/assistant-latin-400-normal.woff2);unicode-range:U+0000-00FF}@font-face{font-family:Assistant;font-weight:600;src:url(/fonts/assistant-hebrew-600-normal.woff2);unicode-range:U+0590-05FF,U+20AA}@font-face{font-family:Assistant;font-weight:600;src:url(/fonts/assistant-latin-600-normal.woff2);unicode-range:U+0000-00FF}@font-face{font-family:Assistant;font-weight:700;src:url(/fonts/assistant-hebrew-700-normal.woff2);unicode-range:U+0590-05FF,U+20AA}@font-face{font-family:Assistant;font-weight:700;src:url(/fonts/assistant-latin-700-normal.woff2);unicode-range:U+0000-00FF}
+:root{--bg:#EEF2F7;--ink:#0E1B2B;--ink2:#43536A;--mut:#74839A;--line:#E0E6EF;--pri:#174F96;--pri2:#1F6FD1;--soft:#E6F0FC;--acc:#D9622B;--ok:#1C8248;--okb:#E1F3E8;--warn:#946300;--warnb:#FBF0D3;--bad:#C0392B;--badb:#FBE5E2;--bp1:#06255A;--bp2:#0D43A0;--bp3:#1F6FD1;--fd:Rubik,Assistant,sans-serif;--fb:Assistant,Rubik,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--fb);font-variant-numeric:tabular-nums}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.side{background:#fff;border-inline-start:1px solid var(--line);padding:20px 14px;position:relative}
+.logo{display:flex;gap:11px;align-items:center;padding:2px 8px 22px;font:700 18px var(--fd);color:var(--ink)}
+.mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(140deg,var(--bp1),var(--bp3));display:grid;place-items:center;color:#fff;box-shadow:0 6px 14px -6px var(--bp2)}
+.grp{font-size:12px;color:var(--mut);padding:18px 10px 6px;font-weight:600}
+.nav a{display:flex;gap:11px;align-items:center;padding:9px 11px;border-radius:10px;color:var(--ink2);font-weight:600;margin-bottom:2px;position:relative}
+.nav a svg{color:var(--mut)}.nav a.on{background:var(--soft);color:var(--pri)}.nav a.on svg{color:var(--pri2)}.nav a.on:before{content:"";position:absolute;inset-inline-end:-14px;top:8px;bottom:8px;width:3px;border-radius:3px;background:var(--pri2)}
+.nav .n{margin-inline-start:auto;font-size:11.5px;font-weight:700;background:var(--acc);color:#fff;border-radius:20px;min-width:20px;text-align:center;padding:0 6px}
+.me{position:absolute;bottom:18px;inset-inline:14px;display:flex;gap:10px;align-items:center;padding:10px;border-top:1px solid var(--line)}.av{width:34px;height:34px;border-radius:50%;background:var(--soft);color:var(--pri);display:grid;place-items:center;font:700 13px var(--fd)}
+.main{padding:22px 32px 48px;min-width:0}
+.top{display:flex;gap:10px;align-items:center;margin-bottom:22px}
+.search{display:flex;gap:9px;align-items:center;flex:1;max-width:400px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:9px 14px;color:var(--mut)}
+.btn{display:inline-flex;gap:8px;align-items:center;border-radius:11px;padding:9px 16px;font-weight:700;border:1px solid var(--line);background:#fff;color:var(--ink)}.btn.p{background:var(--pri2);border-color:var(--pri2);color:#fff;box-shadow:0 8px 18px -10px var(--pri2)}
+h1{font:700 30px/1.15 var(--fd);letter-spacing:-.4px;margin:0}.sub{color:var(--mut)}h2{font:700 17px var(--fd);margin:0}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px}
+.bpp{position:relative;border-radius:20px;overflow:hidden;color:#fff;background:linear-gradient(135deg,var(--bp1),var(--bp2) 60%,var(--bp3))}
+.bpp:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);background-size:24px 24px;mask-image:linear-gradient(90deg,transparent,#000 70%)}
+.bpp>*{position:relative}
+.pulse{display:grid;grid-template-columns:repeat(4,1fr);margin:20px 0 22px}.pulse>div{padding:22px 26px;border-inline-start:1px solid rgba(255,255,255,.16)}.pulse>div:first-child{border:0}
+.pulse .l{font-size:13px;opacity:.78}.pulse .v{font:700 34px/1.1 var(--fd);letter-spacing:-.8px;margin:6px 0 4px}.pulse .d{font-size:13px;opacity:.85}.pulse .hot{color:#FFC9A8;font-weight:700}
+.flow{padding:0 26px 22px}.flow .t{font-size:12.5px;opacity:.75;margin-bottom:8px;display:flex;justify-content:space-between}
+.fl{display:flex;height:10px;border-radius:6px;overflow:hidden;gap:3px}.fl i{display:block;background:rgba(255,255,255,.9)}.fl i:nth-child(2){opacity:.62}.fl i:nth-child(3){opacity:.4}.fl i:nth-child(4){opacity:.24}
+.fln{display:flex;font-size:12.5px;margin-top:7px;opacity:.9}.fln span{display:block}
+.layout{display:grid;grid-template-columns:1fr 330px;gap:18px;align-items:start}
+.pt{padding:6px 8px 10px}
+.ph{display:flex;align-items:center;gap:12px;padding:14px 12px 10px}
+.chips{display:flex;gap:6px}.chip{padding:5px 13px;border-radius:20px;font-weight:600;font-size:13px;color:var(--ink2);border:1px solid transparent}.chip.on{background:var(--ink);color:#fff}.chip small{opacity:.6;margin-inline-start:4px}
+table{width:100%;border-collapse:collapse}th{font-size:12.5px;color:var(--mut);text-align:right;padding:8px 12px;font-weight:600}
+td{padding:14px 12px;border-top:1px solid var(--line);vertical-align:middle}tbody tr:hover td{background:#F8FAFD}
+.pj{display:flex;gap:13px;align-items:center}.th{width:58px;height:44px;border-radius:9px;background:#fff center/cover;border:1px solid var(--line);flex:none;overflow:hidden}.th img{width:260%;margin:-8% 0 0 -70%}.th.e{background:repeating-linear-gradient(45deg,var(--soft),var(--soft) 5px,#fff 5px,#fff 10px)}
+.pj b{font:600 15.5px var(--fd);display:block}.pj span{font-size:13px;color:var(--mut)}
+.trk{display:flex;align-items:center;width:132px}.trk i{width:11px;height:11px;border-radius:50%;background:#fff;border:2px solid var(--line);flex:none}.trk u{flex:1;height:2px;background:var(--line);text-decoration:none}
+.trk .d{background:var(--ok);border-color:var(--ok)}.trk .c{background:#fff;border-color:var(--pri2);box-shadow:0 0 0 4px var(--soft)}.trk u.d{background:var(--ok)}
+.stg{font-size:12.5px;color:var(--ink2);margin-top:5px;font-weight:600}
+.ring{display:flex;align-items:center;gap:9px;font-weight:700}.ring small{font-weight:400;color:var(--mut)}
+.val{font:600 16px var(--fd)}
+.tag{display:inline-flex;gap:6px;align-items:center;padding:3px 11px;border-radius:20px;font-size:12.5px;font-weight:700}.tag:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+
+.wbh{display:flex;align-items:flex-end;gap:12px;margin-bottom:14px}.wbh h1{font-size:28px}
+.tabs{display:flex;gap:4px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:5px;margin-bottom:16px;overflow:auto}
+.tabs button{all:unset;cursor:pointer;display:flex;gap:8px;align-items:center;padding:9px 15px;border-radius:10px;font-weight:600;color:var(--ink2);white-space:nowrap}
+.tabs button:hover{background:#F3F6FB}.tabs button.on{background:var(--pri2);color:#fff;box-shadow:0 8px 16px -10px var(--pri2)}
+.tabs .bd{font-size:11.5px;font-weight:700;background:var(--acc);color:#fff;border-radius:20px;padding:0 7px;min-width:20px;text-align:center}.tabs button.on .bd{background:#fff;color:var(--pri)}
+.kp{display:grid;grid-template-columns:repeat(4,1fr);margin:6px 0 4px}.kp>div{padding:22px 26px;border-inline-start:1px solid rgba(255,255,255,.16)}.kp>div:first-child{border:0}
+.kp .l{font-size:13px;opacity:.78}.kp .v{font:700 32px/1.1 var(--fd);letter-spacing:-.8px;margin:6px 0 4px}.kp .d{font-size:13px;opacity:.85}
+.dg{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-top:18px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.hb{display:grid;grid-template-columns:150px 1fr 92px;gap:12px;align-items:center;padding:7px 0;font-size:14px}.hb .bar{height:12px;background:#EDF1F7;border-radius:6px;overflow:hidden;position:relative}
+.hb .bar i{position:absolute;inset-block:0;inset-inline-start:0;background:var(--pri2);border-radius:6px}.hb .bar u{position:absolute;inset-block:0;inset-inline-start:0;background:#9CC1F0;border-radius:6px;opacity:.6}
+.hb b{text-align:left;font-weight:700}
+.don{display:flex;gap:22px;align-items:center}.don svg{flex:none}.lgd div{display:flex;gap:8px;align-items:center;padding:4px 0;font-size:14px}.lgd i{width:11px;height:11px;border-radius:3px}
+.nd{display:flex;gap:11px;padding:11px 0;border-top:1px solid var(--line);font-size:14px;align-items:flex-start}.nd:first-of-type{border:0}.nd .dot{width:9px;height:9px;border-radius:50%;margin-top:7px;flex:none}
+.bar2{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.sr{display:flex;gap:9px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:11px;padding:8px 13px;min-width:260px}.sr input{all:unset;flex:1}
+.fchip{all:unset;cursor:pointer;padding:6px 14px;border-radius:20px;font-weight:600;font-size:13.5px;color:var(--ink2);border:1px solid var(--line);background:#fff}.fchip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.grid{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.grid table{table-layout:fixed}.grid th{background:#F5F8FC;position:sticky;top:0;z-index:2;border-bottom:1px solid var(--line);padding:10px 10px}
+.grid td{padding:0;border-top:1px solid #EEF2F7;vertical-align:top}
+.grid tr.ch td{background:linear-gradient(90deg,var(--bp1),var(--bp2));color:#fff;padding:11px 14px;border-top:0}
+.grid tr.sb td{background:#E6EEFA;color:var(--pri);font-weight:700;padding:8px 14px}
+.grid tr.tot td{background:#F1F3F6;font-weight:700;padding:10px 12px;border-top:2px solid #C9D1DE}
+.grid tr.it:hover td{background:#F8FBFF}.grid tr.it.sel td{background:#EAF3FF}
+.cell{padding:10px 10px;min-height:40px;outline:0;line-height:1.45}.cell:focus{background:#fff;box-shadow:inset 0 0 0 2px var(--pri2);border-radius:4px}
+.cell.n{text-align:left;font-variant-numeric:tabular-nums}.cell.cd{color:var(--mut);font-size:13px;padding-top:12px}
+.cell.pr{background:#FFFBEA}.cell.pr:focus{background:#fff}
+.q-miss{background:#FDECEA}.q-part{background:#FFF6DB}.q-man{background:#EAF3FF}
+.cell select{all:unset;width:100%;cursor:pointer}
+.acts{display:flex;gap:2px;padding:6px 4px;opacity:0;transition:.15s}.grid tr.it:hover .acts,.grid tr.it.sel .acts{opacity:1}
+.ib{all:unset;cursor:pointer;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;color:var(--ink2)}.ib:hover{background:#E4EBF5}.ib.bad:hover{background:var(--badb);color:var(--bad)}
+.chv{cursor:pointer;display:inline-block;transition:.15s;margin-inline-end:8px}.chv.c{transform:rotate(90deg)}
+.addr td{padding:6px 14px}.addr button{all:unset;cursor:pointer;color:var(--pri2);font-weight:600;font-size:13.5px;padding:4px 8px;border-radius:7px}.addr button:hover{background:var(--soft)}
+.src{font-size:12px;color:var(--mut);padding:0 10px 8px}
+.foot{display:grid;grid-template-columns:1fr 340px;gap:18px;margin-top:16px}
+.sum .r{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line)}.sum .r:first-child{border:0}.sum .r.g{font:700 20px var(--fd);color:var(--pri)}
+.vat{width:58px;text-align:center;border:1px solid var(--line);border-radius:7px;padding:2px;font:inherit}
+.hint{font-size:13px;color:var(--mut)}
+.toast{position:fixed;bottom:22px;inset-inline-start:50%;transform:translateX(50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:12px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;z-index:9}.toast.s{opacity:1}
+.ribbon{position:fixed;top:12px;left:12px;background:var(--acc);color:#fff;padding:4px 13px;border-radius:20px;font-weight:700;font-size:13px;z-index:9}
+.pt2 table td{padding:11px 14px;border-top:1px solid var(--line)}.pt2 th{padding:10px 14px}
+
+.tabs{background:linear-gradient(180deg,#fff,#F4F8FD);box-shadow:0 10px 24px -18px #0D43A0;border-radius:16px;padding:6px}
+.tabs button{padding:11px 18px;font-size:15px}.tabs button.on{background:linear-gradient(135deg,var(--bp2),var(--pri2));box-shadow:0 10px 20px -8px #1F6FD1}
+.kp .v{font-size:38px}.kp>div{position:relative}.kp>div:before{content:"";position:absolute;inset-inline-end:0;top:20px;width:4px;height:34px;border-radius:4px;background:var(--k,#fff);opacity:.9}
+.kp>div:nth-child(1){--k:#7FB5FF}.kp>div:nth-child(2){--k:#5EE0A0}.kp>div:nth-child(3){--k:#FFD166}.kp>div:nth-child(4){--k:#FF9B6A}
+.cc{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.cc>div{position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px 16px;overflow:hidden;box-shadow:0 12px 26px -22px #0D43A0}
+.cc>div:before{content:"";position:absolute;inset-inline:0;top:0;height:5px;background:var(--c)}
+.cc .nm{font-weight:700;font-size:15px;display:flex;gap:10px;align-items:center}.cc .nm i{width:34px;height:34px;border-radius:10px;background:var(--c);color:#fff;display:grid;place-items:center;font:700 14px var(--fd);font-style:normal}
+.cc .am{font:700 26px var(--fd);margin:12px 0 2px;letter-spacing:-.5px}.cc .mt{display:flex;justify-content:space-between;font-size:13px;color:var(--mut)}
+.cc .pb{height:8px;border-radius:5px;background:#EDF1F7;margin-top:10px;overflow:hidden}.cc .pb i{display:block;height:100%;background:var(--c);border-radius:5px}
+.hb .bar{height:16px;border-radius:8px}.hb .bar i{background:var(--c)}.hb b{font-size:15px}
+.top5{counter-reset:t}.top5 .nd{align-items:center}.top5 .nd:before{counter-increment:t;content:counter(t);width:26px;height:26px;border-radius:8px;background:var(--soft);color:var(--pri);display:grid;place-items:center;font-weight:700;flex:none}
+.top5 .nd b{margin-inline-start:auto;font:700 15px var(--fd)}
+.grid{box-shadow:0 16px 34px -26px #0D43A0;border-color:#CBD6E6}
+.grid th{background:linear-gradient(180deg,#1B3C73,#0F2A57);color:#fff;font-size:13px;padding:12px 10px;border:0}
+.grid tr.ch td{background:linear-gradient(90deg,var(--c),color-mix(in srgb,var(--c) 70%,#06255A));font-size:16px;padding:13px 16px}
+.grid tr.sb td{background:color-mix(in srgb,var(--c) 11%,#fff);color:var(--c);border-top:0;font-size:14px;padding:9px 16px;box-shadow:inset 4px 0 0 var(--c)}
+.grid tr.it td:first-child{box-shadow:inset 4px 0 0 color-mix(in srgb,var(--c) 45%,#fff)}
+.grid tr.it:nth-child(even) td{background:#FAFCFF}.grid tr.it:hover td{background:#EDF5FF}
+.grid tr.tot td{background:color-mix(in srgb,var(--c) 14%,#fff);border-top:2px solid var(--c);font-size:15px;color:var(--ink)}
+.cell.pr{background:#FFF3C4;font-weight:600}.cell.pr:focus{background:#fff}
+.cell.n.q-miss{background:#FFD9D4;box-shadow:inset 0 0 0 1px #F2A59B}.cell.n.q-part{background:#FFE9A8}.cell.n.q-man{background:#CFE5FF}
+.cell.n{font-weight:600;font-size:15px}
+.sum{background:linear-gradient(135deg,#06255A,#0D43A0);color:#fff;border:0}.sum .r{border-color:rgba(255,255,255,.2)}.sum .r.g{color:#FFD166;font-size:26px}.sum .vat{color:#0E1B2B}
+.card{box-shadow:0 12px 26px -22px #0D43A0}
+
+/* calm professional pass */
+.tabs{background:#fff;box-shadow:none;border-radius:12px;padding:4px}.tabs button{padding:9px 16px;font-size:14.5px}.tabs button.on{background:var(--pri);box-shadow:none}
+.kp .v{font-size:30px}.kp>div:before{display:none}.kp>div{padding:18px 24px}
+.cc{gap:12px}.cc>div{box-shadow:none;padding:14px 16px;border-radius:12px}.cc>div:before{display:none}
+.cc .nm{font-size:14px;font-weight:600}.cc .nm i{background:var(--soft);color:var(--pri);width:30px;height:30px;border-radius:8px;font-size:13px}
+.cc .am{font-size:22px;margin:10px 0 2px}.cc .pb{height:5px;margin-top:9px}.cc .pb i{background:var(--pri2)}
+.hb .bar{height:10px}.hb .bar i{background:var(--pri2)}.hb b{font-size:14px}
+.card{box-shadow:none;border-radius:12px}.grid{box-shadow:none;border-color:var(--line);border-radius:12px}
+.grid th{background:#F5F8FC;color:var(--mut);font-size:12.5px;font-weight:600;padding:9px 10px;border-bottom:1px solid var(--line)}
+.grid tr.ch td{background:var(--bp1);font-size:14.5px;font-weight:600;padding:9px 14px}
+.grid tr.sb td{background:#F5F8FC;color:var(--ink2);box-shadow:none;font-size:13px;padding:6px 14px;border-top:1px solid var(--line)}
+.grid tr.it td{border-top:1px solid #EEF2F7}.grid tr.it td:first-child{box-shadow:none}.grid tr.it:nth-child(even) td{background:#fff}.grid tr.it:hover td{background:#F7FAFE}
+.grid tr.tot td{background:#fff;border-top:1px solid var(--line);font-size:14px;padding:8px 12px}
+.grid td .cell{padding:8px 10px;min-height:34px}.cell.cd{padding-top:10px}.src{padding:0 10px 7px;font-size:11.5px;position:static;display:block}
+.cell.n{font-weight:500;font-size:14.5px}.cell.pr{background:#FFFDF1;font-weight:500;box-shadow:inset 0 -1px 0 #F1E6B4}
+.cell.n.q-miss{background:#FDF0EE;box-shadow:none}.cell.n.q-part{background:#FFF8E1}.cell.n.q-man{background:#EEF5FE}
+.addr td{padding:2px 14px}.addr button{font-size:12.5px;padding:2px 6px}
+.sum{background:#fff;color:var(--ink);border:1px solid var(--line)}.sum .r{border-color:var(--line)}.sum .r.g{color:var(--pri);font-size:20px}
+.ribbon{box-shadow:none}.hint{font-size:12.5px}
+
+/* spreadsheet-grade grid: real column separators */
+.grid table{border-collapse:separate;border-spacing:0}
+.grid th{background:#E9EFF8;color:var(--ink);font-weight:700;font-size:13px;border-bottom:1px solid #C5CFDD;border-inline-start:1px solid #D3DBE7;text-align:center}
+.grid th:first-child{border-inline-start:0}
+.grid tr.it td{border-top:0;border-bottom:1px solid #DCE3EE;border-inline-start:1px solid #DCE3EE}
+.grid tr.it td:first-child{border-inline-start:0}
+.grid tr.it td:nth-child(7){border-inline-start:0}
+.grid tr.tot td{border-bottom:1px solid #C5CFDD;border-inline-start:1px solid #DCE3EE}
+.grid tr.tot td:first-child{border-inline-start:0}
+.grid tr.sb td,.grid tr.ch td{border-bottom:1px solid #C5CFDD}
+.cell.cd{text-align:center;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--ink2)}
+.grid tr.it td:first-child{background:#F7F9FC}
+.cell select{text-align:center;text-align-last:center}
+.cell.n{text-align:left;padding-inline:12px}
+.cell:focus{box-shadow:inset 0 0 0 2px var(--pri2)}
+.grid tr.it:hover td{background:#F4F8FE}.grid tr.it:hover td:first-child{background:#EAF0F8}
+.grid{border:1px solid #C5CFDD;border-radius:10px}
+.grid tr.addr td{border-bottom:1px solid #DCE3EE}
+
+.grid tr.it td{vertical-align:middle}
+.grid tr.it td:has(>.cell.pr){background:#FFFCEC}
+.grid tr.it td:has(>.cell.q-miss){background:#FCEDEA}.grid tr.it td:has(>.cell.q-part){background:#FFF7DD}.grid tr.it td:has(>.cell.q-man){background:#ECF4FE}
+.cell.pr,.cell.n.q-miss,.cell.n.q-part,.cell.n.q-man{background:transparent;box-shadow:none}
+.cell:focus{background:#fff!important;box-shadow:inset 0 0 0 2px var(--pri2)!important}
+</style><body><div class="app"><aside class="side"><div class="logo"><span class="mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></svg></span>כתבי כמויות</div><nav class="nav">
+<a class=""><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>כל הפרויקטים</a><a><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 19V5"/></svg>ספר המפרט</a><a><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>מנועי חישוב</a>
+<div class="grp">וילה פרטית א׳</div><a><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>סקירת הפרויקט</a><a><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4zM4 10h8M12 4v16M12 14h8"/></svg>תוכניות</a><a class=""><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>כתב כמויות</a><a><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v8"/></svg>חומרים והזמנות</a><a><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 8v8h6M13 16V8h-3"/></svg>חשבונות</a><a><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>המוח<span class="n">3</span></a></nav>
+<div class="me"><span class="av">אי</span><div><b style="font-size:14px">אילן פרץ</b><div class="sub" style="font-size:12.5px">מנהל</div></div></div></aside><div class="ribbon">דמו · לאישור</div><main class="main">
+<div class="crumb" style="color:var(--mut);font-size:13px;margin-bottom:6px">כל הפרויקטים / פרויקט בדיקה / כתב כמויות</div>
+<div class="wbh"><h1>כתב כמויות</h1><span class="tag t-b" style="background:var(--soft);color:var(--pri)">עריך · שמירה אוטומטית</span><span style="margin-inline-start:auto;display:flex;gap:8px"><button class="btn" id="undo">ביטול פעולה</button><button class="btn">ייצוא לאקסל</button><button class="btn p">ייצוא חוברת PDF</button></span></div>
+<div class="tabs" id="tabs"></div><div id="view"></div></main><div class="toast" id="toast"></div>
+<script>
+const IC={'up': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>', 'dn': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>', 'cp': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>', 'tr': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>', 'ch': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>', 'pl': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>', 'sr': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>'};
+const CH={2:'עבודות בטון יצוק באתר',4:'עבודות בנייה',5:'עבודות איטום',9:'עבודות טיח',10:'עבודות ריצוף וחיפוי',22:'רכיבים מתועשים (גבס)'};
+let D=[
+ [2,1,'בטון רזה B-20 מתחת לאלמנטים מבניים, בעובי כלשהו','מ"ק',18.4,'v',0,'מנוע: תוכנית יסודות'],
+ [2,1,'בטון מזוין B-30 ליסודות, קורות יסוד ופלטות','מ"ק',64.2,'v',0,'מנוע: תוכנית יסודות'],
+ [2,1,'פלדת זיון מצולעת לכל הקטרים','טון',7.8,'g',0,'נגזר מנפח הבטון'],
+ [2,2,'תקרות בטון מזוין בעובי 20 ס"מ','מ"ר',237,'p',0,'חלקי: שטח קומה, ללא פתחי מדרגות'],
+ [4,1,'קירות בלוקים בעובי 10 ס"מ, כולל טיט וחיבורים','מ"ר',312.5,'v',0,'מנוע: תוכנית קומה'],
+ [4,1,'קירות בלוקים בעובי 20 ס"מ','מ"ר',148,'v',0,'מנוע: תוכנית קומה'],
+ [4,1,'משקופים לדלתות פנים','יח\'',null,'m',0,'חסר: רשימת פתחים'],
+ [5,1,'איטום רצפות חדרים רטובים, כולל עלייה 30 ס"מ על הקירות','מ"ר',41.2,'v',0,'מנוע: חדרי רחצה'],
+ [5,1,'איטום גגות בשתי שכבות יריעה ביטומנית','מ"ר',118,'v',0,'מנוע: תוכנית גג'],
+ [9,1,'טיח פנים שלוש שכבות, בניכוי פתחים מעל 0.5 מ"ר','מ"ר',624.7,'v',0,'מנוע: קירות פנים'],
+ [10,1,'ריצוף גרניט פורצלן 60/60, כולל מצע ודבק','מ"ר',236.9,'v',0,'מנוע: אריחי רצפה'],
+ [10,1,'פנל שיפולים מאריחים בגובה 10 ס"מ','מ"א',null,'m',0,'חסר: היקפי חדרים'],
+ [10,2,'חיפוי קירות חדרי רחצה, אריחי קרמיקה','מ"ר',96.4,'v',0,'מנוע: חדרי רחצה'],
+ [22,1,'מחיצות גבס חד קרומיות על קונסטרוקציה','מ"ר',54,'p',0,'ידני: לפי תוכנית אדריכלות']];
+D=D.map((r,i)=>({id:i+1,ch:r[0],sub:r[1],d:r[2],u:r[3],q:r[4],st:r[5],pr:r[6]||'',note:r[7]}));
+D[0].pr=520;D[1].pr=780;D[4].pr=165;D[9].pr=62;D[10].pr=240;
+const SUB={'2.1':'עבודות בטון','2.2':'תקרות ורצפות','4.1':'קירות','5.1':'איטום','9.1':'טיח פנים','10.1':'ריצוף','10.2':'חיפוי','22.1':'מחיצות'};
+const PAL=['#174F96'];const col=c=>PAL[Object.keys(CH).map(Number).sort((a,b)=>a-b).indexOf(+c)%PAL.length];
+let nid=100,tab='dash',flt='all',qs='',coll={},hist=[],sel=null,VAT=18;
+const nf=x=>x==null||x===''?'':(+x).toLocaleString('he-IL',{maximumFractionDigits:2});const mn=x=>'₪'+Math.round(x).toLocaleString('he-IL');
+const tot=r=>(+r.q||0)*(+r.pr||0);
+const snap=()=>{hist.push(JSON.stringify(D));if(hist.length>40)hist.shift()};
+const toast=t=>{const e=document.getElementById('toast');e.textContent=t;e.classList.add('s');setTimeout(()=>e.classList.remove('s'),1600)};
+document.getElementById('undo').onclick=()=>{if(!hist.length)return toast('אין מה לבטל');D=JSON.parse(hist.pop());draw();toast('הפעולה בוטלה')};
+const miss=()=>D.filter(r=>r.q==null||r.q==='').length,part=()=>D.filter(r=>r.st==='p').length;
+const TABS=[['dash','דשבורד'],['boq','כתב כמויות'],['sum','סיכום פרקים'],['calc','דפי חישוב'],['need','מה חסר',()=>miss()+part()],['mat','חומרים והזמנות'],['how','שיטות ומקורות'],['guide','הנחיות']];
+function tabs(){document.getElementById('tabs').innerHTML=TABS.map(t=>`<button class="${tab===t[0]?'on':''}" onclick="tab='${t[0]}';draw()">${t[1]}${t[2]?`<span class="bd">${t[2]()}</span>`:''}</button>`).join('')}
+function chTot(c){return D.filter(r=>r.ch==c).reduce((a,r)=>a+tot(r),0)}
+function dash(){
+ const T=D.reduce((a,r)=>a+tot(r),0),n=D.length,ok=D.filter(r=>r.q!=null&&r.q!==''&&r.st!=='p').length,pc=part(),ms=miss();
+ const chs=[...new Set(D.map(r=>r.ch))],mx=Math.max(...chs.map(chTot),1);
+ const seg=[['נמדד',ok,'#1C8248'],['חלקי',pc,'#E0A100'],['חסר',ms,'#C0392B']],R=52,C=2*Math.PI*R;let off=0;
+ const arcs=seg.map(s=>{const l=C*s[1]/n,a=`<circle r="${R}" cx="70" cy="70" fill="none" stroke="${s[2]}" stroke-width="20" stroke-dasharray="${l} ${C-l}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"/>`;off+=l;return a}).join('');
+ return `<section class="bpp" style="margin-bottom:0"><div class="kp"><div><div class="l">סה"כ לפני מע"מ</div><div class="v">${mn(T)}</div><div class="d">לפי מחירים שהזנת</div></div><div><div class="l">כולל מע"מ ${VAT}%</div><div class="v">${mn(T*(1+VAT/100))}</div><div class="d">מחושב אוטומטית</div></div><div><div class="l">סעיפים עם כמות</div><div class="v">${n-ms}/${n}</div><div class="d">${Math.round((n-ms)/n*100)}% כיסוי</div></div><div><div class="l">דורשים תשומת לב</div><div class="v" style="color:#FFC9A8">${ms+pc}</div><div class="d">${ms} חסרים · ${pc} חלקיים</div></div></div></section>
+ <div class="cc">${chs.map(c=>{const rs=D.filter(r=>r.ch==c),k=rs.filter(r=>r.q!=null&&r.q!=='').length;return `<div style="--c:${col(c)}"><div class="nm"><i>${String(c).padStart(2,'0')}</i>${CH[c]}</div><div class="am">${mn(chTot(c))}</div><div class="mt"><span>${rs.length} סעיפים</span><span>${Math.round(k/rs.length*100)}% עם כמות</span></div><div class="pb"><i style="width:${k/rs.length*100}%"></i></div></div>`}).join('')}</div><div class="dg"><div class="card"><h2 style="margin-bottom:8px">שווי לפי פרק</h2>${chs.map(c=>`<div class="hb" style="--c:${col(c)}"><span>${String(c).padStart(2,'0')} · ${CH[c]}</span><div class="bar"><i style="width:${Math.max(chTot(c)/mx*100,1.5)}%"></i></div><b>${mn(chTot(c))}</b></div>`).join('')}</div>
+ <div class="card"><h2 style="margin-bottom:10px">מצב הכמויות</h2><div class="don"><svg width="140" height="140" viewBox="0 0 140 140"><circle r="${R}" cx="70" cy="70" fill="none" stroke="#EDF1F7" stroke-width="20"/>${arcs}<text x="70" y="76" text-anchor="middle" font-size="22" font-weight="700">${Math.round(ok/n*100)}%</text></svg><div class="lgd">${seg.map(s=>`<div><i style="background:${s[2]}"></i>${s[0]} <b>${s[1]}</b></div>`).join('')}</div></div>
+ <h2 style="margin:18px 0 6px;font-size:15px">מה כדאי לבדוק</h2>${D.filter(r=>r.q==null||r.st==='p').slice(0,4).map(r=>`<div class="nd"><span class="dot" style="background:${r.q==null?'var(--bad)':'#E0A100'}"></span><div>${r.d}<div class="hint">${r.note}</div></div></div>`).join('')}</div></div><div class="card top5" style="margin-top:18px"><h2 style="margin-bottom:6px">הסעיפים היקרים ביותר</h2>${D.filter(r=>tot(r)>0).sort((a,b)=>tot(b)-tot(a)).slice(0,5).map(r=>`<div class="nd"><div>${r.d}<div class="hint">${nf(r.q)} ${r.u} × ${mn(r.pr)}</div></div><b>${mn(tot(r))}</b></div>`).join('')}</div>`}
+function boq(){
+ const f=r=>(flt==='all'||(flt==='miss'&&(r.q==null||r.q===''))||(flt==='part'&&r.st==='p')||(flt==='man'&&r.st==='m'))&&(!qs||(r.d+r.id).includes(qs));
+ let h=`<div class="bar2"><div class="sr">${IC.sr}<input id="qs" placeholder="חיפוש סעיף..." value="${qs}" oninput="qs=this.value;draw(true)"></div>${[['all','הכל'],['miss','חסר כמות'],['part','חלקי'],['man','ידני']].map(x=>`<button class="fchip ${flt===x[0]?'on':''}" onclick="flt='${x[0]}';draw()">${x[1]}</button>`).join('')}<span class="hint" style="margin-inline-start:auto">לחץ על תא כדי לערוך. Enter עובר שורה. גרור ב-⋮ או השתמש בחצים כדי לסדר.</span><button class="btn" onclick="addCh()">${IC.pl} פרק חדש</button></div><div class="grid"><table><colgroup><col width="96"><col><col width="76"><col width="96"><col width="108"><col width="120"><col width="118"></colgroup><tr><th>סעיף</th><th>תיאור</th><th>יח'</th><th>כמות</th><th>מחיר יחידה</th><th>סה"כ</th><th></th></tr>`;
+ const chs=[...new Set(D.map(r=>r.ch))].sort((a,b)=>a-b);
+ for(const c of chs){const rows=D.filter(r=>r.ch==c);const open=!coll[c];
+  h+=`<tr class="ch" style="--c:${col(c)}"><td colspan="7"><span class="chv ${open?'':'c'}" onclick="coll[${c}]=!coll[${c}];draw()">${IC.ch}</span><b>פרק ${String(c).padStart(2,'0')} — ${CH[c]||'פרק חדש'}</b><span style="float:left;opacity:.9">${mn(chTot(c))}</span></td></tr>`;
+  if(!open)continue;
+  const subs=[...new Set(rows.map(r=>r.sub))].sort((a,b)=>a-b);
+  for(const s of subs){h+=`<tr class="sb" style="--c:${col(c)}"><td colspan="7">${String(c).padStart(2,'0')}.${String(s).padStart(2,'0')}  ${SUB[c+'.'+s]||'תת-פרק'}</td></tr>`;
+   rows.filter(r=>r.sub==s).forEach((r,i)=>{if(!f(r))return;const cl=(r.q==null||r.q==='')?'q-miss':(r.st==='p'?'q-part':(r.st==='m'?'q-man':''));
+    h+=`<tr class="it ${sel===r.id?'sel':''}" style="--c:${col(c)}" onclick="sel=${r.id}"><td><div class="cell cd">${String(c).padStart(2,'0')}.${String(s).padStart(2,'0')}.${String((i+1)*10).padStart(4,'0')}</div></td>
+    <td><div class="cell" contenteditable onblur="ed(${r.id},'d',this.textContent)" onkeydown="kd(event)">${r.d}</div><div class="src">${r.note}</div></td>
+    <td><div class="cell"><select onchange="ed(${r.id},'u',this.value)">${['מ"ר','מ"ק','מ"א','יח\'','טון','ק"ג','קומפ\'','נק\'','ש"ע'].map(u=>`<option ${u==r.u?'selected':''}>${u}</option>`).join('')}</select></div></td>
+    <td><div class="cell n ${cl}" contenteditable onblur="ed(${r.id},'q',this.textContent)" onkeydown="kd(event)">${nf(r.q)}</div></td>
+    <td><div class="cell n pr" contenteditable onblur="ed(${r.id},'pr',this.textContent)" onkeydown="kd(event)">${nf(r.pr)}</div></td>
+    <td><div class="cell n" style="font-weight:600">${tot(r)?mn(tot(r)):'—'}</div></td>
+    <td><div class="acts"><button class="ib" title="למעלה" onclick="mv(${r.id},-1)">${IC.up}</button><button class="ib" title="למטה" onclick="mv(${r.id},1)">${IC.dn}</button><button class="ib" title="שכפל" onclick="dup(${r.id})">${IC.cp}</button><button class="ib bad" title="מחק" onclick="del(${r.id})">${IC.tr}</button></div></td></tr>`});
+   h+=`<tr class="addr" style="--c:${col(c)}"><td></td><td colspan="6"><button onclick="add(${c},${s})">+ הוסף סעיף ל-${SUB[c+'.'+s]||'תת-פרק'}</button></td></tr>`}
+  h+=`<tr class="tot" style="--c:${col(c)}"><td></td><td colspan="4">סה"כ ${CH[c]||''}</td><td style="text-align:left;padding-inline:12px">${mn(chTot(c))}</td><td></td></tr>`}
+ const T=D.reduce((a,r)=>a+tot(r),0);
+ h+=`</table></div><div class="foot"><div class="card"><b>טיפ</b><div class="hint" style="margin-top:6px">תא צהוב = מחיר. תא אדום = חסרה כמות, צהוב כהה = חלקית, כחול = הוזן ידנית. שינוי כאן נשמר מיד ומתעדכן בדשבורד, בחשבונות ובהזמנות.</div></div><div class="card sum"><div class="r"><span>סה"כ לפני מע"מ</span><b>${mn(T)}</b></div><div class="r"><span>מע"מ <input class="vat" value="${VAT}" onchange="VAT=+this.value||0;draw()">%</span><b>${mn(T*VAT/100)}</b></div><div class="r g"><span>סה"כ כולל מע"מ</span><span>${mn(T*(1+VAT/100))}</span></div></div></div>`;return h}
+function sum(){return `<div class="card pt2"><table><tr><th>פרק</th><th>סעיפים</th><th>עם כמות</th><th>כיסוי</th><th>סה"כ</th></tr>${[...new Set(D.map(r=>r.ch))].map(c=>{const rs=D.filter(r=>r.ch==c),k=rs.filter(r=>r.q!=null&&r.q!=='').length;return `<tr><td>${String(c).padStart(2,'0')} · ${CH[c]}</td><td>${rs.length}</td><td>${k}</td><td>${Math.round(k/rs.length*100)}%</td><td><b>${mn(chTot(c))}</b></td></tr>`}).join('')}</table></div>`}
+function need(){const m=D.filter(r=>r.q==null||r.q===''||r.st==='p');return `<div class="card pt2"><table><tr><th>מצב</th><th>סעיף</th><th>מה חסר / מה לעשות</th></tr>${m.map(r=>`<tr><td><span class="tag ${r.q==null?'t-r':'t-w'}" style="${r.q==null?'background:var(--badb);color:var(--bad)':'background:var(--warnb);color:var(--warn)'}">${r.q==null?'חסר':'חלקי'}</span></td><td>${r.d}</td><td>${r.note}</td></tr>`).join('')}</table></div>`}
+const STUB={calc:'דפי חישוב: לכל סעיף נוסחה, ההמשך מידות, וחיתוך התוכנית שממנה נלקחו. לחיצה על סעיף פותחת אותו.',mat:'חומרים והזמנות: פירוק הכתב לחומרים, ספקים והזמנות.',how:'שיטות ומקורות: אופן המדידה ומקור הכמות לכל סעיף.',guide:'הנחיות: מספור, כללי מדידה, מה כלול במחיר היחידה.'};
+function draw(keep){tabs();const v=document.getElementById('view');v.innerHTML=tab==='dash'?dash():tab==='boq'?boq():tab==='sum'?sum():tab==='need'?need():`<div class="card"><h2>${TABS.find(t=>t[0]===tab)[1]}</h2><p class="hint">${STUB[tab]} (קיים כבר במערכת, יוצג כאן באותו עיצוב.)</p></div>`;if(keep){const e=document.getElementById('qs');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length)}}}
+function ed(id,k,v){const r=D.find(x=>x.id==id);let nv=v;if(k==='q'||k==='pr'){nv=v.replace(/[^0-9.\-]/g,'');nv=nv===''?(k==='q'?null:''):+nv}if(r[k]===nv||(k=='d'&&r.d===v))return;snap();r[k]=nv;if(k==='q'&&nv!=null)r.st=r.st==='p'?'p':'m';draw();toast('נשמר')}
+function kd(e){if(e.key==='Enter'){e.preventDefault();e.target.blur()}}
+function add(c,s){snap();D.push({id:nid++,ch:c,sub:s,d:'סעיף חדש',u:'מ"ר',q:null,st:'m',pr:'',note:'הוזן ידנית'});draw();toast('סעיף נוסף')}
+function dup(id){const r=D.find(x=>x.id==id);snap();D.splice(D.indexOf(r)+1,0,{...r,id:nid++,note:'שוכפל'});draw();toast('שוכפל')}
+function del(id){snap();D=D.filter(x=>x.id!=id);draw();toast('נמחק. אפשר לבטל')}
+function mv(id,d){const r=D.find(x=>x.id==id),g=D.filter(x=>x.ch==r.ch&&x.sub==r.sub),i=g.indexOf(r),o=g[i+d];if(!o)return;snap();const a=D.indexOf(r),b=D.indexOf(o);[D[a],D[b]]=[D[b],D[a]];draw()}
+function addCh(){snap();const c=Math.max(...Object.keys(CH).map(Number))+1;CH[c]='פרק חדש';SUB[c+'.1']='סעיפים';D.push({id:nid++,ch:c,sub:1,d:'סעיף חדש',u:'מ"ר',q:null,st:'m',pr:'',note:'הוזן ידנית'});draw();toast('פרק נוסף')}
+draw();
+</script></div></body></html>
