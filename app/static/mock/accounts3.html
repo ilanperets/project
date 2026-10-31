@@ -1,0 +1,125 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>QUANTARA – דמו 3</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Assistant:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--n0:#FFFFFF;--n1:#F6F8FC;--n2:#EAF1FF;--n3:#174F96;--b:#1F6FD1;--c:#2F9BFF;--o:#E8641F;--g:#16A36A;--r:#D83A4A;--y:#C98A00;--t:#0E1B2B;--t2:#43536A;--t3:#74839A;--ln:#E3E9F2}
+*{box-sizing:border-box;margin:0}body{background:var(--n0);color:var(--t);font:15px Assistant,Rubik,sans-serif;overflow-x:hidden}
+.tabs{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:4px;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border:1px solid var(--ln);box-shadow:0 6px 24px rgba(14,27,43,.08);border-radius:40px;padding:4px}
+.tabs button{border:0;background:none;color:var(--t2);padding:8px 18px;border-radius:30px;font:500 13px Rubik;cursor:pointer}
+.tabs button.on{background:linear-gradient(135deg,var(--b),var(--c));color:#fff}
+.logo{display:flex;align-items:center;gap:10px;font:700 22px Rubik;letter-spacing:.18em}
+.logo i{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--b),var(--c));display:grid;place-items:center;box-shadow:0 6px 18px rgba(31,111,209,.35)}
+.logo svg{width:20px;height:20px}
+/* LOGIN */
+#l{min-height:100vh;display:grid;grid-template-columns:1.15fr 1fr;position:relative}
+.hero{position:relative;padding:70px 64px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;background:radial-gradient(900px 600px at 20% 30%,rgba(47,155,255,.14),transparent 60%),radial-gradient(700px 500px at 80% 90%,rgba(232,100,31,.08),transparent 60%),#fff}
+.grid{position:absolute;inset:0;background-image:linear-gradient(var(--ln) 1px,transparent 1px),linear-gradient(90deg,var(--ln) 1px,transparent 1px);background-size:46px 46px;mask-image:radial-gradient(ellipse at 40% 50%,#000 20%,transparent 75%)}
+.hero svg.bp{position:absolute;inset:0;width:100%;height:100%;opacity:.9}
+.draw{stroke-dasharray:1200;stroke-dashoffset:1200;animation:dr 6s ease-in-out infinite}
+.draw.d2{animation-delay:1.2s}.draw.d3{animation-delay:2.4s}
+@keyframes dr{0%{stroke-dashoffset:1200}55%,85%{stroke-dashoffset:0}100%{stroke-dashoffset:-1200}}
+.pulse{animation:pl 2.4s ease-in-out infinite}@keyframes pl{50%{opacity:.25;r:9}}
+.hero>*{position:relative}
+.hero h1{font:700 52px/1.12 Rubik;margin:34px 0 18px;letter-spacing:-.01em}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--c),var(--b) 50%,var(--o));-webkit-background-clip:text;color:transparent}
+.hero p{color:var(--t2);font-size:17px;line-height:1.75;max-width:470px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.chips span{border:1px solid var(--ln);background:#fff;box-shadow:0 2px 8px rgba(14,27,43,.05);padding:8px 14px;border-radius:30px;font-size:13px;color:var(--t)}
+.chips span b{color:var(--g)}
+.fm{display:flex;align-items:center;justify-content:center;padding:30px;background:var(--n1);position:relative}
+.glass{width:100%;max-width:400px;background:#fff;border:1px solid var(--ln);border-radius:20px;padding:36px;box-shadow:0 30px 70px rgba(14,27,43,.1)}
+.glass h2{font:600 26px Rubik}.glass .s{color:var(--t3);margin:4px 0 8px}
+label{display:block;margin:18px 0 7px;font-size:13px;color:var(--t2)}
+input{width:100%;padding:13px 14px;border-radius:11px;border:1px solid var(--ln);background:#fff;color:var(--t);font:inherit}
+input:focus{outline:0;border-color:var(--c);box-shadow:0 0 0 3px rgba(47,155,255,.18)}
+.go{width:100%;margin-top:24px;padding:14px;border:0;border-radius:11px;background:linear-gradient(135deg,var(--b),var(--c));color:#fff;font:700 15px Rubik;cursor:pointer;box-shadow:0 8px 24px rgba(31,111,209,.35)}
+.lk{display:flex;justify-content:space-between;margin-top:16px;font-size:13px;color:var(--c)}
+/* ADMIN */
+#a{display:none;min-height:100vh;grid-template-columns:230px 1fr}
+.sd{background:var(--n1);border-inline-end:1px solid var(--ln);padding:22px 14px;display:flex;flex-direction:column;gap:4px}
+.sd .logo{font-size:17px;margin:50px 8px 24px}.sd .logo i{width:28px;height:28px}
+.sd a{padding:11px 14px;border-radius:10px;color:var(--t2);display:flex;gap:10px;align-items:center;cursor:pointer}
+.sd a.on{background:linear-gradient(90deg,var(--n2),transparent);color:var(--b);font-weight:600;box-shadow:inset -3px 0 var(--b)}
+.mn{padding:64px 28px 28px;background:var(--n1)}
+.hd{display:flex;justify-content:space-between;align-items:end;margin-bottom:20px}
+.hd h2{font:600 26px Rubik}.hd small{color:var(--t3)}
+.btn2{border:1px solid var(--ln);background:#fff;color:var(--t);padding:9px 16px;border-radius:10px;font:500 13px Rubik;cursor:pointer}
+.btn2.p{background:linear-gradient(135deg,var(--o),#ff9a5c);border:0;color:#fff;font-weight:700}
+.kp{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.k{background:#fff;border:1px solid var(--ln);border-radius:16px;padding:18px;box-shadow:0 2px 10px rgba(14,27,43,.04);position:relative;overflow:hidden}
+.k span{color:var(--t2);font-size:13px}.k b{display:block;font:700 34px Rubik;margin:6px 0 2px}
+.k em{font-style:normal;font-size:12px;color:var(--g)}.k em.bad{color:var(--r)}
+.k svg{position:absolute;bottom:0;left:0;width:55%;height:44px;opacity:.9}
+.k:before{content:"";position:absolute;top:-40px;right:-40px;width:110px;height:110px;border-radius:50%;background:var(--cl,var(--b));filter:blur(46px);opacity:.14}
+.row{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;margin-bottom:14px}
+.pn{background:#fff;box-shadow:0 2px 10px rgba(14,27,43,.04);border:1px solid var(--ln);border-radius:16px;overflow:hidden}
+.pn .ph{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--ln)}
+.pn h3{font:600 15px Rubik}
+.bars{display:flex;align-items:flex-end;gap:10px;height:170px;padding:18px}
+.bars div{flex:1;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,var(--c),var(--b));position:relative;box-shadow:0 6px 16px rgba(31,111,209,.25)}
+.bars div:last-child{background:linear-gradient(180deg,var(--o),#ff9a5c)}
+.bars small{position:absolute;bottom:-18px;left:0;right:0;text-align:center;color:var(--t3);font-size:11px}
+.act{padding:6px 18px}.act div{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--ln);font-size:13px;color:var(--t2)}
+.act div:last-child{border:0}.act i{width:8px;height:8px;border-radius:50%;margin-top:6px;background:var(--c);box-shadow:0 0 0 3px rgba(31,111,209,.15);flex:none}
+table{width:100%;border-collapse:collapse}th{text-align:right;color:var(--t3);font:500 12px Rubik;padding:11px 18px;border-bottom:1px solid var(--ln);letter-spacing:.04em}
+td{padding:13px 18px;border-bottom:1px solid var(--ln)}tr:hover td{background:#F4F8FF}
+.av{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;margin-inline-end:10px;font:600 13px Rubik;background:linear-gradient(135deg,var(--b),var(--c));color:#fff}
+.tg{padding:3px 11px;border-radius:20px;font-size:12px;font-weight:600}
+.tg.ok{background:#E1F5EC;color:var(--g)}.tg.wa{background:#FBF0D3;color:var(--y)}.tg.ba{background:#FBE5E2;color:var(--r)}
+.use{height:6px;border-radius:4px;background:#E3E9F2;width:90px;display:inline-block;vertical-align:middle}.use i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--b),var(--c))}
+.ac button{border:1px solid var(--ln);background:none;color:var(--t2);border-radius:8px;padding:5px 11px;margin-inline-start:4px;font:inherit;font-size:12px;cursor:pointer}
+.ac button:hover{border-color:var(--c);color:var(--c)}.ac .d:hover{border-color:var(--r);color:var(--r)}
+.nm{position:fixed;bottom:14px;right:14px;background:#fff;box-shadow:0 4px 14px rgba(14,27,43,.1);border:1px solid var(--ln);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--t2);z-index:40}
+@media(max-width:980px){#l{grid-template-columns:1fr}.hero{padding:90px 26px 40px}.hero h1{font-size:36px}#a{grid-template-columns:1fr}.sd{display:none}.kp{grid-template-columns:1fr 1fr}.row{grid-template-columns:1fr}.mn{padding:64px 14px}th:nth-child(3),td:nth-child(3),th:nth-child(4),td:nth-child(4){display:none}}
+</style></head><body>
+<div class="tabs"><button class="on" onclick="go('l',this)">כניסה</button><button onclick="go('a',this)">ניהול לקוחות</button></div>
+
+<div id="l">
+ <div class="hero"><div class="grid"></div>
+ <svg class="bp" viewBox="0 0 800 900" preserveAspectRatio="xMidYMid slice" fill="none" stroke-linecap="round">
+  <g stroke="#1F6FD1" stroke-width="2"><path class="draw" d="M120 560 H520 V700 H120 Z"/><path class="draw d2" d="M320 560 V700 M120 630 H320"/><path class="draw d3" d="M520 610 H640 V760 H520"/></g>
+  <g stroke="#E8641F" stroke-width="1.6"><path class="draw d2" d="M120 530 H520"/><path class="draw d3" d="M120 522 V538 M520 522 V538"/></g>
+  <text x="300" y="518" fill="#E8641F" font-family="Rubik" font-size="15" text-anchor="middle">4.00 m</text>
+  <circle class="pulse" cx="120" cy="560" r="6" fill="#1F6FD1"/><circle class="pulse" cx="520" cy="560" r="6" fill="#1F6FD1"/><circle class="pulse" cx="520" cy="700" r="6" fill="#E8641F"/>
+ </svg>
+ <div class="logo"><i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V8l8-5 8 5v12"/><path d="M9 20v-7h6v7"/></svg></i>QUANTARA</div>
+ <h1>כל כמות.<br><em>מדויקת מהתוכנית.</em></h1>
+ <p>מעלים תוכנית, והמערכת מזהה, מודדת ובונה כתב כמויות מלא. אתם מתמחרים, מוציאים הצעות וחשבונות חלקיים, ויודעים בדיוק מה חסר.</p>
+ <div class="chips"><span><b>●</b> PDF ו-DWG</span><span><b>●</b> מחשב ואייפד</span><span><b>●</b> בדיקת חוסרים אוטומטית</span><span><b>●</b> נתוני החברה שלכם בלבד</span></div></div>
+ <div class="fm"><div class="glass"><h2>ברוכים הבאים</h2><div class="s">כניסה לחשבון החברה</div>
+ <label>אימייל</label><input placeholder="name@company.com">
+ <label>סיסמה</label><input type="password" placeholder="••••••••">
+ <button class="go">כניסה ←</button>
+ <div class="lk"><span>שכחתי סיסמה</span><span>בקשת גישה</span></div></div></div>
+</div>
+
+<div id="a">
+ <aside class="sd"><div class="logo"><i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V8l8-5 8 5v12"/></svg></i>QUANTARA</div>
+ <a class="on">◈ סקירה</a><a>▤ לקוחות</a><a>◉ משתמשים</a><a>₪ חיובים</a><a>⚙ מנוע וחוקים</a><a>✎ יומן שינויים</a></aside>
+ <main class="mn"><div class="hd"><div><h2>סקירת פלטפורמה</h2><small>סטטוס כל הלקוחות ברגע זה</small></div><div><button class="btn2">ייצוא</button> <button class="btn2 p">+ לקוח חדש</button></div></div>
+ <div class="kp">
+  <div class="k" style="--cl:var(--b)"><span>חברות פעילות</span><b>12</b><em>▲ 2 החודש</em><svg viewBox="0 0 100 40"><path d="M0 34 L20 28 L40 30 L60 18 L80 14 L100 4" stroke="#1F6FD1" stroke-width="2.5" fill="none"/></svg></div>
+  <div class="k" style="--cl:var(--g)"><span>הכנסה חודשית</span><b>₪9,400</b><em>▲ 18%</em><svg viewBox="0 0 100 40"><path d="M0 36 L25 30 L50 24 L75 12 L100 6" stroke="#16A36A" stroke-width="2.5" fill="none"/></svg></div>
+  <div class="k" style="--cl:var(--o)"><span>פרויקטים החודש</span><b>89</b><em>▲ 31</em><svg viewBox="0 0 100 40"><path d="M0 30 L20 32 L40 20 L60 24 L80 10 L100 8" stroke="#E8641F" stroke-width="2.5" fill="none"/></svg></div>
+  <div class="k" style="--cl:var(--r)"><span>ממתינים לתשלום</span><b>2</b><em class="bad">● דורש טיפול</em></div>
+ </div>
+ <div class="row">
+  <div class="pn"><div class="ph"><h3>הכנסות, 6 חודשים אחרונים</h3><small style="color:var(--t3)">נתוני דוגמה</small></div>
+   <div class="bars" style="padding-bottom:30px"><div style="height:30%"><small>מאי</small></div><div style="height:42%"><small>יוני</small></div><div style="height:50%"><small>יולי</small></div><div style="height:63%"><small>אוג׳</small></div><div style="height:78%"><small>ספט׳</small></div><div style="height:96%"><small>אוק׳</small></div></div></div>
+  <div class="pn"><div class="ph"><h3>פעילות אחרונה</h3></div><div class="act">
+   <div><i></i>חברה א׳ העלתה 3 תוכניות</div><div><i style="color:var(--g);background:var(--g)"></i>חברה ב׳ התחילה ניסיון</div><div><i style="color:var(--r);background:var(--r)"></i>חברה ג׳ נחסמה, חוב</div><div><i style="color:var(--o);background:var(--o)"></i>חברה ד׳ הוסיפה 2 משתמשים</div></div></div>
+ </div>
+<div class="row" style="grid-template-columns:1fr 1fr 1fr">
+  <div class="pn"><div class="ph"><h3>חלוקת מסלולים</h3></div><div style="display:flex;align-items:center;gap:20px;padding:18px"><svg width="110" height="110" viewBox="0 0 42 42"><circle cx="21" cy="21" r="15.9" fill="none" stroke="#E3E9F2" stroke-width="6"/><circle cx="21" cy="21" r="15.9" fill="none" stroke="#1F6FD1" stroke-width="6" stroke-dasharray="58 42" transform="rotate(-90 21 21)"/><circle cx="21" cy="21" r="15.9" fill="none" stroke="#2F9BFF" stroke-width="6" stroke-dasharray="27 73" stroke-dashoffset="-58" transform="rotate(-90 21 21)"/><circle cx="21" cy="21" r="15.9" fill="none" stroke="#E8641F" stroke-width="6" stroke-dasharray="15 85" stroke-dashoffset="-85" transform="rotate(-90 21 21)"/></svg><div style="font-size:13px;color:var(--t2);line-height:2"><span style="color:#1F6FD1">●</span> עסקי 58%<br><span style="color:#2F9BFF">●</span> בסיסי 27%<br><span style="color:#E8641F">●</span> ניסיון 15%</div></div></div>
+  <div class="pn"><div class="ph"><h3>בריאות המערכת</h3></div><div class="act"><div><i style="background:var(--g)"></i>שרת: תקין, 99.9%</div><div><i style="background:var(--g)"></i>המרות DWG: תור ריק</div><div><i style="background:var(--y)"></i>אחסון: 62% מנוצל</div><div><i style="background:var(--g)"></i>גיבוי אחרון: היום 03:00</div></div></div>
+  <div class="pn"><div class="ph"><h3>דורש טיפול</h3></div><div class="act"><div><i style="background:var(--r)"></i>חברה ג׳: חוב 2 חודשים</div><div><i style="background:var(--y)"></i>חברה ב׳: ניסיון נגמר בעוד 5 ימים</div><div><i style="background:var(--b)"></i>3 בקשות גישה חדשות</div></div></div>
+ </div>
+ <div class="pn"><div class="ph"><h3>לקוחות</h3><input style="width:220px;padding:8px 12px" placeholder="חיפוש חברה"></div>
+ <table><tr><th>חברה</th><th>מסלול</th><th>משתמשים</th><th>שימוש</th><th>סטטוס</th><th>שולם עד</th><th>פעולות</th></tr>
+ <tr><td><span class="av">א</span>חברה לדוגמה א׳</td><td>עסקי</td><td>8</td><td><span class="use"><i style="width:72%"></i></span></td><td><span class="tg ok">פעיל</span></td><td>01/12/2026</td><td class="ac"><button>כניסה לתמיכה</button><button class="d">עצירה</button></td></tr>
+ <tr><td><span class="av">ב</span>חברה לדוגמה ב׳</td><td>בסיסי</td><td>3</td><td><span class="use"><i style="width:30%"></i></span></td><td><span class="tg wa">ניסיון, 5 ימים</span></td><td>05/11/2026</td><td class="ac"><button>כניסה לתמיכה</button><button class="d">עצירה</button></td></tr>
+ <tr><td><span class="av">ג</span>חברה לדוגמה ג׳</td><td>עסקי</td><td>12</td><td><span class="use"><i style="width:88%"></i></span></td><td><span class="tg ba">חוב, נחסם</span></td><td>15/09/2026</td><td class="ac"><button>הפעלה מחדש</button></td></tr>
+ </table></div></main>
+</div>
+<div class="nm">שם לדוגמה: QUANTARA, עדיין לא נבדק כסימן מסחרי</div>
+<script>function go(x,b){document.querySelectorAll('.tabs button').forEach(e=>e.classList.remove('on'));b.classList.add('on');l.style.display=x=='l'?'grid':'none';a.style.display=x=='a'?'grid':'none'}</script>
+</body></html>
