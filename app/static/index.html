@@ -414,6 +414,9 @@ table.wxmini{width:100%;border-collapse:collapse;font-size:13.5px}.wxmini th{fon
 .wxdr .im{border:1px solid #D3D9E2;border-radius:5px;margin-bottom:8px;overflow:hidden}.wxdr .im img{display:block;width:100%}
 .wxdr .fxb{background:#F5F8FC;border:1px solid var(--w-line);border-radius:5px;padding:10px 12px}
 .wxdisc{width:44px;border:1px solid #CBD2DC;border-radius:4px;text-align:center;font:inherit;padding:1px;background:#FFFDF2}
+.wxjump{display:none}
+@media(max-width:1180px){.wxr{display:none}.wxjump{display:inline-flex;padding:0 8px}.wxd{grid-template-columns:1fr}.wxd>section+section{border-inline-start:0;border-top:1px solid #E4E8EE}.wxk{grid-template-columns:repeat(2,1fr)}.wxk>div:nth-child(3){border-inline-start:0}.wxdr{width:min(400px,92%)}.wxsb span:nth-child(-n+2){display:none}}
+@media(pointer:coarse){.wxw{--rh:46px}.wxg2 td.rn{width:46px}.wxac{opacity:1}.wxac button{width:36px;height:36px}.wxb,.wxs{height:38px}.wxg button{height:36px}.wxst button{padding:0 18px;height:44px}.wxbot{height:44px}.wxg2 th{height:38px}.wxad{padding:10px}}
 .wxst button{white-space:nowrap}.wxst{overflow-x:auto;min-width:0;flex:1}.wxsb{flex:none;white-space:nowrap;gap:14px;padding:0 12px}
 </style>
 </head>
@@ -1110,7 +1113,7 @@ function wxDash(chs){const its=chs.flatMap(c=>c.items),n=its.length,m=its.filter
   <section><h2>דורש טיפול</h2>${iss||'<div class="wxpg">הכל מלא</div>'}</section></div>`}
 function wxGrid(chs){const q=WX.qs.trim(),F=WX.flt;
   const f=r=>(F==='all'||(F==='miss'&&wxMiss(r))||(F==='part'&&wxPart(r))||(F==='man'&&wxMan(r)))&&(!q||((r.full||r.desc)+r.code).includes(q));
-  let h=`<table class="wxg2 ${WX.showP?'':'nopr'}"><colgroup><col style="width:40px"><col style="width:112px"><col><col style="width:64px"><col style="width:96px"><col class="pc" style="width:104px"><col class="pc" style="width:120px"><col style="width:112px"></colgroup><tr><th></th><th>מספר</th><th>תיאור</th><th>יח'</th><th>כמות</th><th class="pc">מחיר יחידה</th><th class="pc">סה"כ</th><th></th></tr>`;let rn=0;
+  let h=`<table class="wxg2 ${WX.showP?'':'nopr'}"><colgroup><col style="width:40px"><col style="width:100px"><col><col style="width:60px"><col style="width:88px"><col class="pc" style="width:96px"><col class="pc" style="width:108px"><col style="width:104px"></colgroup><tr><th></th><th>מספר</th><th>תיאור</th><th>יח'</th><th>כמות</th><th class="pc">מחיר יחידה</th><th class="pc">סה"כ</th><th></th></tr>`;let rn=0;
   for(const c of chs){const open=!WX.coll[c.code];h+=`<tr class="h" id="wxc${c.code}"><td class="rn">${++rn}</td><td colspan="5"><span style="padding:0 12px"><span style="display:inline-block;width:14px;margin-inline-end:8px;cursor:pointer;transition:transform .15s;${open?'':'transform:rotate(90deg)'}" onclick="WX.coll['${c.code}']=!WX.coll['${c.code}'];wxDraw()">${WI(WIC.ch,13)}</span>פרק ${c.code} — ${esc(c.name)}</span></td><td class="nu pc" style="padding:0 10px">${money(c.t)}</td><td></td></tr>`;
    if(!open)continue;
    for(const s of c.subs){const rows=s.rows.filter(x=>x.kind==='note'||f(x));if(!rows.some(x=>x.kind==='item')&&(q||F!=='all'))continue;
@@ -1150,7 +1153,7 @@ function wxDraw(){const root=document.getElementById('wxroot');if(!root)return;c
    ${isB?`<div class="wxs">${WI(WIC.sr)}<input id="wxq" placeholder="חיפוש סעיף או קוד" value="${esc(WX.qs)}" oninput="WX.qs=this.value;clearTimeout(window.__wq);window.__wq=setTimeout(()=>{wxDraw();const e=document.getElementById('wxq');e.focus();e.setSelectionRange(e.value.length,e.value.length)},220)"></div>
    <div class="wxg">${[['all','הכל'],['miss','חסר'],['part','חלקי'],['man','ידני']].map(x=>`<button class="${WX.flt===x[0]?'on':''}" onclick="WX.flt='${x[0]}';wxDraw()">${x[1]}</button>`).join('')}</div>
    <button class="wxb ${WX.dens?'on':''}" onclick="WX.dens=!WX.dens;wxDraw()">צפיפות</button><button class="wxb ${WX.showP?'on':''}" onclick="WX.showP=!WX.showP;wxDraw()">מחירים</button>`:''}
-   <button class="wxb" onclick="wxUndo()">ביטול</button><button class="wxb" onclick="dlgAdd(true)">פרק חדש</button><button class="wxb p" onclick="dlgExport()">ייצוא</button></div>
+   ${isB?`<select class="wxb wxjump" onchange="if(this.value)wxGo(this.value);this.selectedIndex=0"><option value="">קפוץ לפרק…</option>${chs.map(c=>`<option value="${c.code}">${c.code} · ${esc(c.name)}</option>`).join('')}</select>`:''}<button class="wxb" onclick="wxUndo()">ביטול</button><button class="wxb" onclick="dlgAdd(true)">פרק חדש</button><button class="wxb p" onclick="dlgExport()">ייצוא</button></div>
    <div class="wxf" id="wxfx"></div>
    <div class="wxm">${isB?`<nav class="wxr"><h3>פרקים</h3>${chs.map(c=>`<a onclick="wxGo('${c.code}')"><b>${c.code} · ${esc(c.name)}</b><span><em style="font-style:normal">${c.items.length} סעיפים</em><em style="font-style:normal">${money(c.t)}</em></span><div class="pb"><i style="width:${c.items.length?c.items.filter(r=>!wxMiss(r)).length/c.items.length*100:0}%"></i></div></a>`).join('')}</nav>`:''}
    <div class="wxy">${{dash:()=>wxDash(chs),boq:()=>wxGrid(chs),sum:()=>wxSum(chs),calc:()=>wxCalc(chs),need:wxNeed,mat:wxMat,how:()=>wxHow(chs),guide:wxGuide,prm:wxPrm}[WX.tab]()}</div><div id="wxdr"></div></div>

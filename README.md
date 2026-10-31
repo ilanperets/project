@@ -17,3 +17,9 @@
 - `app/brain.py` הנחות, פירוק לחומרים, זיכרון מחירים, חשבון חלקי
 - `app/server.py` ה-API ושירות המסך
 - `app/static/index.html` המסך
+
+## הפעלה על מחשב או אייפד
+
+**על מחשב (Windows/Mac), לבדיקה מהירה:** `pip install -r requirements.txt playwright && playwright install chromium`, ואז `python -m app`. פותחים `http://localhost:8000`. מאייפד באותה רשת Wi-Fi פותחים `http://<כתובת-המחשב>:8000`.
+
+**שרת באינטרנט (גם לאייפד מכל מקום):** המאגר כולל `Dockerfile` ו-`render.yaml`. ב-Render בוחרים New → Blueprint, מחברים את המאגר, וקובעים משתנה סביבה `APP_PASSWORD`. הדפדפן יבקש סיסמה (שם משתמש חופשי). הנתונים נשמרים בדיסק `/srv/data`.

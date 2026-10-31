@@ -1,0 +1,7 @@
+data
+node_modules
+__pycache__
+*.pyc
+villa_ivgi
+*.zip
+.git

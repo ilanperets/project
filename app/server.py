@@ -16,6 +16,19 @@ def _jl(p,d):
 def _js(p,v): os.makedirs(ROOT,exist_ok=True); json.dump(v,open(p,'w',encoding='utf-8'),ensure_ascii=False)
 app=FastAPI(title='מערכת כתבי כמויות')
 
+# optional password for a hosted copy: set APP_PASSWORD and the browser asks for it (any user name)
+import base64, hmac
+@app.middleware('http')
+async def _gate(request,call_next):
+    pw=os.environ.get('APP_PASSWORD')
+    if pw and request.url.path!='/api/health':
+        ok=False; h=request.headers.get('authorization','')
+        if h.startswith('Basic '):
+            try: ok=hmac.compare_digest(base64.b64decode(h[6:]).decode('utf-8','ignore').split(':',1)[-1],pw)
+            except Exception: ok=False
+        if not ok: return JSONResponse({'detail':'נדרשת סיסמה'},status_code=401,headers={'WWW-Authenticate':'Basic realm="kamuyot"'})
+    return await call_next(request)
+
 def _rules():
     try: return json.load(open(RULES,encoding='utf-8'))
     except Exception: return []

@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: kamuyot
+    runtime: docker
+    plan: starter
+    envVars:
+      - key: APP_PASSWORD
+        sync: false
+    disk:
+      name: data
+      mountPath: /srv/data
+      sizeGB: 5
