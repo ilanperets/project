@@ -1,0 +1,203 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>QUANTO – דמו</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Assistant:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--n0:#FFFFFF;--n1:#F6F8FC;--n2:#EAF1FF;--n3:#174F96;--b:#1F6FD1;--c:#2F9BFF;--o:#E8641F;--g:#16A36A;--r:#D83A4A;--y:#C98A00;--t:#0E1B2B;--t2:#43536A;--t3:#74839A;--ln:#E3E9F2}
+*{box-sizing:border-box;margin:0}body{background:var(--n0);color:var(--t);font:15px Assistant,Rubik,sans-serif;overflow-x:hidden}
+.tabs{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:4px;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border:1px solid var(--ln);box-shadow:0 6px 24px rgba(14,27,43,.08);border-radius:40px;padding:4px}
+.tabs button{border:0;background:none;color:var(--t2);padding:8px 18px;border-radius:30px;font:500 13px Rubik;cursor:pointer}
+.tabs button.on{background:linear-gradient(135deg,var(--b),var(--c));color:#fff}
+.logo{display:flex;align-items:center;gap:10px;font:700 22px Rubik;letter-spacing:.18em}
+.logo i{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--b),var(--c));display:grid;place-items:center;box-shadow:0 6px 18px rgba(31,111,209,.35)}
+.logo svg{width:20px;height:20px}
+/* LOGIN */
+#l{min-height:100vh;display:grid;grid-template-columns:1.15fr 1fr;position:relative}
+.hero{position:relative;padding:70px 64px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;background:radial-gradient(900px 600px at 20% 30%,rgba(47,155,255,.14),transparent 60%),radial-gradient(700px 500px at 80% 90%,rgba(232,100,31,.08),transparent 60%),#fff}
+.grid{position:absolute;inset:0;background-image:linear-gradient(var(--ln) 1px,transparent 1px),linear-gradient(90deg,var(--ln) 1px,transparent 1px);background-size:46px 46px;mask-image:radial-gradient(ellipse at 40% 50%,#000 20%,transparent 75%)}
+.hero svg.bp{position:absolute;inset:0;width:100%;height:100%;opacity:.9}
+.draw{stroke-dasharray:1200;stroke-dashoffset:1200;animation:dr 6s ease-in-out infinite}
+.draw.d2{animation-delay:1.2s}.draw.d3{animation-delay:2.4s}
+@keyframes dr{0%{stroke-dashoffset:1200}55%,85%{stroke-dashoffset:0}100%{stroke-dashoffset:-1200}}
+.pulse{animation:pl 2.4s ease-in-out infinite}@keyframes pl{50%{opacity:.25;r:9}}
+.hero>*{position:relative}
+.hero h1{font:700 52px/1.12 Rubik;margin:34px 0 18px;letter-spacing:-.01em}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--c),var(--b) 50%,var(--o));-webkit-background-clip:text;color:transparent}
+.hero p{color:var(--t2);font-size:17px;line-height:1.75;max-width:470px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.chips span{border:1px solid var(--ln);background:#fff;box-shadow:0 2px 8px rgba(14,27,43,.05);padding:8px 14px;border-radius:30px;font-size:13px;color:var(--t)}
+.chips span b{color:var(--g)}
+.fm{display:flex;align-items:center;justify-content:center;padding:30px;background:var(--n1);position:relative}
+.glass{width:100%;max-width:400px;background:#fff;border:1px solid var(--ln);border-radius:20px;padding:36px;box-shadow:0 30px 70px rgba(14,27,43,.1)}
+.glass h2{font:600 26px Rubik}.glass .s{color:var(--t3);margin:4px 0 8px}
+label{display:block;margin:18px 0 7px;font-size:13px;color:var(--t2)}
+input{width:100%;padding:13px 14px;border-radius:11px;border:1px solid var(--ln);background:#fff;color:var(--t);font:inherit}
+input:focus{outline:0;border-color:var(--c);box-shadow:0 0 0 3px rgba(47,155,255,.18)}
+.go{width:100%;margin-top:24px;padding:14px;border:0;border-radius:11px;background:linear-gradient(135deg,var(--b),var(--c));color:#fff;font:700 15px Rubik;cursor:pointer;box-shadow:0 8px 24px rgba(31,111,209,.35)}
+.lk{display:flex;justify-content:space-between;margin-top:16px;font-size:13px;color:var(--c)}
+/* ADMIN */
+#a{display:none;min-height:100vh;grid-template-columns:230px 1fr}
+.sd{background:var(--n1);border-inline-end:1px solid var(--ln);padding:22px 14px;display:flex;flex-direction:column;gap:4px}
+.sd .logo{font-size:17px;margin:50px 8px 24px}.sd .logo i{width:28px;height:28px}
+.sd a{padding:11px 14px;border-radius:10px;color:var(--t2);display:flex;gap:10px;align-items:center;cursor:pointer}
+.sd a.on{background:linear-gradient(90deg,var(--n2),transparent);color:var(--b);font-weight:600;box-shadow:inset -3px 0 var(--b)}
+.mn{padding:64px 28px 28px;background:var(--n1)}
+.hd{display:flex;justify-content:space-between;align-items:end;margin-bottom:20px}
+.hd h2{font:600 26px Rubik}.hd small{color:var(--t3)}
+.btn2{border:1px solid var(--ln);background:#fff;color:var(--t);padding:9px 16px;border-radius:10px;font:500 13px Rubik;cursor:pointer}
+.btn2.p{background:linear-gradient(135deg,var(--o),#ff9a5c);border:0;color:#fff;font-weight:700}
+.kp{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.k{background:#fff;border:1px solid var(--ln);border-radius:16px;padding:18px;box-shadow:0 2px 10px rgba(14,27,43,.04);position:relative;overflow:hidden}
+.k span{color:var(--t2);font-size:13px}.k b{display:block;font:700 34px Rubik;margin:6px 0 2px}
+.k em{font-style:normal;font-size:12px;color:var(--g)}.k em.bad{color:var(--r)}
+.k svg{position:absolute;bottom:0;left:0;width:55%;height:44px;opacity:.9}
+.k:before{content:"";position:absolute;top:-40px;right:-40px;width:110px;height:110px;border-radius:50%;background:var(--cl,var(--b));filter:blur(46px);opacity:.14}
+.row{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;margin-bottom:14px}
+.pn{background:#fff;box-shadow:0 2px 10px rgba(14,27,43,.04);border:1px solid var(--ln);border-radius:16px;overflow:hidden}
+.pn .ph{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--ln)}
+.pn h3{font:600 15px Rubik}
+.bars{display:flex;align-items:flex-end;gap:10px;height:170px;padding:18px}
+.bars div{flex:1;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,var(--c),var(--b));position:relative;box-shadow:0 6px 16px rgba(31,111,209,.25)}
+.bars div:last-child{background:linear-gradient(180deg,var(--o),#ff9a5c)}
+.bars small{position:absolute;bottom:-18px;left:0;right:0;text-align:center;color:var(--t3);font-size:11px}
+.act{padding:6px 18px}.act div{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--ln);font-size:13px;color:var(--t2)}
+.act div:last-child{border:0}.act i{width:8px;height:8px;border-radius:50%;margin-top:6px;background:var(--c);box-shadow:0 0 0 3px rgba(31,111,209,.15);flex:none}
+table{width:100%;border-collapse:collapse}th{text-align:right;color:var(--t3);font:500 12px Rubik;padding:11px 18px;border-bottom:1px solid var(--ln);letter-spacing:.04em}
+td{padding:13px 18px;border-bottom:1px solid var(--ln)}tr:hover td{background:#F4F8FF}
+.av{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;margin-inline-end:10px;font:600 13px Rubik;background:linear-gradient(135deg,var(--b),var(--c));color:#fff}
+.tg{padding:3px 11px;border-radius:20px;font-size:12px;font-weight:600}
+.tg.ok{background:#E1F5EC;color:var(--g)}.tg.wa{background:#FBF0D3;color:var(--y)}.tg.ba{background:#FBE5E2;color:var(--r)}
+.use{height:6px;border-radius:4px;background:#E3E9F2;width:90px;display:inline-block;vertical-align:middle}.use i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--b),var(--c))}
+.ac button{border:1px solid var(--ln);background:none;color:var(--t2);border-radius:8px;padding:5px 11px;margin-inline-start:4px;font:inherit;font-size:12px;cursor:pointer}
+.ac button:hover{border-color:var(--c);color:var(--c)}.ac .d:hover{border-color:var(--r);color:var(--r)}
+.nm{position:fixed;bottom:14px;left:14px;background:#fff;box-shadow:0 4px 14px rgba(14,27,43,.1);border:1px solid var(--ln);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--t2);z-index:40}
+@media(max-width:980px){#l{grid-template-columns:1fr}.hero{padding:90px 26px 40px}.hero h1{font-size:36px}#a{grid-template-columns:1fr}.sd{display:none}.kp{grid-template-columns:1fr 1fr}.row{grid-template-columns:1fr}.mn{padding:64px 14px}th:nth-child(3),td:nth-child(3),th:nth-child(4),td:nth-child(4){display:none}}
+
+.top{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.srch{flex:1;max-width:420px;display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--ln);border-radius:12px;padding:9px 14px;color:var(--t3);font-size:14px;box-shadow:0 2px 8px rgba(14,27,43,.03)}
+.srch kbd{margin-inline-start:auto;border:1px solid var(--ln);border-radius:6px;padding:1px 7px;font:12px Rubik;background:var(--n1)}
+.ic{width:40px;height:40px;border-radius:12px;background:#fff;border:1px solid var(--ln);display:grid;place-items:center;position:relative;cursor:pointer}
+.ic b{position:absolute;top:7px;right:9px;width:8px;height:8px;border-radius:50%;background:var(--o);border:2px solid #fff}
+.me{display:flex;align-items:center;gap:10px;margin-inline-start:auto}.me .av{margin:0}
+.seg{display:inline-flex;background:var(--n1);border:1px solid var(--ln);border-radius:9px;padding:2px}.seg button{border:0;background:none;padding:4px 12px;border-radius:7px;font:500 12px Rubik;color:var(--t2);cursor:pointer}.seg .on{background:#fff;color:var(--b);box-shadow:0 1px 4px rgba(14,27,43,.12)}
+tr.cl{cursor:pointer}
+.dr{position:fixed;top:0;bottom:0;left:0;width:430px;max-width:100%;background:#fff;border-inline-end:1px solid var(--ln);box-shadow:30px 0 80px rgba(14,27,43,.18);transform:translateX(-105%);transition:transform .35s cubic-bezier(.2,.8,.2,1);z-index:60;overflow:auto}
+.dr.open{transform:none}.dr .dh{padding:24px;border-bottom:1px solid var(--ln);background:linear-gradient(160deg,var(--n2),#fff)}
+.dr .x{float:left;cursor:pointer;color:var(--t3);font-size:20px}
+.dr h3{font:600 20px Rubik;margin:8px 0 4px}.dr .st{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:18px 24px}
+.dr .st div{border:1px solid var(--ln);border-radius:12px;padding:12px}.dr .st b{display:block;font:600 20px Rubik}.dr .st span{font-size:12px;color:var(--t3)}
+.dr .tl{padding:0 24px 12px}.dr .tl h4{font:600 13px Rubik;color:var(--t2);margin:6px 0 10px}
+.dr .tl div{position:relative;padding:0 18px 14px 0;font-size:13px;color:var(--t2);border-right:2px solid var(--ln);margin-right:4px}
+.dr .tl div:before{content:"";position:absolute;right:-6px;top:3px;width:10px;height:10px;border-radius:50%;background:var(--b);border:2px solid #fff;box-shadow:0 0 0 1px var(--b)}
+.dr .bt{display:flex;gap:8px;padding:12px 24px 28px}.dr .bt button{flex:1}
+.ov{position:fixed;inset:0;background:rgba(14,27,43,.25);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:.3s;z-index:55}.ov.open{opacity:1;pointer-events:auto}
+.sso{width:100%;margin-top:12px;padding:12px;border-radius:11px;border:1px solid var(--ln);background:#fff;font:500 14px Rubik;color:var(--t);cursor:pointer}
+.or{display:flex;align-items:center;gap:10px;color:var(--t3);font-size:12px;margin-top:18px}.or:before,.or:after{content:"";flex:1;height:1px;background:var(--ln)}
+.lang{position:absolute;top:18px;left:22px;font:500 13px Rubik;color:var(--t2);display:flex;gap:6px;z-index:5}.lang span{padding:4px 10px;border-radius:20px}.lang .on{background:#fff;border:1px solid var(--ln);color:var(--b)}
+.trust{margin-top:26px;color:var(--t3);font-size:12px;display:flex;gap:16px}
+
+.pv{position:absolute;left:7%;right:7%;bottom:9%;height:40%;perspective:1400px}
+.pvw{position:absolute;inset:0;background:#fff;border:1px solid var(--ln);border-radius:14px;box-shadow:0 40px 80px rgba(23,79,150,.22);transform:rotateX(8deg) rotateY(-10deg);overflow:hidden;animation:fl 7s ease-in-out infinite}
+@keyframes fl{50%{transform:rotateX(5deg) rotateY(-6deg) translateY(-8px)}}
+.pvt{display:flex;gap:6px;align-items:center;padding:10px 14px;background:var(--n1);border-bottom:1px solid var(--ln);font-size:12px;color:var(--t3)}.pvt i{width:9px;height:9px;border-radius:50%;background:#d6deea}.pvt span{margin-inline-start:12px}
+.pvs{display:flex;gap:2px;padding:8px 12px 0;background:var(--n1)}.pvs b{font:500 12px Rubik;padding:6px 12px;border-radius:8px 8px 0 0;color:var(--t3)}.pvs .on{background:#fff;color:var(--b);box-shadow:inset 0 2px var(--b)}
+.pvg{width:100%;font-size:12.5px}.pvg th{background:#F6F8FC;padding:6px 12px;font:500 11px Rubik;color:var(--t3);border-bottom:1px solid var(--ln)}.pvg td{padding:7px 12px;border-bottom:1px solid var(--ln)}
+.pvg .q{font:600 13px Rubik;color:var(--b)}.pvg .w{color:var(--r)}.pvg tr.hl td{background:#EAF3FF;animation:hb 3s infinite}@keyframes hb{50%{background:#fff}}
+.fl{position:absolute;background:#fff;border:1px solid var(--ln);border-radius:12px;padding:9px 14px;font-size:13px;box-shadow:0 14px 34px rgba(14,27,43,.14);animation:fl2 6s ease-in-out infinite}.fl b{color:var(--b);font:700 16px Rubik}
+.f1{top:auto;bottom:-20px;left:12%}.chips span:nth-child(4){display:none}.f2{bottom:-22px;right:30px;color:var(--r);animation-delay:1s}.f3{top:34%;left:-40px;color:var(--g);animation-delay:2s}
+@keyframes fl2{50%{transform:translateY(-8px)}}
+.hero h1{margin-bottom:12px}.hero{justify-content:flex-start;padding-top:56px}.hero p{max-width:440px}.chips{margin-top:16px;gap:8px}.trust{flex-direction:column;gap:4px;margin-top:18px}
+.pg{display:none}.pg.on{display:block}
+.pl{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.plc{background:#fff;border:1px solid var(--ln);border-radius:16px;padding:22px;position:relative;box-shadow:0 2px 10px rgba(14,27,43,.04)}
+.plc.hot{border-color:var(--b);box-shadow:0 14px 40px rgba(31,111,209,.18)}.plc.hot:before{content:"הכי פופולרי";position:absolute;top:-11px;right:20px;background:linear-gradient(135deg,var(--b),var(--c));color:#fff;font:600 11px Rubik;padding:3px 12px;border-radius:20px}
+.plc h4{font:600 17px Rubik}.plc .pr{font:700 34px Rubik;margin:10px 0}.plc .pr small{font:400 13px Assistant;color:var(--t3)}
+.plc ul{list-style:none;padding:0;margin:14px 0;font-size:13px;color:var(--t2)}.plc li{padding:5px 0}.plc li:before{content:"✓ ";color:var(--g);font-weight:700}
+.plc input{width:90px;padding:6px 10px;font:600 20px Rubik;border-radius:8px}
+.sw{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--ln);font-size:14px}.sw i{width:40px;height:22px;border-radius:20px;background:var(--b);position:relative}.sw i:after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff}.sw i.off{background:#cfd8e6}.sw i.off:after{left:21px}
+.rl{padding:16px 18px;border-bottom:1px solid var(--ln)}.rl:last-child{border:0}.rl .h{display:flex;justify-content:space-between;align-items:center;font:600 14px Rubik}.rl p{color:var(--t2);font-size:13px;margin:6px 0 10px}
+.pb{height:8px;border-radius:5px;background:#E3E9F2;overflow:hidden}.pb i{display:block;height:100%;background:linear-gradient(90deg,var(--b),var(--c));border-radius:5px}
+.mono{font:12px ui-monospace,monospace;color:var(--t2)}
+@media(max-width:980px){.pv{display:none}.pl{grid-template-columns:1fr}}
+</style></head><body>
+<div class="tabs"><button class="on" onclick="go('l',this)">כניסה</button><button onclick="go('a',this)">ניהול לקוחות</button></div>
+
+<div id="l">
+ <div class="hero"><div class="grid"></div>
+ <div class="pv"><div class="pvw">
+ <div class="pvt"><i></i><i></i><i></i><span>כתב כמויות · דירה לדוגמה</span></div>
+ <div class="pvs"><b class="on">חשמל</b><b>אינסטלציה</b><b>ריצוף</b><b>צבע</b><b>סיכום</b></div>
+ <table class="pvg"><tr><th>סעיף</th><th>תיאור</th><th>יח׳</th><th>כמות</th></tr>
+ <tr><td>08.01</td><td>נקודת חשמל לשקע רגיל</td><td>נק׳</td><td class="q">64</td></tr>
+ <tr class="hl"><td>08.02</td><td>נקודת מאור לתקרה</td><td>נק׳</td><td class="q">23</td></tr>
+ <tr><td>08.03</td><td>צינור שרשורי 20 מ״מ</td><td>מ״א</td><td class="q">318.5</td></tr>
+ <tr><td>08.04</td><td>לוח חשמל דירתי</td><td>יח׳</td><td class="q">1</td></tr>
+ <tr><td>08.05</td><td>נקודת תקשורת</td><td>נק׳</td><td class="q w">חסר</td></tr></table></div>
+ <div class="fl f1"><b>142</b> פריטים זוהו אוטומטית</div>
+ <div class="fl f2">⚠ חסר: חיווט תקשורת בחדר שינה</div>
+ <div class="fl f3">✓ 4.00 m · נמדד מהתוכנית</div></div>
+ <div class="logo"><i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5l8 15 8-15"/><path d="M8 5l4 7.5L16 5" opacity=".55"/></svg></i>QUANTO</div>
+ <h1>כל כמות.<br><em>מדויקת מהתוכנית.</em></h1>
+ <p>מעלים תוכנית, והמערכת מזהה, מודדת ובונה כתב כמויות מלא. אתם מתמחרים, מוציאים הצעות וחשבונות חלקיים, ויודעים בדיוק מה חסר.</p>
+<div class="chips"><span><b>●</b> PDF ו-DWG</span><span><b>●</b> מחשב ואייפד</span><span><b>●</b> בדיקת חוסרים אוטומטית</span><span><b>●</b> נתוני החברה שלכם בלבד</span></div></div>
+ <div class="fm"><div class="lang"><span class="on">עברית</span><span>English</span></div><div class="glass"><h2>ברוכים הבאים</h2><div class="s">כניסה לחשבון החברה</div>
+ <label>אימייל</label><input placeholder="name@company.com">
+ <label>סיסמה</label><input type="password" placeholder="••••••••">
+ <button class="go">כניסה ←</button><div class="or">או</div><button class="sso">כניסה עם Google</button><button class="sso">כניסה ארגונית (SSO)</button>
+ <div class="lk"><span>שכחתי סיסמה</span><span>בקשת גישה</span></div><div class="trust"><span>🔒 הצפנה מלאה</span><span>☁ גיבוי יומי</span><span>◉ הפרדת נתונים לכל חברה</span></div></div></div>
+</div>
+
+<div id="a">
+ <aside class="sd"><div class="logo"><i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5l8 15 8-15"/></svg></i>QUANTO</div>
+ <a class="on" onclick="pgo('ov',this)">◈ סקירה</a><a class="" onclick="pgo('cu',this)">▤ לקוחות</a><a class="" onclick="pgo('pl',this)">₪ מסלולים ותמחור</a><a class="" onclick="pgo('bi',this)">▦ חיובים</a><a class="" onclick="pgo('en',this)">⚙ מנוע וגרסאות</a><a class="" onclick="pgo('au',this)">✎ יומן פעולות</a></aside>
+ <main class="mn"><div class="top"><div class="srch">⌕ חיפוש לקוח, משתמש או פרויקט<kbd>⌘K</kbd></div><div class="ic">🔔<b></b></div><div class="me"><div style="text-align:left;font-size:13px"><b style="font:600 14px Rubik">אילן פרץ</b><br><span style="color:var(--t3)">מנהל פלטפורמה</span></div><span class="av">א</span></div></div><div class="pg on" id="pg_ov"><div class="hd"><div><h2>סקירת פלטפורמה</h2><small>סטטוס כל הלקוחות ברגע זה</small></div><div><button class="btn2">ייצוא</button> <button class="btn2 p">+ לקוח חדש</button></div></div>
+ <div class="kp">
+  <div class="k" style="--cl:var(--b)"><span>חברות פעילות</span><b>12</b><em>▲ 2 החודש</em><svg viewBox="0 0 100 40"><path d="M0 34 L20 28 L40 30 L60 18 L80 14 L100 4" stroke="#1F6FD1" stroke-width="2.5" fill="none"/></svg></div>
+  <div class="k" style="--cl:var(--g)"><span>הכנסה חודשית</span><b>₪9,400</b><em>▲ 18%</em><svg viewBox="0 0 100 40"><path d="M0 36 L25 30 L50 24 L75 12 L100 6" stroke="#16A36A" stroke-width="2.5" fill="none"/></svg></div>
+  <div class="k" style="--cl:var(--o)"><span>פרויקטים החודש</span><b>89</b><em>▲ 31</em><svg viewBox="0 0 100 40"><path d="M0 30 L20 32 L40 20 L60 24 L80 10 L100 8" stroke="#E8641F" stroke-width="2.5" fill="none"/></svg></div>
+  <div class="k" style="--cl:var(--r)"><span>ממתינים לתשלום</span><b>2</b><em class="bad">● דורש טיפול</em></div>
+ </div>
+ <div class="row">
+  <div class="pn"><div class="ph"><h3>הכנסות</h3><span class="seg"><button class="on">6 חודשים</button><button>שנה</button></span></div>
+   <div class="bars" style="padding-bottom:30px"><div style="height:30%"><small>מאי</small></div><div style="height:42%"><small>יוני</small></div><div style="height:50%"><small>יולי</small></div><div style="height:63%"><small>אוג׳</small></div><div style="height:78%"><small>ספט׳</small></div><div style="height:96%"><small>אוק׳</small></div></div></div>
+  <div class="pn"><div class="ph"><h3>פעילות אחרונה</h3></div><div class="act">
+   <div><i></i>חברה א׳ העלתה 3 תוכניות</div><div><i style="color:var(--g);background:var(--g)"></i>חברה ב׳ התחילה ניסיון</div><div><i style="color:var(--r);background:var(--r)"></i>חברה ג׳ נחסמה, חוב</div><div><i style="color:var(--o);background:var(--o)"></i>חברה ד׳ הוסיפה 2 משתמשים</div></div></div>
+ </div>
+<div class="row" style="grid-template-columns:1fr 1fr 1fr">
+  <div class="pn"><div class="ph"><h3>חלוקת מסלולים</h3></div><div style="display:flex;align-items:center;gap:20px;padding:18px"><svg width="110" height="110" viewBox="0 0 42 42"><circle cx="21" cy="21" r="15.9" fill="none" stroke="#E3E9F2" stroke-width="6"/><circle cx="21" cy="21" r="15.9" fill="none" stroke="#1F6FD1" stroke-width="6" stroke-dasharray="58 42" transform="rotate(-90 21 21)"/><circle cx="21" cy="21" r="15.9" fill="none" stroke="#2F9BFF" stroke-width="6" stroke-dasharray="27 73" stroke-dashoffset="-58" transform="rotate(-90 21 21)"/><circle cx="21" cy="21" r="15.9" fill="none" stroke="#E8641F" stroke-width="6" stroke-dasharray="15 85" stroke-dashoffset="-85" transform="rotate(-90 21 21)"/></svg><div style="font-size:13px;color:var(--t2);line-height:2"><span style="color:#1F6FD1">●</span> עסקי 58%<br><span style="color:#2F9BFF">●</span> בסיסי 27%<br><span style="color:#E8641F">●</span> ניסיון 15%</div></div></div>
+  <div class="pn"><div class="ph"><h3>בריאות המערכת</h3></div><div class="act"><div><i style="background:var(--g)"></i>שרת: תקין, 99.9%</div><div><i style="background:var(--g)"></i>המרות DWG: תור ריק</div><div><i style="background:var(--y)"></i>אחסון: 62% מנוצל</div><div><i style="background:var(--g)"></i>גיבוי אחרון: היום 03:00</div></div></div>
+  <div class="pn"><div class="ph"><h3>דורש טיפול</h3></div><div class="act"><div><i style="background:var(--r)"></i>חברה ג׳: חוב 2 חודשים</div><div><i style="background:var(--y)"></i>חברה ב׳: ניסיון נגמר בעוד 5 ימים</div><div><i style="background:var(--b)"></i>3 בקשות גישה חדשות</div></div></div>
+ </div>
+ <div class="pn"><div class="ph"><h3>לקוחות</h3><input style="width:220px;padding:8px 12px" placeholder="חיפוש חברה"></div>
+ <table><tr><th>חברה</th><th>מסלול</th><th>משתמשים</th><th>שימוש</th><th>סטטוס</th><th>שולם עד</th><th>פעולות</th></tr>
+ <tr class="cl" onclick="openD(this)"><td><span class="av">א</span>חברה לדוגמה א׳</td><td>עסקי</td><td>8</td><td><span class="use"><i style="width:72%"></i></span></td><td><span class="tg ok">פעיל</span></td><td>01/12/2026</td><td class="ac"><button>כניסה לתמיכה</button><button class="d">עצירה</button></td></tr>
+ <tr class="cl" onclick="openD(this)"><td><span class="av">ב</span>חברה לדוגמה ב׳</td><td>בסיסי</td><td>3</td><td><span class="use"><i style="width:30%"></i></span></td><td><span class="tg wa">ניסיון, 5 ימים</span></td><td>05/11/2026</td><td class="ac"><button>כניסה לתמיכה</button><button class="d">עצירה</button></td></tr>
+ <tr class="cl" onclick="openD(this)"><td><span class="av">ג</span>חברה לדוגמה ג׳</td><td>עסקי</td><td>12</td><td><span class="use"><i style="width:88%"></i></span></td><td><span class="tg ba">חוב, נחסם</span></td><td>15/09/2026</td><td class="ac"><button>הפעלה מחדש</button></td></tr>
+ </table></div></div><div class="pg" id="pg_cu"><div class="hd"><div><h2>לקוחות</h2><small>כל החברות, המשתמשים והמסלולים</small></div><div><button class="btn2 p">+ לקוח חדש</button></div></div><div class="pn"><div class="ph"><h3>לקוחות</h3><input style="width:220px;padding:8px 12px" placeholder="חיפוש חברה"></div>
+ <table><tr><th>חברה</th><th>מסלול</th><th>משתמשים</th><th>שימוש</th><th>סטטוס</th><th>שולם עד</th><th>פעולות</th></tr>
+ <tr class="cl" onclick="openD(this)"><td><span class="av">א</span>חברה לדוגמה א׳</td><td>עסקי</td><td>8</td><td><span class="use"><i style="width:72%"></i></span></td><td><span class="tg ok">פעיל</span></td><td>01/12/2026</td><td class="ac"><button>כניסה לתמיכה</button><button class="d">עצירה</button></td></tr>
+ <tr class="cl" onclick="openD(this)"><td><span class="av">ב</span>חברה לדוגמה ב׳</td><td>בסיסי</td><td>3</td><td><span class="use"><i style="width:30%"></i></span></td><td><span class="tg wa">ניסיון, 5 ימים</span></td><td>05/11/2026</td><td class="ac"><button>כניסה לתמיכה</button><button class="d">עצירה</button></td></tr>
+ <tr class="cl" onclick="openD(this)"><td><span class="av">ג</span>חברה לדוגמה ג׳</td><td>עסקי</td><td>12</td><td><span class="use"><i style="width:88%"></i></span></td><td><span class="tg ba">חוב, נחסם</span></td><td>15/09/2026</td><td class="ac"><button>הפעלה מחדש</button></td></tr>
+ </table></div></div><div class="pg" id="pg_pl"><div class="hd"><div><h2>מסלולים ותמחור</h2><small>אתה קובע מחירים ותכונות. שינוי חל על לקוחות חדשים</small></div><div><button class="btn2 p">+ מסלול חדש</button></div></div><div class="pl">
+<div class="plc"><h4>בסיסי</h4><div class="pr">₪<input value="290"><small> / חודש</small></div><ul><li>3 משתמשים</li><li>20 פרויקטים</li><li>PDF בלבד</li><li>ייצוא אקסל</li></ul><button class="btn2">עריכה</button></div>
+<div class="plc hot"><h4>עסקי</h4><div class="pr">₪<input value="790"><small> / חודש</small></div><ul><li>עד 15 משתמשים</li><li>פרויקטים ללא הגבלה</li><li>PDF ו-DWG</li><li>חשבונות חלקיים והצעות</li><li>מחירון אישי</li></ul><button class="btn2 p">עריכה</button></div>
+<div class="plc"><h4>ארגוני</h4><div class="pr">₪<input value="1,990"><small> / חודש</small></div><ul><li>משתמשים ללא הגבלה</li><li>כניסה ארגונית SSO</li><li>שרת ייעודי</li><li>תמיכה בעדיפות</li></ul><button class="btn2">עריכה</button></div></div>
+<div class="pn"><div class="ph"><h3>תכונות לפי חברה (דגלים)</h3></div><div class="sw">קריאת DWG<i></i></div><div class="sw">חשבונות חלקיים והצעות<i></i></div><div class="sw">מנוע חשמל מתקדם (בטא)<i class="off"></i></div><div class="sw">API חיצוני<i class="off"></i></div></div></div><div class="pg" id="pg_bi"><div class="hd"><div><h2>חיובים</h2><small>חשבוניות, גבייה ותשלומים שנכשלו</small></div><div><button class="btn2">ייצוא לחשבשבת</button></div></div><div class="kp"><div class="k"><span>הכנסה חודשית</span><b>₪9,400</b><em>▲ 18%</em></div><div class="k"><span>נגבה החודש</span><b>₪7,830</b><em>83%</em></div><div class="k"><span>תשלומים שנכשלו</span><b style="color:var(--r)">2</b><em class="bad">ניסיון חוזר מחר</em></div><div class="k"><span>נטישה חודשית</span><b>1.2%</b><em>▼ 0.4%</em></div></div>
+<div class="pn"><div class="ph"><h3>חשבוניות אחרונות</h3></div><table><tr><th>חשבונית</th><th>חברה</th><th>סכום</th><th>תאריך</th><th>סטטוס</th></tr>
+<tr><td class="mono">INV-1042</td><td>חברה לדוגמה א׳</td><td>₪790</td><td>01/11</td><td><span class="tg ok">שולם</span></td></tr>
+<tr><td class="mono">INV-1041</td><td>חברה לדוגמה ב׳</td><td>₪290</td><td>01/11</td><td><span class="tg wa">בהמתנה</span></td></tr>
+<tr><td class="mono">INV-1040</td><td>חברה לדוגמה ג׳</td><td>₪790</td><td>15/10</td><td><span class="tg ba">נכשל</span></td></tr></table></div></div><div class="pg" id="pg_en"><div class="hd"><div><h2>מנוע וגרסאות</h2><small>עדכון אחד מגיע לכל הלקוחות, בהדרגה ועם חזרה לאחור</small></div><div><button class="btn2 p">פרסום גרסה חדשה</button></div></div><div class="pn"><div class="rl"><div class="h"><span>v2.14 · גרסה נוכחית <span class="tg ok">חיה</span></span><span class="mono">100% מהלקוחות</span></div><p>שיפור זיהוי נקודות חשמל, תמיכה בעוד פורמטי DWG.</p><div class="pb"><i style="width:100%"></i></div></div>
+<div class="rl"><div class="h"><span>v2.15 · בהפצה הדרגתית <span class="tg wa">25%</span></span><span><button class="btn2">המשך הפצה</button> <button class="btn2" style="color:var(--r)">חזרה לאחור</button></span></div><p>מנוע אינסטלציה חדש מתוכניות. בבדיקה אצל 3 חברות.</p><div class="pb"><i style="width:25%"></i></div></div>
+<div class="rl"><div class="h"><span>חוקים ומחירי בסיס</span><span class="mono">עודכן אתמול</span></div><p>חוקי כמויות, ספר הסעיפים והיחידות. השינוי נבדק מול פרויקטי ייחוס לפני פרסום.</p></div></div></div><div class="pg" id="pg_au"><div class="hd"><div><h2>יומן פעולות</h2><small>מי עשה מה ומתי. לא ניתן למחיקה</small></div><div><button class="btn2">ייצוא</button></div></div><div class="pn"><table><tr><th>זמן</th><th>משתמש</th><th>חברה</th><th>פעולה</th><th>כתובת</th></tr>
+<tr><td class="mono">31/10 21:58</td><td>דנה כ.</td><td>חברה א׳</td><td>הפיקה חשבון חלקי מס׳ 4</td><td class="mono">82.81.x.x</td></tr>
+<tr><td class="mono">31/10 20:12</td><td>אילן פרץ</td><td>פלטפורמה</td><td>פרסם גרסה v2.15 ל-25%</td><td class="mono">147.236.x.x</td></tr>
+<tr><td class="mono">31/10 17:40</td><td>יוסי ל.</td><td>חברה ב׳</td><td>עדכן מחיר סעיף 08.02</td><td class="mono">84.95.x.x</td></tr>
+<tr><td class="mono">30/10 09:05</td><td>אילן פרץ</td><td>חברה ג׳</td><td>חסם גישה, חוב</td><td class="mono">147.236.x.x</td></tr></table></div></div></main>
+</div>
+<div class="nm">שם לדוגמה: QUANTO ("כמה?" באיטלקית ופורטוגזית). לא נבדק כסימן מסחרי</div>
+<script>function pgo(k,e){document.querySelectorAll(".sd a").forEach(x=>x.classList.remove("on"));e.classList.add("on");document.querySelectorAll(".pg").forEach(x=>x.classList.remove("on"));document.getElementById("pg_"+k).classList.add("on")}function go(x,b){document.querySelectorAll('.tabs button').forEach(e=>e.classList.remove('on'));b.classList.add('on');l.style.display=x=='l'?'grid':'none';a.style.display=x=='a'?'grid':'none'}</script>
+<div class="ov" id="ov" onclick="closeD()"></div>
+<div class="dr" id="dr"><div class="dh"><span class="x" onclick="closeD()">✕</span><span class="tg ok" id="dtg">פעיל</span><h3 id="dn">חברה</h3><small style="color:var(--t3)">מסלול עסקי · לקוח מאז 03/2026</small></div>
+<div class="st"><div><b>8</b><span>משתמשים</span></div><div><b>21</b><span>פרויקטים</span></div><div><b>4.2 GB</b><span>אחסון</span></div><div><b>היום 09:14</b><span>כניסה אחרונה</span></div></div>
+<div class="tl"><h4>ציר זמן</h4><div>היום: הועלו 3 תוכניות DWG</div><div>אתמול: הופק חשבון חלקי מס׳ 4</div><div>לפני שבוע: נוסף משתמש חדש</div><div>03/2026: חשבון נפתח, מסלול עסקי</div></div>
+<div class="bt"><button class="btn2 p">כניסה לתמיכה</button><button class="btn2">שינוי מסלול</button><button class="btn2" style="color:var(--r)">עצירה</button></div></div>
+<script>function openD(r){dn.textContent=r.cells[0].textContent;dtg.outerHTML='';dr.classList.add('open');ov.classList.add('open')}function closeD(){dr.classList.remove('open');ov.classList.remove('open')}</script>
+</body></html>
