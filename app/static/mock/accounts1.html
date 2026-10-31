@@ -1,0 +1,58 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>דמו: כניסה וניהול לקוחות</title>
+<style>
+:root{--bg:#EEF2F7;--ink:#0E1B2B;--ink2:#43536A;--mut:#74839A;--line:#E0E6EF;--pri:#174F96;--pri2:#1F6FD1;--soft:#E6F0FC;--acc:#D9622B;--ok:#1C8248;--okb:#E1F3E8;--warn:#946300;--warnb:#FBF0D3;--bad:#C0392B;--badb:#FBE5E2;--bp1:#06255A;--bp2:#0D43A0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px Assistant,Rubik,sans-serif}
+.bar{display:flex;gap:8px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.bar button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 14px;font:inherit;cursor:pointer}
+.bar button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.login{min-height:calc(100vh - 54px);display:grid;grid-template-columns:1fr 1fr}
+.hero{background:linear-gradient(160deg,var(--bp1),var(--bp2));color:#fff;padding:56px;display:flex;flex-direction:column;justify-content:center}
+.hero h1{font:600 34px Rubik;margin:0 0 14px}.hero p{opacity:.85;max-width:380px;line-height:1.7}
+.hero ul{list-style:none;padding:0;margin:26px 0 0;opacity:.9}.hero li{padding:6px 0}.hero li:before{content:"✓ ";color:#7fd6a4}
+.fm{display:flex;align-items:center;justify-content:center;padding:30px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:30px;width:100%;max-width:380px;box-shadow:0 8px 30px rgba(14,27,43,.06)}
+.card h2{margin:0 0 4px;font:600 22px Rubik}.card small{color:var(--mut)}
+label{display:block;margin:16px 0 6px;font-size:13px;color:var(--ink2)}
+input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff}
+input:focus{outline:2px solid var(--soft);border-color:var(--pri2)}
+.btn{width:100%;margin-top:20px;padding:12px;border:0;border-radius:8px;background:var(--pri);color:#fff;font:600 15px Rubik;cursor:pointer}
+.lnk{display:flex;justify-content:space-between;margin-top:14px;font-size:13px;color:var(--pri2)}
+.adm{display:none;padding:22px;max-width:1280px;margin:auto}
+.kp{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.k{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.k b{display:block;font:600 26px Rubik;margin-top:4px}.k span{color:var(--mut);font-size:13px}
+.pnl{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.ph{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.ph h3{margin:0;font:600 16px Rubik}.ph input{width:220px;padding:7px 10px}
+table{width:100%;border-collapse:collapse}th{background:#F6F8FB;color:var(--ink2);font-weight:600;font-size:13px;text-align:right;padding:9px 14px;border-bottom:1px solid var(--line)}
+td{padding:10px 14px;border-bottom:1px solid var(--line)}tr:hover td{background:#FAFBFD}
+.tg{padding:2px 9px;border-radius:20px;font-size:12px;font-weight:600}
+.tg.ok{background:var(--okb);color:var(--ok)}.tg.wa{background:var(--warnb);color:var(--warn)}.tg.ba{background:var(--badb);color:var(--bad)}
+.ac button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:4px 10px;margin-inline-start:4px;font:inherit;font-size:12px;cursor:pointer}
+.ac button.d{color:var(--bad)}
+@media(max-width:900px){.login{grid-template-columns:1fr}.hero{padding:30px}.kp{grid-template-columns:1fr 1fr}th:nth-child(4),td:nth-child(4),th:nth-child(6),td:nth-child(6){display:none}}
+</style></head><body>
+<div class="bar"><button class="on" onclick="go('l',this)">מסך כניסה</button><button onclick="go('a',this)">ניהול לקוחות (רק אתה)</button><span style="margin-inline-start:auto;color:var(--mut);align-self:center">דמו להמחשה, נתונים לדוגמה</span></div>
+
+<div class="login" id="l">
+ <div class="hero"><h1>כתב כמויות מדויק, מהתוכנית ועד החשבון</h1>
+ <p>מעלים תוכניות, המערכת מזהה, מודדת ומחשבת. אתם מתמחרים ומוציאים הצעות וחשבונות חלקיים.</p>
+ <ul><li>עובד בדפדפן, בלי התקנה</li><li>עובד במחשב ובאייפד</li><li>הנתונים של החברה שלכם בלבד</li></ul></div>
+ <div class="fm"><div class="card"><h2>כניסה למערכת</h2><small>הכניסו את פרטי החברה שלכם</small>
+ <label>אימייל</label><input placeholder="name@company.co.il">
+ <label>סיסמה</label><input type="password" placeholder="••••••••">
+ <button class="btn">כניסה</button>
+ <div class="lnk"><span>שכחתי סיסמה</span><span>אין לכם חשבון? צרו קשר</span></div></div></div>
+</div>
+
+<div class="adm" id="a">
+ <div class="kp"><div class="k"><span>חברות פעילות</span><b>12</b></div><div class="k"><span>משתמשים</span><b>47</b></div><div class="k"><span>פרויקטים החודש</span><b>89</b></div><div class="k"><span>ממתינים לתשלום</span><b style="color:var(--bad)">2</b></div></div>
+ <div class="pnl"><div class="ph"><h3>לקוחות</h3><input placeholder="חיפוש חברה"></div>
+ <table><tr><th>חברה</th><th>מסלול</th><th>משתמשים</th><th>פרויקטים</th><th>סטטוס</th><th>שולם עד</th><th>פעולות</th></tr>
+ <tr><td>חברה לדוגמה א׳</td><td>עסקי</td><td>8</td><td>21</td><td><span class="tg ok">פעיל</span></td><td>01/12/2026</td><td class="ac"><button>כניסה לתמיכה</button><button class="d">עצירה</button></td></tr>
+ <tr><td>חברה לדוגמה ב׳</td><td>בסיסי</td><td>3</td><td>7</td><td><span class="tg wa">ניסיון, 5 ימים</span></td><td>05/11/2026</td><td class="ac"><button>כניסה לתמיכה</button><button class="d">עצירה</button></td></tr>
+ <tr><td>חברה לדוגמה ג׳</td><td>עסקי</td><td>12</td><td>34</td><td><span class="tg ba">חוב, נחסם</span></td><td>15/09/2026</td><td class="ac"><button>הפעלה מחדש</button></td></tr>
+ </table></div>
+</div>
+<script>function go(x,b){document.querySelectorAll('.bar button').forEach(e=>e.classList.remove('on'));b.classList.add('on');l.style.display=x=='l'?'grid':'none';a.style.display=x=='a'?'block':'none'}</script>
+</body></html>
