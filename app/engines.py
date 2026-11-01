@@ -168,14 +168,15 @@ def rooms(path,scale):
     solid=cv2.morphologyEx(m,cv2.MORPH_CLOSE,np.ones((7,7),np.uint8)); k=int(120/px)|1
     barrier=cv2.morphologyEx(solid,cv2.MORPH_CLOSE,cv2.getStructuringElement(cv2.MORPH_RECT,(k,k)))
     free=(barrier==0).astype(np.uint8); n,lab,st,_=cv2.connectedComponentsWithStats(free)
-    ext=set(np.unique(np.concatenate([lab[0],lab[-1],lab[:,0],lab[:,-1]]))); tot=0;cnt=0; rr=[]; sp=(PT_MM*scale/10)/px
+    ext=set(np.unique(np.concatenate([lab[0],lab[-1],lab[:,0],lab[:,-1]]))); tot=0;cnt=0;per_m=0.0; rr=[]; sp=(PT_MM*scale/10)/px
     for i in range(1,n):
         a=st[i,cv2.CC_STAT_AREA]*px*px/1e4
         if i in ext or a<1.5 or a>80: continue
+        cs,_h=cv2.findContours((lab==i).astype(np.uint8),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE); per_m+=sum(cv2.arcLength(c,True) for c in cs)*px/100
         tot+=a;cnt+=1; x,y,w,h=st[i,:4]; rr.append(dict(el=f'חלל {cnt}',dims=f'{w*px/100:.2f} × {h*px/100:.2f} (תיבה חוסמת)',val=round(a,2),src='חלל סגור שזוהה בין קירות, דלתות וחלונות',note='',locs=[_loc(path,reg.x0+x/sp,reg.y0+y/sp,reg.x0+(x+w)/sp,reg.y0+(y+h)/sp,f'חלל {cnt}')]))
     if not cnt: return [],{}
     return [dict(ch=10,sub=1,desc='ריצוף, שטח נטו של חללים סגורים',unit='מ"ר',q=round(tot,1),st='חלקי',src='בסיס אדריכלי בגיליון החשמל: זיהוי חללים סגורים',need='חללים פתוחים (סלון, מטבח, אוכל) נספרים כחלל אחד. נדרש אימות מול השטחים בתוכנית',
-        trace=dict(formula='שטח כל חלל סגור = מספר הפיקסלים הפנויים בין קירות/דלתות/חלונות × גודל פיקסל. חללים עד 1.5 מ"ר או מעל 80 מ"ר, וחללים פתוחים לחוץ, לא נספרים',rows=rr,checks=[dict(ok=False,t='חללים פתוחים נספרים כחלל אחד; השוו לטבלת השטחים בתוכנית'),dict(ok=True,t=f'{cnt} חללים נספרו')],params={}))],dict(rooms=cnt,total_m2=round(tot,1))
+        trace=dict(formula='שטח כל חלל סגור = מספר הפיקסלים הפנויים בין קירות/דלתות/חלונות × גודל פיקסל. חללים עד 1.5 מ"ר או מעל 80 מ"ר, וחללים פתוחים לחוץ, לא נספרים',rows=rr,checks=[dict(ok=False,t='חללים פתוחים נספרים כחלל אחד; השוו לטבלת השטחים בתוכנית'),dict(ok=True,t=f'{cnt} חללים נספרו')],params={}))],dict(rooms=cnt,total_m2=round(tot,1),per_m=round(per_m,1))
 
 
 OPEN_LAYERS={'lite','WIN31','hazit 1-0.05'}

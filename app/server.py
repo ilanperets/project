@@ -226,7 +226,7 @@ def run(pid:str):
         scale=50; assumptions.append(dict(t='קנה מידה 1:50 הונח',why='לא נמצאה תוכנית כלונסאות לכיול. כל המדידות נשענות על ההנחה הזו',how='אשר קנה מידה, או העלה תוכנית יסודות'))
     pr['scale']=scale
     fps=[s for s in sheets if s['type']=='floor_plan']
-    slab_areas=[]; ext_per=[]; room_cnt=0; labels=_jl(SYMF,{}); lmap=_jl(LMAPF,{})
+    slab_areas=[]; ext_per=[]; room_cnt=0; room_per=0.0; labels=_jl(SYMF,{}); lmap=_jl(LMAPF,{})
     for s in fps:
         if not s['floor']: assumptions.append(dict(t=f"באיזו קומה גיליון \"{s['file']}\"?",why='אי אפשר לקרוא את שם הקומה מהגיליון (טקסט וקטורי)',gives='תיאור הסעיפים ואיטום גג',how='בחר קומה בטבלת הגיליונות'))
     for s in sheets:
@@ -263,7 +263,7 @@ def run(pid:str):
                 l,info=E.rooms(path(s),scale)
                 nel=sum(1 for t in sheets[:sheets.index(s)] if t['type']=='electrical')+1
                 for x in l: x['desc']+=f" (תוכנית חשמל {nel})"
-                lines+=l; log.append(f"{s['file']}: חללים {info}"); room_cnt+=info.get('rooms',0) if isinstance(info,dict) else 0
+                lines+=l; log.append(f"{s['file']}: חללים {info}"); room_cnt+=info.get('rooms',0) if isinstance(info,dict) else 0; room_per+=info.get('per_m',0) if isinstance(info,dict) else 0
                 if labels:
                     sl,si=SY.count(path(s),labels); lines+=sl; log.append(f"{s['file']}: סמלי חשמל {si}")
         except Exception as e: log.append(f"{s['file']}: שגיאה בחישוב: {str(e)[:100]}")
@@ -278,6 +278,8 @@ def run(pid:str):
     lines+=DV.exterior(ext_per,op_m2,BR.params(pr))
     if any(f!='roof' for f,_,_ in ext_per) and not any(l['desc']=='טיח חוץ' for l in lines): assumptions.append(dict(t='היקף קומות לא נקרא אמין',why='הקו החיצוני של תוכניות הקומות לא נסגר, ולכן טיח וצבע חוץ לא חושבו',how='העלה חזיתות או תוכנית קומה שבה הקירות החיצוניים סגורים'))
     lines+=DV.derive(lines,slab_areas,P)
+    if room_per>0: lines.append(dict(ch=10,sub=2,desc='סוקל ופנלים',unit='מ"א',q=round(room_per,1),st='חלקי',src='היקף חללים סגורים בתוכניות החשמל',need='הפחתת רוחבי דלתות ואימות חללים פתוחים',
+        trace=dict(formula='סכום היקפי החללים הסגורים (לא מופחתים רוחבי דלתות)',rows=[dict(el='היקף חללים',dims='סכום',val=round(room_per,1),src='זיהוי חללים סגורים בתוכניות החשמל',note='כולל פתחי דלתות, ולכן מעט גבוה',locs=[])],checks=[dict(ok=False,t='לא הופחתו רוחבי דלתות')],params={})))
     _gf=[(f,p,a) for f,p,a in ext_per if f!='roof' and a>=20 and p*p/a<=40] or [(f,p,a) for f,p,a in ext_per if a>=20 and p*p/a<=40]
     _M=dict(footprint=max((a for _,_,a in _gf),default=0),perimeter=max((p for _,p,a in _gf),default=0),floors=len({f for f,_,_ in ext_per if f!='roof'}) or None,total_slab=(sum(l['q'] for l in lines if l['desc'].startswith('ריצוף, שטח נטו') and l.get('q')) or sum(slab_areas)),rooms=room_cnt)
     if _M['footprint']: lines+=SW.site_lines(_M,P)
