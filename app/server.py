@@ -2,7 +2,7 @@ import json, os, re, shutil, time, uuid
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from . import wetroom as WR, classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP, sitework as SW, dwg as DW, auth as AU
+from . import wetroom as WR, classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP, sitework as SW, dwg as DW, auth as AU, score as SC
 import datetime
 
 ROOT=os.environ.get('KAMUYOT_DATA',os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'data'))
@@ -325,6 +325,9 @@ def report_pdf(pid:str,plans:int=1,watch:int=1,crops:int=1,missing:int=1,prm:int
     params=[(BR.DEFAULT_PARAMS[k]['label'],P[k]) for k in ('wall_height','deduct_limit','wp_upturn','room_scale','waste_tile') if k in P]
     out=os.path.join(_pdir(pid),'report.pdf'); RP.to_pdf(RP.build(pr,fd,params,opts=dict(plans=plans,watch=watch,crops=crops,missing=missing,params=prm,chs=(ch.split(',') if ch else None),only=1 if only=='measured' else 0)),out)
     return FileResponse(out,media_type='application/pdf',filename='דוח-חישוב.pdf')
+
+@app.get('/api/projects/{pid}/score')
+def project_score(pid:str): return SC.score(_load(pid).get('boq'))
 
 @app.get('/api/projects/{pid}/preflight')
 def preflight(pid:str):

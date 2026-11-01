@@ -46,8 +46,32 @@ def piles(path,scale):
     return lines,dict(circles=len(cs),by_diameter=dict(cnt))
 
 # ---------------- clusters ----------------
+
+import re as _re
+_WALL_IN=_re.compile(r'(wall|muro|murex|^mur|pared|tabique|partition|קיר|\bkir)',_re.I)
+_WALL_OUT=_re.compile(r'(txt|text|dim|cota|anno|hatch|hach|hacth|patt|tex|furn|mueble|mobil|door|puert|window|vent|elec|sanit|plumb|grid|axis|eje|border|level|note|simb|symb|titl|rotul|veget|mark|hidro|insul|aisl|stair|esc)',_re.I)
+def wall_layers(pg):
+    """Which layers hold the walls. The layer WL (used by the offices we trained on) when present; otherwise layers whose
+    name says wall/muro/קיר, otherwise the long axis-aligned line layers that are not text, dimensions or hatch."""
+    import unicodedata
+    st=collections.defaultdict(lambda:[0,0.0,0.0])
+    for dr in pg.get_drawings():
+        k=dr.get('layer') or ''
+        for it in dr['items']:
+            if it[0]=='l':
+                d=((it[1].x-it[2].x)**2+(it[1].y-it[2].y)**2)**.5; a=st[k]; a[0]+=1; a[1]+=d
+                if abs(it[1].x-it[2].x)<0.5 or abs(it[1].y-it[2].y)<0.5: a[2]+=d
+    if st.get('WL',[0])[0]>=5: return ['WL'],'WL'
+    _n=lambda k:''.join(c for c in unicodedata.normalize('NFD',k) if unicodedata.category(c)!='Mn')
+    named=[k for k,v in st.items() if k and _WALL_IN.search(_n(k)) and not _WALL_OUT.search(_n(k)) and v[0]>=8]
+    if named: return named,'name'
+    cand=sorted(((v[1],k) for k,v in st.items() if k and not _WALL_OUT.search(_n(k)) and v[0]>=40 and v[2]>=0.7*v[1] and v[1]/v[0]>=8),reverse=True)
+    if cand: return [k for L,k in cand if L>=0.5*cand[0][0]][:3],'geometry'
+    return [],''
+
 def _cluster_layer(pg,layer,gap=40):
-    items=[(dr['rect'],sum(((i[1].x-i[2].x)**2+(i[1].y-i[2].y)**2)**.5 for i in dr['items'] if i[0]=='l')) for dr in pg.get_drawings() if dr.get('layer')==layer]
+    LS={layer} if isinstance(layer,str) else set(layer)
+    items=[(dr['rect'],sum(((i[1].x-i[2].x)**2+(i[1].y-i[2].y)**2)**.5 for i in dr['items'] if i[0]=='l')) for dr in pg.get_drawings() if dr.get('layer') in LS]
     n=len(items); par=list(range(n))
     def f(i):
         while par[i]!=i: par[i]=par[par[i]]; i=par[i]
@@ -81,16 +105,22 @@ def _body(m,maxhalf):
     for i in range(1,n):
         x,y,w,h=st[i,:4]
         if x==0 or y==0 or x+w>=W or y+h>=H: continue
-        comp=lab==i
-        if dist[comp].max()<=maxhalf: out[comp]=1
+        sub=lab[y:y+h,x:x+w]==i
+        if dist[y:y+h,x:x+w][sub].max()<=maxhalf: out[y:y+h,x:x+w][sub]=1
     return out
 
 def walls(path,scale,floor_label):
-    pg=_page(path); cl=_cluster_layer(pg,'WL')
-    if not cl: return [],dict(note='אין שכבת WL')
-    reg=cl[0][0]; reg=fitz.Rect(reg.x0-20,reg.y0-20,reg.x1+20,reg.y1+20)
-    extra=len(cl)>1 and cl[1][1]>=0.6*cl[0][1]
-    m=_raster(pg,['WL'],reg,1.0,scale); body=_body(m,16)
+    pg=_page(path); WLS,how=wall_layers(pg); cl=_cluster_layer(pg,WLS) if WLS else []
+    if not cl: return [],dict(note='לא נמצאה שכבת קירות')
+    reg=cl[0][0]
+    if how!='WL':   # no trained layer: take every sizeable wall cluster as one plan
+        for c in cl[1:]:
+            if c[1]>=0.1*cl[0][1]: reg=reg|c[0]
+    reg=fitz.Rect(reg.x0-20,reg.y0-20,reg.x1+20,reg.y1+20)
+    extra=how=='WL' and len(cl)>1 and cl[1][1]>=0.6*cl[0][1]
+    m=_raster(pg,WLS,reg,1.0,scale); body=_body(m,16)
+    if how!='WL':   # outline walls with open ends: bridge the gap between the two faces of each wall
+        body=np.maximum(body,cv2.morphologyEx(m,cv2.MORPH_CLOSE,cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(31,31))))
     dist=cv2.distanceTransform(body,cv2.DIST_L2,5); sk=skeletonize(body>0); t=2*dist[sk]
     bins={'עד 12':0,'12-17':0,'17-23':0,'מעל 23':0}
     for ti in t:
@@ -99,15 +129,15 @@ def walls(path,scale,floor_label):
     lines=[]; sp=(PT_MM*scale/10)
     for k,v in bins.items():
         if v>=50:
-            lines.append(dict(ch=4,sub=1,desc=f'קירות בעובי {k} ס"מ, {floor_label}',unit='מטר',q=round(v/100,1),st='חלקי',src='שכבת WL בתוכנית הקומה',need='גיליון מהנדס עם קירות נושאים בלבד: מחיצות פנים עשויות לא להופיע',
+            lines.append(dict(ch=4,sub=1,desc=f'קירות בעובי {k} ס"מ, {floor_label}',unit='מטר',q=round(v/100,1),st='חלקי',src=('שכבת WL בתוכנית הקומה' if how=='WL' else 'שכבות קירות שזוהו לפי '+('שם: ' if how=='name' else 'צורה: ')+', '.join(WLS[:3])),need='גיליון מהנדס עם קירות נושאים בלבד: מחיצות פנים עשויות לא להופיע',
                 trace=dict(formula='אורך הקירות = אורך שלד (skeleton) של גוף הקיר בשכבת WL, מסווג לפי עובי מקומי',rows=[dict(el=f'קירות בעובי {k} ס"מ',dims=f'סך אורך {v/100:.1f} מ\'',val=round(v/100,1),src='שכבת WL: גוף הקיר ממולא ומדולל לשלד',note='מסומן אזור התוכנית שנסרק',locs=[_loc(path,reg.x0,reg.y0,reg.x1,reg.y1,'אזור שנסרק')])],checks=[dict(ok=not extra,t='נמצאה תוכנית נוספת בגיליון' if extra else 'תוכנית אחת בגיליון'),dict(ok=False,t='מחיצות פנים עשויות לא להופיע בגיליון מהנדס')],params={})))
     return lines,dict(extra_plan=bool(extra),wall_body_m2=round(float((body>0).sum())/1e4,2))
 
 def roof(path,scale):
-    pg=_page(path); cl=_cluster_layer(pg,'WL')
+    pg=_page(path); WLS,how=wall_layers(pg); cl=_cluster_layer(pg,WLS) if WLS else []
     if not cl: return [],{}
     reg=cl[0][0]; reg=fitz.Rect(reg.x0-20,reg.y0-20,reg.x1+20,reg.y1+20)
-    m=_raster(pg,['WL'],reg,2.0,scale); c=cv2.morphologyEx(m,cv2.MORPH_CLOSE,np.ones((21,21),np.uint8))
+    m=_raster(pg,WLS,reg,2.0,scale); c=cv2.morphologyEx(m,cv2.MORPH_CLOSE,np.ones((21,21),np.uint8))
     cn,_=cv2.findContours(c,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
     if not cn: return [],{}
     big=max(cn,key=cv2.contourArea); a=cv2.contourArea(big)*4/1e4; per=cv2.arcLength(big,True)*0.02
@@ -131,10 +161,10 @@ def openings(path,scale):
         trace=dict(formula='כל קבוצת מסגרות מחוברת בשכבת הפתחים נספרת כפתח אחד. שטח = רוחב × גובה לפי קנה המידה',rows=orows,checks=[dict(ok=False,t='נקראה חזית אחת בלבד. חזיתות נוספות בגיליון עלולות להכפיל או להשלים את המספר')],params={}))],dict(n=n,area_m2=round(a,1))
 
 def rooms(path,scale):
-    pg=_page(path); cl=_cluster_layer(pg,'WL')
+    pg=_page(path); WLS,how=wall_layers(pg); cl=_cluster_layer(pg,WLS) if WLS else []
     if not cl: return [],{}
     reg=cl[0][0]; reg=fitz.Rect(reg.x0-30,reg.y0-30,reg.x1+30,reg.y1+30)
-    px=2.0; m=_raster(pg,['WL','A-240','WIN','DOOR','DR'],reg,px,scale)
+    px=2.0; m=_raster(pg,list(WLS)+['A-240','WIN','DOOR','DR'],reg,px,scale)
     solid=cv2.morphologyEx(m,cv2.MORPH_CLOSE,np.ones((7,7),np.uint8)); k=int(120/px)|1
     barrier=cv2.morphologyEx(solid,cv2.MORPH_CLOSE,cv2.getStructuringElement(cv2.MORPH_RECT,(k,k)))
     free=(barrier==0).astype(np.uint8); n,lab,st,_=cv2.connectedComponentsWithStats(free)
