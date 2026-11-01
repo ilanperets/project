@@ -418,6 +418,29 @@ table.wxmini{width:100%;border-collapse:collapse;font-size:13.5px}.wxmini th{fon
 @media(max-width:1180px){.wxr{display:none}.wxjump{display:inline-flex;padding:0 8px}.wxd{grid-template-columns:1fr}.wxd>section+section{border-inline-start:0;border-top:1px solid #E4E8EE}.wxk{grid-template-columns:repeat(2,1fr)}.wxk>div:nth-child(3){border-inline-start:0}.wxdr{width:min(400px,92%)}.wxsb span:nth-child(-n+2){display:none}}
 @media(pointer:coarse){.wxw{--rh:46px}.wxg2 td.rn{width:46px}.wxac{opacity:1}.wxac button{width:36px;height:36px}.wxb,.wxs{height:38px}.wxg button{height:36px}.wxst button{padding:0 18px;height:44px}.wxbot{height:44px}.wxg2 th{height:38px}.wxad{padding:10px}}
 .wxst button{white-space:nowrap}.wxst{overflow-x:auto;min-width:0;flex:1}.wxsb{flex:none;white-space:nowrap;gap:14px;padding:0 12px}
+#auth{position:fixed;inset:0;z-index:100;background:#fff}
+.au{display:grid;grid-template-columns:1.15fr 1fr;min-height:100vh}
+.au-h{position:relative;padding:64px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;color:#fff;background:radial-gradient(900px 600px at 85% 10%,rgba(92,176,255,.35),transparent 60%),radial-gradient(700px 500px at 0 100%,rgba(31,111,209,.5),transparent 60%),linear-gradient(160deg,#041A3F,#06255A 45%,#0B3A85)}
+.au-g{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);background-size:46px 46px;mask-image:radial-gradient(ellipse at 40% 50%,#000 20%,transparent 75%)}
+.au-h>*{position:relative}
+.au-lg{display:flex;align-items:center;gap:10px;font:700 24px var(--fd);letter-spacing:.2em}.au-lg i{width:36px;height:36px;border-radius:10px;background:#fff;color:#0B3A85;display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.au-h h1{font:700 52px/1.12 var(--fd);margin:34px 0 16px}.au-h h1 em{font-style:normal;background:linear-gradient(90deg,#9CD2FF,#fff 60%,#9CD2FF);-webkit-background-clip:text;color:transparent}
+.au-h p{color:#BCD2F5;font-size:17px;line-height:1.75;max-width:460px}
+.au-ch{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.au-ch span{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);padding:7px 14px;border-radius:30px;font-size:13px;color:#E7F0FF}
+.au-f{display:flex;align-items:center;justify-content:center;padding:34px}
+.au-form{width:100%;max-width:380px}.au-form h2{font:600 28px var(--fd)}.au-s{color:var(--mut);margin:4px 0 8px}
+.au-form label{display:block;margin:18px 0 6px;font-size:13px;font-weight:600;color:#43536A}
+.au-form input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;min-height:46px}.au-form input:focus{outline:0;border-color:var(--pri2);box-shadow:0 0 0 3px #E6F0FC}
+.au-go{width:100%;margin-top:24px;padding:14px;border:0;border-radius:10px;background:linear-gradient(135deg,#0B3A85,#1F6FD1);color:#fff;font:700 15px var(--fd);cursor:pointer;box-shadow:0 10px 26px rgba(11,58,133,.35);min-height:48px}.au-go:disabled{opacity:.6}
+.au-er{color:var(--bad);font-size:13.5px;min-height:20px;margin-top:6px}.au-t{margin-top:26px;font-size:12.5px;color:var(--mut);border-top:1px solid var(--line);padding-top:14px}
+@media(max-width:900px){.au{grid-template-columns:1fr}.au-h{padding:34px 26px}.au-h h1{font-size:34px}}
+.supb{display:flex;align-items:center;gap:10px;background:#0B3A85;color:#fff;padding:9px 16px;border-radius:10px;margin-bottom:16px;font-size:14px}.supb .btn{background:#fff;color:#0B3A85;min-height:32px}
+.amk{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}.amk div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px}.amk div:first-child{background:linear-gradient(150deg,#06255A,#1F6FD1);color:#fff;border:0}
+.amk span{font-size:13px;opacity:.75}.amk b{display:block;font:700 30px var(--fd)}.amk .bd b{color:var(--bad)}
+.amt{width:100%;border-collapse:collapse}.amt th{background:#EEF3FB;color:#06255A;text-align:right;font-size:12.5px;font-weight:700;padding:10px 14px}.amt td{padding:12px 14px;border-top:1px solid var(--line);vertical-align:middle}
+.amb{white-space:nowrap;text-align:left}.amb .btn{margin-inline-start:6px}
+.amev{display:flex;gap:14px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}.amev:first-child{border:0}.amev time{color:var(--mut);font-size:12.5px;min-width:130px}
+@media(max-width:900px){.amk{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -432,18 +455,19 @@ const bl=s=>esc(s).replace(/([A-Za-z0-9][A-Za-z0-9.\-_\/]*)/g,'<bdi dir="ltr">$1
 let TYPES={},PARAMS={},P=null,SUM=null,busy=false;
 async function api(path,opt={}){
   const r=await fetch('/api'+path,opt.body instanceof FormData||opt.method==='GET'||!opt.body?opt:{...opt,headers:{'content-type':'application/json'},body:JSON.stringify(opt.body)});
-  if(!r.ok){let m='שגיאה';try{m=(await r.json()).detail||m}catch(e){}throw new Error(m)}
+  if(!r.ok){let m='שגיאה',j={};try{j=await r.json();m=j.detail||m}catch(e){}if(r.status===401&&j.login)showLogin();if(r.status===403&&j.blocked)showBlocked(m);throw new Error(m)}
   return r.json()}
 function toast(t){const e=$('#toast');e.innerHTML='<div class="toast">'+esc(t)+'</div>';setTimeout(()=>e.innerHTML='',3500)}
-const R=()=>{const h=location.hash.replace('#/','').split('/');return{pid:h[0]==='p'?h[1]:null,page:h[0]==='p'?(h[2]||'dash'):(['spec','engines','legacy'].includes(h[0])?h[0]:'projects')}};
+const R=()=>{const h=location.hash.replace('#/','').split('/');return{pid:h[0]==='p'?h[1]:null,page:h[0]==='p'?(h[2]||'dash'):(['spec','engines','legacy','admin','users'].includes(h[0])?h[0]:'projects')}};
 
 async function render(){
   const {pid,page}=R();
   if(pid){try{P=await api('/projects/'+pid);SUM=await api(`/projects/${pid}/summary`)}catch(e){location.hash='#/';return}}else P=null;
   side();
-  const v={projects,dash,plans,view,boq,materials,bills,brain,spec,engines,legacy,sheet}[page]||dash;
+  if(ME.enabled&&ME.user.role==='platform'&&!ME.org&&page!=='admin'){location.hash='#/admin';return}
+  const v={projects,dash,plans,view,boq,materials,bills,brain,spec,engines,legacy,sheet,admin,users}[page]||dash;
   $('#main').innerHTML='<div class="empty">טוען…</div>';
-  const body=await v();$('#main').innerHTML=(pid&&page!=='dash'&&page!=='view'?stepper(page):'')+(pid&&P.stale&&P.boq&&P.sheets.length?`<div class="up2" style="border-color:#F0C766;background:var(--warnb);margin:0 0 16px"><div class="ico" style="background:var(--warn)">${ic('alert',20)}</div><div><b>התוכניות השתנו מאז החישוב האחרון</b><div style="font-size:13px">הכמויות בכתב עוד לא משקפות את השינוי.</div></div><span class="sp"></span><button class="btn p" onclick="runNow(this)">חשב מחדש</button></div>`:'')+body;
+  const body=await v();$('#main').innerHTML=supportBanner()+(pid&&page!=='dash'&&page!=='view'?stepper(page):'')+(pid&&P.stale&&P.boq&&P.sheets.length?`<div class="up2" style="border-color:#F0C766;background:var(--warnb);margin:0 0 16px"><div class="ico" style="background:var(--warn)">${ic('alert',20)}</div><div><b>התוכניות השתנו מאז החישוב האחרון</b><div style="font-size:13px">הכמויות בכתב עוד לא משקפות את השינוי.</div></div><span class="sp"></span><button class="btn p" onclick="runNow(this)">חשב מחדש</button></div>`:'')+body;
   if(window['after_'+page])window['after_'+page]();
 }
 window.addEventListener('hashchange',render);
@@ -490,10 +514,10 @@ const rgH=p=>{const c=2*Math.PI*10;return `<svg width="28" height="28" viewBox="
 const sideNav=(href,i,t,on,extra='')=>`<a href="${href}" class="${on?'on':''}">${ic(i)}${t}${extra}</a>`;
 function side(){
   const {pid,page}=R(),l=(p,i,t,x='')=>sideNav(`#/p/${pid}/${p}`,i,t,page===p||(p==='plans'&&page==='view'),x);
-  $('#side').innerHTML=`<div class="logo"><span class="mark">${ic('calc',19)}</span>כתבי כמויות</div><nav class="nav">
-  ${sideNav('#/','folder','כל הפרויקטים',!pid&&page==='projects')}${sideNav('#/spec','book','ספר המפרט',page==='spec')}${sideNav('#/engines','cog','מנועי חישוב',page==='engines')}${sideNav('#/legacy','lib','ספריית אימון',page==='legacy')}
+  $('#side').innerHTML=`<div class="logo"><span class="mark">${ic('calc',19)}</span>MIDA</div><nav class="nav">
+  ${ME.enabled&&ME.user.role==='platform'&&!ME.org?'':sideNav('#/','folder','כל הפרויקטים',!pid&&page==='projects')}${sideNav('#/spec','book','ספר המפרט',page==='spec')}${sideNav('#/engines','cog','מנועי חישוב',page==='engines')}${sideNav('#/legacy','lib','ספריית אימון',page==='legacy')}${adminNav(page)}
   ${pid?`<div class="sep">${esc(P?.name||'')}</div>${l('dash','eye','סקירת הפרויקט')}${l('plans','plan','תוכניות')}${l('boq','list','כתב כמויות')}${l('materials','box','חומרים והזמנות')}${l('bills','shek','חשבונות')}${l('brain','spark','המוח',SUM&&SUM.needs?`<span class="nb">${SUM.needs}</span>`:'')}`:''}</nav>
-  <div class="me"><span class="av">אי</span><div><b style="font-size:14px">אילן פרץ</b><div class="mu" style="font-size:12.5px">מנהל</div></div></div>`}
+  ${accountBar()}`}
 
 /* ---------- projects (company home) ---------- */
 let HF='all',HQ='';
@@ -1165,7 +1189,99 @@ async function boq(){
   return `<div class="wxw" id="wxroot"></div>`}
 window.after_boq=()=>{if(document.getElementById('wxroot'))wxDraw()};
 
-(async()=>{try{TYPES=(await api('/health')).types;PARAMS=await api('/params')}catch(e){}if(!location.hash)location.hash='#/';render()})();
+/* ---------- accounts: login, platform admin, company users ---------- */
+let ME={enabled:false,user:{name:'אילן פרץ',role:'platform'}};
+const ROLEN={platform:'מנהל פלטפורמה',admin:'מנהל חברה',member:'משתמש'};
+const dmy=s=>s?s.slice(8,10)+'/'+s.slice(5,7)+'/'+s.slice(0,4):'—';
+const MIDA_LOGO='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5l8 15 8-15"/><path d="M8 5l4 7.5L16 5" opacity=".5"/></svg>';
+function authShell(inner){
+  let el=document.getElementById('auth');if(!el){el=document.createElement('div');el.id='auth';document.body.appendChild(el)}
+  el.innerHTML=`<div class="au"><div class="au-h"><div class="au-g"></div><div class="au-lg"><i>${MIDA_LOGO}</i>MIDA</div><h1>כל כמות.<br><em>מדויקת מהתוכנית.</em></h1><p>מעלים תוכנית, והמערכת מזהה, מודדת ובונה כתב כמויות מלא. אתם מתמחרים, מוציאים הצעות וחשבונות חלקיים, ויודעים בדיוק מה חסר.</p><div class="au-ch"><span>PDF ו-DWG</span><span>מחשב ואייפד</span><span>בדיקת חוסרים אוטומטית</span></div></div><div class="au-f">${inner}</div></div>`}
+function showLogin(msg){
+  if(document.querySelector('#auth .au-form'))return;
+  authShell(`<div class="au-form"><h2>כניסה לחשבון</h2><div class="au-s">הזינו את פרטי החברה שלכם</div><div id="au-e" class="au-er">${esc(msg||'')}</div>
+  <label>אימייל</label><input id="au-m" type="email" autocomplete="username" placeholder="name@company.com" onkeydown="if(event.key==='Enter')$('#au-p').focus()">
+  <label>סיסמה</label><input id="au-p" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+  <button class="au-go" id="au-b" onclick="doLogin()">כניסה</button><div class="au-t">הנתונים של כל חברה נשמרים בנפרד, עם גיבוי יומי.</div></div>`);setTimeout(()=>$('#au-m')&&$('#au-m').focus(),50)}
+async function doLogin(){
+  const b=$('#au-b'),e=$('#au-e');b.disabled=true;e.textContent='';
+  try{const r=await fetch('/api/auth/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:$('#au-m').value,password:$('#au-p').value})});
+    const j=await r.json();if(!r.ok){e.textContent=j.detail||'שגיאה';b.disabled=false;return}
+    document.getElementById('auth')?.remove();ME=j;location.hash=(ME.user.role==='platform'&&!ME.org)?'#/admin':'#/';await start()}
+  catch(x){e.textContent='אין חיבור לשרת';b.disabled=false}}
+function showBlocked(why){authShell(`<div class="au-form"><h2>הגישה לחשבון מושהית</h2><div class="au-s">${esc(why||'')}</div><div class="au-t" style="border:0;margin-top:6px">כדי להחזיר את הגישה, פנו למנהל המערכת. הנתונים שלכם שמורים.</div><button class="au-go" onclick="doLogout()">יציאה</button></div>`)}
+async function doLogout(){try{await fetch('/api/auth/logout',{method:'POST'})}catch(e){}location.reload()}
+async function exitSupport(){await api('/admin/support_exit',{method:'POST',body:{}});ME=await api('/auth/me');location.hash='#/admin'}
+function accountBar(){
+  if(!ME.enabled)return`<div class="me"><span class="av">אי</span><div><b style="font-size:14px">אילן פרץ</b><div class="mu" style="font-size:12.5px">מנהל</div></div></div>`;
+  const u=ME.user,ini=[...(u.name||'?').trim()][0];
+  return`<div class="me"><span class="av">${esc(ini)}</span><div style="min-width:0"><b style="font-size:14px">${esc(u.name)}</b><div class="mu" style="font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(ME.org?ME.org.name:ROLEN[u.role])}</div></div><button class="btn sec sm" style="margin-inline-start:auto" onclick="doLogout()">יציאה</button></div>`}
+function adminNav(page){
+  if(!ME.enabled)return'';let o='';
+  if(ME.user.role==='platform')o+=sideNav('#/admin','shield','ניהול פלטפורמה',page==='admin');
+  if(ME.user.role==='admin'||(ME.user.role==='platform'&&ME.org))o+=sideNav('#/users','link','משתמשי החברה',page==='users');
+  return o}
+function supportBanner(){return ME.enabled&&ME.support?`<div class="supb"><b>מצב תמיכה</b> · אתם צופים בחברה ${esc(ME.org?.name||'')}. כל פעולה נרשמת ביומן.<span class="sp"></span><button class="btn sm" onclick="exitSupport()">יציאה מהחברה</button></div>`:''}
+
+/* platform admin */
+let AMD=null;
+async function admin(){
+  if(!ME.enabled)return`<h1>ניהול פלטפורמה</h1><div class="card empty">מצב ריבוי חברות כבוי. הפעילו אותו עם MIDA_AUTH=1.</div>`;
+  AMD=await api('/admin/overview');const au=await api('/admin/audit?n=8'),k=AMD.kpi;
+  const stN={active:['פעיל','t-ok'],trial:['ניסיון','t-w'],blocked:['נחסם','t-b']};
+  const gb=b=>b>1e9?(b/1e9).toFixed(1)+' GB':(b/1e6).toFixed(0)+' MB';
+  const rows=AMD.orgs.map(o=>{const st=stN[o.status];return`<tr><td><b>${esc(o.name)}</b><small class="mu" style="display:block">${o.projects} פרויקטים · ${gb(o.bytes||0)}</small></td><td>${esc(o.plan_name)}</td><td class="tab">${o.users}</td><td><span class="tg ${st[1]}">${st[0]}</span>${o.why?`<small class="mu" style="display:block">${esc(o.why)}</small>`:''}</td><td class="tab">${dmy(o.status==='trial'?o.trial_until:o.paid_until)}</td><td class="tab">${o.last?dmy(o.last.slice(0,10)):'—'}</td><td class="amb"><button class="btn sec sm" onclick="amSupport('${o.id}')">כניסה לתמיכה</button><button class="btn sec sm" onclick="amEdit('${o.id}')">עריכה</button>${o.raw_status==='blocked'?`<button class="btn sm" onclick="amStatus('${o.id}','active')">הפעלה</button>`:`<button class="btn sec sm" style="color:var(--bad)" onclick="amBlock('${o.id}')">עצירה</button>`}</td></tr>`}).join('');
+  const acts={login:'כניסה',login_failed:'כניסה שנכשלה',org_created:'נוצרה חברה',org_changed:'שינוי חברה',user_added:'נוסף משתמש',user_changed:'שונה משתמש',support_enter:'כניסה לתמיכה',support_exit:'יציאה מתמיכה',password_changed:'שונתה סיסמה',bootstrap:'הקמת מערכת'};
+  return`<div class="topbar"><h1 style="margin:0">ניהול פלטפורמה</h1><span class="sp"></span><button class="btn p" onclick="amNew()">${ic('plus',16)}לקוח חדש</button></div>
+  <div class="amk"><div><span>חברות פעילות</span><b>${k.active}</b></div><div><span>בניסיון</span><b>${k.trial}</b></div><div><span>משתמשים</span><b>${k.users}</b></div><div><span>פרויקטים</span><b>${k.projects}</b></div><div class="${k.blocked?'bd':''}"><span>נחסמו</span><b>${k.blocked}</b></div></div>
+  <div class="card" style="padding:0;overflow:auto"><table class="amt"><tr><th>חברה</th><th>מסלול</th><th>משתמשים</th><th>סטטוס</th><th>בתוקף עד</th><th>כניסה אחרונה</th><th></th></tr>${rows||'<tr><td colspan="7" class="mu" style="padding:30px;text-align:center">עוד אין לקוחות. לחצו על "לקוח חדש".</td></tr>'}</table></div>
+  <h3 style="margin:26px 0 10px">פעולות אחרונות</h3><div class="card" style="padding:4px 18px">${au.map(a=>`<div class="amev"><time class="tab">${a.at.slice(11,16)} ${dmy(a.at.slice(0,10))}</time><span><b>${esc(acts[a.action]||a.action)}</b> ${esc(a.org_name||'')} <span class="mu">${esc(a.detail||'')} · ${esc(a.actor)}</span></span></div>`).join('')||'<div class="mu" style="padding:14px 0">אין עדיין פעולות</div>'}</div>`}
+function amNew(){
+  const pw=Math.random().toString(36).slice(2,6)+Math.random().toString(36).slice(2,6)+'A1';
+  dlg7(`<div class="dh"><b>לקוח חדש</b><span style="flex:1"></span><span class="mu" style="cursor:pointer" onclick="this.closest('.dlg7').remove()">${ic('x',18)}</span></div><div class="db"><div class="fl2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+  <div class="fld"><label>שם החברה</label><input id="cn-n" class="f7in"></div><div class="fld"><label>מסלול</label><select id="cn-p" class="f7in">${Object.entries(AMD.plans).map(([k,v])=>`<option value="${k}" ${k==='business'?'selected':''}>${v}</option>`).join('')}</select></div>
+  <div class="fld"><label>שם מנהל החברה</label><input id="cn-a" class="f7in"></div><div class="fld"><label>אימייל מנהל החברה</label><input id="cn-e" type="email" class="f7in" dir="ltr"></div>
+  <div class="fld"><label>סיסמה ראשונה (לפחות 8 תווים)</label><input id="cn-w" class="f7in" dir="ltr" value="${pw}"></div><div class="fld"><label>תחילת שימוש</label><select id="cn-t" class="f7in"><option value="1">ניסיון 14 ימים</option><option value="0">מנוי פעיל</option></select></div></div>
+  <div class="mu" style="font-size:12.5px;margin-top:10px">שלחו ללקוח את האימייל והסיסמה. הוא יוכל להחליף אותה בעצמו.</div></div>
+  <div class="df"><span style="flex:1"></span><button class="btn sec" onclick="this.closest('.dlg7').remove()">ביטול</button><button class="btn p" onclick="amCreate()">צור לקוח</button></div>`,640)}
+async function amCreate(){try{await api('/admin/orgs',{method:'POST',body:{name:$('#cn-n').value,plan:$('#cn-p').value,admin_name:$('#cn-a').value,admin_email:$('#cn-e').value,password:$('#cn-w').value,trial:$('#cn-t').value==='1'}});document.querySelector('.dlg7')?.remove();toast('הלקוח נוצר');render()}catch(e){toast(e.message)}}
+function amEdit(id){const o=AMD.orgs.find(x=>x.id===id);
+  dlg7(`<div class="dh"><b>${esc(o.name)}</b><span style="flex:1"></span><span class="mu" style="cursor:pointer" onclick="this.closest('.dlg7').remove()">${ic('x',18)}</span></div><div class="db"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+  <div class="fld"><label>מסלול</label><select id="ce-p" class="f7in">${Object.entries(AMD.plans).map(([k,v])=>`<option value="${k}" ${k===o.plan?'selected':''}>${v}</option>`).join('')}</select></div>
+  <div class="fld"><label>מנוי בתוקף עד</label><input id="ce-d" type="date" class="f7in" value="${o.paid_until||''}"></div>
+  <div class="fld"><label>סוף ניסיון</label><input id="ce-t" type="date" class="f7in" value="${o.trial_until||''}"></div>
+  <div class="fld"><label>קריאת DWG</label><select id="ce-w" class="f7in"><option value="">לפי המסלול</option><option value="1" ${o.features.dwg===true?'selected':''}>מופעל</option><option value="0" ${o.features.dwg===false?'selected':''}>כבוי</option></select></div></div>
+  <div class="mu" style="font-size:12.5px;margin-top:10px">מנוי שתאריך התוקף שלו עבר נחסם אוטומטית. הנתונים נשמרים.</div></div>
+  <div class="df"><span style="flex:1"></span><button class="btn sec" onclick="this.closest('.dlg7').remove()">ביטול</button><button class="btn p" onclick="amSave('${id}')">שמור</button></div>`,560)}
+async function amSave(id){const w=$('#ce-w').value;try{await api('/admin/orgs/'+id,{method:'POST',body:{plan:$('#ce-p').value,paid_until:$('#ce-d').value,trial_until:$('#ce-t').value,features:w===''?{}:{dwg:w==='1'}}});document.querySelector('.dlg7')?.remove();toast('נשמר');render()}catch(e){toast(e.message)}}
+async function amStatus(id,st,reason){try{await api('/admin/orgs/'+id,{method:'POST',body:{status:st,reason:reason||''}});toast(st==='active'?'החברה הופעלה':'החברה נעצרה');render()}catch(e){toast(e.message)}}
+function amBlock(id){const o=AMD.orgs.find(x=>x.id===id);
+  dlg7(`<div class="dh"><b>עצירת ${esc(o.name)}</b></div><div class="db"><div class="fld"><label>סיבה (תוצג ללקוח)</label><input id="cb-r" class="f7in" value="חוב לא שולם"></div><div class="mu" style="font-size:12.5px;margin-top:10px">המשתמשים לא יוכלו להיכנס לנתונים עד שתפעילו שוב. שום דבר לא נמחק.</div></div><div class="df"><span style="flex:1"></span><button class="btn sec" onclick="this.closest('.dlg7').remove()">ביטול</button><button class="btn danger" onclick="amStatus('${id}','blocked',$('#cb-r').value);document.querySelector('.dlg7')?.remove()">עצור חברה</button></div>`,460)}
+async function amSupport(id){try{await api('/admin/support/'+id,{method:'POST',body:{}});ME=await api('/auth/me');location.hash='#/';render()}catch(e){toast(e.message)}}
+
+/* company users */
+async function users(){
+  if(!ME.enabled)return`<h1>משתמשי החברה</h1><div class="card empty">מצב ריבוי חברות כבוי.</div>`;
+  const r=await api('/org/users');window.__U=r.users;
+  return`<div class="topbar"><h1 style="margin:0">משתמשי החברה</h1><span class="mu">${r.users.filter(u=>u.active).length}${r.limit?' מתוך '+r.limit:''} משתמשים פעילים</span><span class="sp"></span><button class="btn p" onclick="usNew()">${ic('plus',16)}משתמש חדש</button></div>
+  <div class="card" style="padding:0;overflow:auto"><table class="amt"><tr><th>שם</th><th>אימייל</th><th>תפקיד</th><th>כניסה אחרונה</th><th></th></tr>${r.users.map(u=>`<tr><td><b>${esc(u.name)}</b>${u.active?'':' <span class="tg t-b">מושבת</span>'}</td><td dir="ltr" style="text-align:right">${esc(u.email)}</td><td>${u.role==='admin'?'מנהל':'משתמש'}</td><td class="tab">${u.last?dmy(u.last.slice(0,10)):'—'}</td><td class="amb">${u.id===ME.user.id?'<span class="mu">אתם</span>':`<button class="btn sec sm" onclick="usPw('${u.id}')">סיסמה חדשה</button><button class="btn sec sm" onclick="usAct('${u.id}',${!u.active})">${u.active?'השבתה':'הפעלה'}</button>`}</td></tr>`).join('')}</table></div>`}
+function usNew(){dlg7(`<div class="dh"><b>משתמש חדש</b></div><div class="db"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="fld"><label>שם</label><input id="un-n" class="f7in"></div><div class="fld"><label>תפקיד</label><select id="un-r" class="f7in"><option value="member">משתמש</option><option value="admin">מנהל</option></select></div><div class="fld"><label>אימייל</label><input id="un-e" type="email" class="f7in" dir="ltr"></div><div class="fld"><label>סיסמה (לפחות 8 תווים)</label><input id="un-p" class="f7in" dir="ltr"></div></div></div><div class="df"><span style="flex:1"></span><button class="btn sec" onclick="this.closest('.dlg7').remove()">ביטול</button><button class="btn p" onclick="usCreate()">הוסף</button></div>`,560)}
+async function usCreate(){try{await api('/org/users',{method:'POST',body:{name:$('#un-n').value,role:$('#un-r').value,email:$('#un-e').value,password:$('#un-p').value}});document.querySelector('.dlg7')?.remove();toast('המשתמש נוסף');render()}catch(e){toast(e.message)}}
+async function usAct(id,a){try{await api('/org/users/'+id,{method:'POST',body:{active:a}});render()}catch(e){toast(e.message)}}
+function usPw(id){dlg7(`<div class="dh"><b>סיסמה חדשה</b></div><div class="db"><div class="fld"><label>סיסמה (לפחות 8 תווים)</label><input id="up-p" class="f7in" dir="ltr"></div></div><div class="df"><span style="flex:1"></span><button class="btn sec" onclick="this.closest('.dlg7').remove()">ביטול</button><button class="btn p" onclick="usPwGo('${id}')">שמור</button></div>`,460)}
+async function usPwGo(id){try{await api('/org/users/'+id,{method:'POST',body:{password:$('#up-p').value}});document.querySelector('.dlg7')?.remove();toast('הסיסמה עודכנה')}catch(e){toast(e.message)}}
+
+async function start(){
+  try{TYPES=(await api('/health')).types;PARAMS=await api('/params')}catch(e){}
+  if(!location.hash)location.hash='#/';render()}
+(async()=>{
+  try{const r=await fetch('/api/auth/me');const j=await r.json();
+    if(!r.ok){showLogin();return}
+    ME=j;
+    if(ME.enabled&&ME.org&&ME.org.status==='blocked'){showBlocked(ME.org.why);return}
+    if(ME.enabled&&ME.user.role==='platform'&&!ME.org&&!location.hash.startsWith('#/admin'))location.hash='#/admin'}catch(e){}
+  start()})();
+
 </script>
 </body>
 </html>

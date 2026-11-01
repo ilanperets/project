@@ -2,22 +2,22 @@ import json, os, re, shutil, time, uuid
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from . import wetroom as WR, classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP, sitework as SW, dwg as DW
+from . import wetroom as WR, classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP, sitework as SW, dwg as DW, auth as AU
 import datetime
 
 ROOT=os.environ.get('KAMUYOT_DATA',os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'data'))
-PROJ=os.path.join(ROOT,'projects'); os.makedirs(PROJ,exist_ok=True)
-RULES=os.path.join(ROOT,'rules.json')
-MEM=os.path.join(ROOT,'prices_memory.json')
-SYMF=os.path.join(ROOT,'symbols.json'); LMAPF=os.path.join(ROOT,'layermap.json')
+# per-company data: every path below resolves inside the current company's folder (or the shared folder when auth is off)
+PROJ=AU.LP('projects'); RULES=AU.LP('rules.json'); MEM=AU.LP('prices_memory.json')
+SYMF=AU.LP('symbols.json'); LMAPF=AU.LP('layermap.json')
 def _jl(p,d):
     try: return json.load(open(p,encoding='utf-8'))
     except Exception: return d
-def _js(p,v): os.makedirs(ROOT,exist_ok=True); json.dump(v,open(p,'w',encoding='utf-8'),ensure_ascii=False)
+def _js(p,v): p=os.fspath(p); os.makedirs(os.path.dirname(p),exist_ok=True); json.dump(v,open(p,'w',encoding='utf-8'),ensure_ascii=False)
 app=FastAPI(title='מערכת כתבי כמויות')
 
 # optional password for a hosted copy: set APP_PASSWORD and the browser asks for it (any user name)
 import base64, hmac
+_OPEN={'/api/health','/api/auth/login','/api/auth/me','/api/auth/logout'}
 @app.middleware('http')
 async def _gate(request,call_next):
     pw=os.environ.get('APP_PASSWORD')
@@ -27,7 +27,20 @@ async def _gate(request,call_next):
             try: ok=hmac.compare_digest(base64.b64decode(h[6:]).decode('utf-8','ignore').split(':',1)[-1],pw)
             except Exception: ok=False
         if not ok: return JSONResponse({'detail':'נדרשת סיסמה'},status_code=401,headers={'WWW-Authenticate':'Basic realm="kamuyot"'})
+    if AU.ENABLED and request.url.path.startswith('/api/'):
+        c=AU.resolve(request.cookies.get(AU.COOKIE))
+        if request.url.path not in _OPEN and not c: return JSONResponse({'detail':'נדרשת התחברות','login':True},status_code=401)
+        if c and request.url.path not in _OPEN and request.url.path not in ('/api/params','/api/spec','/api/engines') and not request.url.path.startswith(('/api/admin','/api/org')):
+            if c['user']['role']=='platform' and not c['org_id']: return JSONResponse({'detail':'בחרו חברה לתמיכה כדי לראות נתונים'},status_code=403)
+            if c['state']=='blocked': return JSONResponse({'detail':c['why']+'. פנו למנהל המערכת','blocked':True},status_code=403)
+        tok=AU.CUR.set(c)
+        try: return await call_next(request)
+        finally: AU.CUR.reset(tok)
     return await call_next(request)
+
+@app.on_event('startup')
+def _boot(): AU.bootstrap()
+app.include_router(AU.router)
 
 def _rules():
     try: return json.load(open(RULES,encoding='utf-8'))
@@ -51,7 +64,7 @@ def health(): return dict(ok=True,types=C.TYPES)
 
 @app.get('/api/projects')
 def projects():
-    out=[]
+    out=[]; os.makedirs(PROJ,exist_ok=True)
     for d in sorted(os.listdir(PROJ)):
         try: pr=_load(d); out.append(dict(id=pr['id'],name=pr['name'],sheets=len(pr['sheets']),has_boq=bool(pr.get('boq')),status=pr.get('status')))
         except Exception: pass
@@ -59,6 +72,8 @@ def projects():
 
 @app.post('/api/projects')
 def create(body:dict):
+    lim=AU.limit('projects')
+    if lim is not None and os.path.isdir(PROJ) and len(os.listdir(PROJ))>=lim: raise HTTPException(403,f'המסלול כולל עד {lim} פרויקטים. פנו אלינו לשדרוג')
     pid=uuid.uuid4().hex[:8]; os.makedirs(os.path.join(_pdir(pid),'files'))
     now=datetime.datetime.now().isoformat(timespec='minutes'); pr=dict(id=pid,name=(body.get('name') or 'פרויקט חדש').strip()[:80],client=(body.get('client') or '').strip()[:60],measurer=(body.get('measurer') or '').strip()[:40],reviewer=(body.get('reviewer') or '').strip()[:40],due=(body.get('due') or '')[:10],status='received',version=1,created=now,events=[dict(t='הפרויקט נפתח',at=now)],checks={},scale=None,sheets=[],boq=None,needs=[],log=[],materials=[],prices={},mprices={},params={},bills=[],orders=[],quotes=[]); _save(pr); return pr
 
@@ -113,6 +128,7 @@ async def upload(pid:str,files:list[UploadFile]=File(...)):
     for f in files:
         ext=os.path.splitext(f.filename)[1].lower()
         if ext not in ('.pdf','.dwg'): added.append(dict(file=f.filename,error='נתמכים קבצי PDF ו-DWG בלבד')); continue
+        if ext=='.dwg' and not AU.feature('dwg'): added.append(dict(file=f.filename,error='קריאת DWG אינה כלולה במסלול שלכם')); continue
         sid=uuid.uuid4().hex[:6]; path=os.path.join(_pdir(pid),'files',sid+'.pdf'); data=await f.read(); src=None
         if ext=='.dwg':
             src=os.path.join(_pdir(pid),'files',sid+'.dwg')
@@ -151,7 +167,7 @@ def label(pid:str,sid:str,body:dict):
         if body['type'] not in C.TYPES: raise HTTPException(400,'סוג לא מוכר')
         s['type']=body['type']; s['confirmed']=True; s['conf']='confirmed'; s['why']='אושר על ידך'
         rules=[r for r in _rules() if set(r['sig'])!=set(C.sig(s['layers']))]; rules.append(dict(sig=C.sig(s['layers']),type=s['type']))
-        os.makedirs(ROOT,exist_ok=True); json.dump(rules,open(RULES,'w',encoding='utf-8'),ensure_ascii=False)
+        _js(RULES,rules)
     if 'type' in body and 'disc' not in body: s.pop('disc',None)
     if 'disc' in body:
         if body['disc'] and body['disc'] not in dict(C.DISCS): raise HTTPException(400,'תחום לא מוכר')
@@ -428,7 +444,6 @@ def export(pid:str,ch:str='',only:str='',missing:str='show',hide:str='',full:int
 
 
 # ---------- pricing, memory, bills, orders ----------
-MEM=os.path.join(ROOT,'prices_memory.json')
 def _mem():
     try: return json.load(open(MEM,encoding='utf-8'))
     except Exception: return []
