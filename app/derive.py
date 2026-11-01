@@ -27,6 +27,7 @@ def derive(lines,slab_areas,P):
     if wall_m:
         A=max(wall_m*P['wall_height']*2-op_m2,0)
         out.append(dict(ch=9,sub=1,desc='טיח פנים',unit='מ"ר',q=round(A,1),st='חלקי',src='אורך קירות × גובה × 2 צדדים פחות פתחים',need='היקף חדרים מדויק; חלק מהקירות חיצוניים'))
+        out.append(dict(ch=9,sub=3,desc='מרק והחלקת קירות פנים',unit='מ"ר',q=round(A,1),st='חלקי',src='שטח הטיח הפנימי (אותו משטח)',need='כמו בטיח'))
         out.append(dict(ch=11,sub=1,desc='צבע פנים בקירות ובתקרות',unit='מ"ר',q=round(A+slab_m2,1),st='חלקי',src='שטח הטיח + תקרות',need='כמו בטיח'))
     for o in out:
         if not o.get('trace'):
