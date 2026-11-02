@@ -320,6 +320,15 @@ def run(pid:str):
     _M=dict(footprint=max((a for _,_,a in _gf),default=0),perimeter=max((p for _,p,a in _gf),default=0),floors=len({f for f,_,_ in ext_per if f!='roof'}) or None,total_slab=(sum(l['q'] for l in lines if l['desc'].startswith('ריצוף, שטח נטו') and l.get('q')) or sum(slab_areas)),rooms=room_cnt)
     if _M['footprint']: lines+=SW.site_lines(_M,P)
     else: lines+=[l for l in SW.site_lines(dict(rooms=room_cnt),P)]
+    # accuracy guard: in a commercial renovation (demolition / ceiling / flooring sheets present) the residential wall engine is not reliable;
+    # its numbers become "needs completion" instead of a wrong figure that looks real
+    _types={x['type'] for x in sheets}
+    if len(_types&{'demolition','ceiling','flooring','layout'})>=2:
+        n_g=0
+        for l in lines:
+            if l['ch'] in (4,9,11) and l.get('q') is not None and not any(k in (l.get('src') or '') for k in ('צבע מילוי','כתובה','רשימת')):
+                l['q']=None; l['st']='דורש השלמה'; l['src']='לא נמדד: בפרויקט שיפוץ מסחרי מדידת הקירות האוטומטית אינה אמינה בלי מקרא קריא'; l['need']='מדידה ידנית או אישור צבעי מילוי'; l.pop('trace',None); n_g+=1
+        if n_g: assumptions.append(dict(t=f'{n_g} סעיפי קירות, טיח וצבע לא חושבו',why='זוהה פרויקט שיפוץ מסחרי, ומנוע הקירות הקיים בנוי למגורים ועלול להניב כמות מנופחת',gives='כמות אמינה',how='לאשר צבעי מילוי של מחיצות או להזין כמות'))
     merged={}
     for l in lines:
         k=(l['ch'],l.get('sub',1),l['desc'],l['unit'])
