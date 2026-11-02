@@ -296,6 +296,12 @@ def run(pid:str):
             except Exception as e: log.append(f"{s['file']}: שגיאת מיפוי שכבה {layer}: {str(e)[:60]}")
     try:
         sl,sw,si=SCH.lines(sheets,path); lines+=sl; assumptions+=sw
+        _da=sum(v.get('area',0) for k,v in si.items() if k=='door_schedule')
+        for l in lines:
+            if l['desc'].startswith('מחיצות גבס') and l.get('q') and _da and _da<0.4*l['q'] and 'ניכוי פתחים' not in l.get('src',''):
+                l['q']=round(l['q']-_da,1); l['src']+=f" · ניכוי פתחי דלתות לפי הרשימה {_da} מ\"ר"
+                if l.get('trace'): l['trace']['rows'].append(dict(el='ניכוי פתחי דלתות',dims=f'{_da}',val=-_da,src='רשימת דלתות × מידות'))
+                break
         for k,v in si.items(): log.append(f"רשימות {k}: {v['rows']} סוגים, נספרו {v['counted']} בתוכנית"+(f", תגיות לא ברשימה {v['unlisted']}" if v['unlisted'] else ''))
     except Exception as e: log.append(f"רשימות: שגיאה {str(e)[:100]}")
     try:

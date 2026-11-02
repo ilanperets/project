@@ -53,7 +53,11 @@ def lines(sheets,path_of):
         if not rows: warn.append(dict(t=f'לא נקראו שורות מהרשימה "{s["file"]}"',why='פורמט הרשימה לא זוהה',how='אשר ידנית')); continue
         cnt=count_tags(base,K['prefix'],{r['num'] for r in rows}) if base else {}
         total=sum(cnt.get(r['num'],0) for r in rows)
-        info[k]=dict(rows=len(rows),counted=total,unlisted=sorted(n for n in cnt if n not in {r['num'] for r in rows}))
+        area=0.0
+        for r in rows:
+            m=re.fullmatch(r'(\d{2,3})/(\d{2,3})',r['size'] or '')
+            if m: area+=cnt.get(r['num'],0)*int(m.group(1))*int(m.group(2))/10000
+        info[k]=dict(rows=len(rows),counted=total,area=round(area,2),unlisted=sorted(n for n in cnt if n not in {r['num'] for r in rows}))
         det=', '.join(f"{K['prefix']}-{r['num']} {r['size']} ×{cnt.get(r['num'],0)}".strip() for r in rows)
         if base and total:
             L.append(dict(ch=K['ch'],sub=K['sub'],desc=K['desc'],unit=K['unit'],q=float(total),st='נמדד',src=f"רשימת {K['label']} + ספירת תגיות בתוכנית ({det})",need='',cover=[K['desc']]))
