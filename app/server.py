@@ -75,7 +75,7 @@ def create(body:dict):
     lim=AU.limit('projects')
     if lim is not None and os.path.isdir(PROJ) and len(os.listdir(PROJ))>=lim: raise HTTPException(403,f'המסלול כולל עד {lim} פרויקטים. פנו אלינו לשדרוג')
     pid=uuid.uuid4().hex[:8]; os.makedirs(os.path.join(_pdir(pid),'files'))
-    now=datetime.datetime.now().isoformat(timespec='minutes'); pr=dict(id=pid,name=(body.get('name') or 'פרויקט חדש').strip()[:80],client=(body.get('client') or '').strip()[:60],measurer=(body.get('measurer') or '').strip()[:40],reviewer=(body.get('reviewer') or '').strip()[:40],due=(body.get('due') or '')[:10],status='received',version=1,created=now,events=[dict(t='הפרויקט נפתח',at=now)],checks={},scale=None,sheets=[],boq=None,needs=[],log=[],materials=[],prices={},mprices={},params={},bills=[],orders=[],quotes=[]); _save(pr); return pr
+    now=datetime.datetime.now().isoformat(timespec='minutes'); pr=dict(id=pid,name=(body.get('name') or 'פרויקט חדש').strip()[:80],client=(body.get('client') or '').strip()[:60],measurer=(body.get('measurer') or '').strip()[:40],reviewer=(body.get('reviewer') or '').strip()[:40],due=(body.get('due') or '')[:10],status='received',version=1,created=now,ptype=(body.get('ptype') if body.get('ptype') in KN.EXPECT else None),area=str(body.get('area') or '')[:10],scope=[str(x)[:40] for x in (body.get('scope') or [])][:30],events=[dict(t='הפרויקט נפתח',at=now)],checks={},scale=None,sheets=[],boq=None,needs=[],log=[],materials=[],prices={},mprices={},params={},bills=[],orders=[],quotes=[]); _save(pr); return pr
 
 @app.post('/api/reset')
 def reset(body:dict):
@@ -366,7 +366,7 @@ def run(pid:str):
                 lines.append(dict(ch=22,sub=1,desc='תקרות אקוסטיות מודולריות',unit='מ"ר',q=r['area_m2'],st='נמדד',src=f"שטח רשת האריחים בתוכנית התקרה ({r['areas']} אזורים, אריח כ-{r['pitch_cm']} ס\"מ), ללא קירות",need='לאמת סוג אריח ושטחי גבס נפרדים',cover=['תקרות אקוסטיות מודולריות']))
                 log.append(f"{s['file']}: תקרה אקוסטית {r['area_m2']} מ\"ר")
         except Exception as e: log.append(f"{s['file']}: תקרות שגיאה {str(e)[:60]}")
-    try: assumptions+=KN.check(lines,sheets,pr.get('ptype'))
+    try: assumptions+=KN.check(lines,sheets,pr.get('ptype'),pr.get('scope'))
     except Exception as e: log.append(f'בדיקת השלמות: שגיאה {str(e)[:80]}')
     P=BR.params(pr)
     lines+=WR.plumbing_points(lines); lines+=WR.plumbing_pipes(lines,BR.params(pr))

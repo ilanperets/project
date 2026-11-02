@@ -43,10 +43,13 @@ def infer_type(sheets):
     ts={s['type'] for s in sheets}
     if ts&{'demolition','ceiling','existing','layout'}: return 'comm_reno'
     return 'villa'
-def check(lines,sheets,ptype=None):
+SCOPE={'הריסה ופירוק':'demo','עפר':'earth','שלד ובטון':'concrete','בנייה וטיח':'build','איטום':'seal','נגרות ומסגרות':'carp','אלומיניום':'alu','ריצוף וחיפוי':'floor','תקרות':'ceil','צבע':'paint','אינסטלציה וכיבוי אש':'plumb','חשמל':'elec','תקשורת':'comm','מיזוג אוויר':'hvac','גילוי אש':'fire','בקרת מבנה':'bms','ציוד מטבח':'kitchen'}
+def check(lines,sheets,ptype=None,scope=None):
     """-> list of assumption dicts for every expected chapter that the measurement did not cover."""
     ptype=ptype or infer_type(sheets); have={s['type'] for s in sheets}; out=[]
-    for k in EXPECT.get(ptype,[]):
+    keys=EXPECT.get(ptype,[])
+    if scope: keys=[k for k in keys if k in {SCOPE.get(x) for x in scope} or k=='misc']+[SCOPE[x] for x in scope if SCOPE.get(x) and SCOPE[x] not in keys]      # the user's scope decides which chapters are expected
+    for k in keys:
         name,feeds,rx=CH[k]; r=re.compile(rx)
         hits=[l for l in lines if r.search(l.get('desc',''))]
         if any(l.get('q') for l in hits): continue
