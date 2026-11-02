@@ -2,7 +2,7 @@ import json, os, re, shutil, time, uuid
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from . import wetroom as WR, classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP, sitework as SW, dwg as DW, auth as AU, score as SC
+from . import schedules as SCH, wetroom as WR, classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP, sitework as SW, dwg as DW, auth as AU, score as SC
 import datetime
 
 ROOT=os.environ.get('KAMUYOT_DATA',os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'data'))
@@ -125,6 +125,24 @@ def delete(pid:str): shutil.rmtree(_pdir(pid),ignore_errors=True); return dict(o
 @app.post('/api/projects/{pid}/upload')
 async def upload(pid:str,files:list[UploadFile]=File(...)):
     pr=_load(pid); rules=_rules(); seen={s['hash']:s for s in pr['sheets']}; added=[]
+    import io, pymupdf
+    class _F:
+        def __init__(s,fn,b): s.filename=fn; s._b=b
+        async def read(s): return s._b
+    exp=[]
+    for f in files:
+        if os.path.splitext(f.filename)[1].lower()=='.pdf':
+            b=await f.read()
+            try:
+                dd=pymupdf.open(stream=b,filetype='pdf')
+                if len(dd)>1 and dd[0].rect.width>1000:      # large-format multi-sheet PDF: one sheet per page
+                    for i in range(len(dd)):
+                        o=pymupdf.open(); o.insert_pdf(dd,from_page=i,to_page=i); exp.append(_F(f"{os.path.splitext(f.filename)[0]}_{i+1}.pdf",o.tobytes()))
+                    continue
+            except Exception: pass
+            exp.append(_F(f.filename,b))
+        else: exp.append(f)
+    files=exp
     for f in files:
         ext=os.path.splitext(f.filename)[1].lower()
         if ext not in ('.pdf','.dwg'): added.append(dict(file=f.filename,error='נתמכים קבצי PDF ו-DWG בלבד')); continue
@@ -148,7 +166,7 @@ async def upload(pid:str,files:list[UploadFile]=File(...)):
         try: ft=C.features(path); cl=C.classify(ft,rules)
         except Exception as e: os.remove(path); added.append(dict(file=f.filename,error='הקובץ לא נקרא: '+str(e)[:80])); continue
         s=dict(sid=sid,file=f.filename,hash=h,w_mm=ft['w_mm'],h_mm=ft['h_mm'],n_draw=ft['n_draw'],layers=ft['layers'],type=cl['type'],conf=cl['conf'],why=cl['why'],floor=None,confirmed=False,version=1,**(dict(source='dwg',dwg=dinfo) if src else {}))
-        try: rv=C.revision_of(ft,path,pr['sheets'],_pdir(pid))
+        try: rv=None if (cl['conf']=='high' and cl['why'].startswith('הכותרת')) else C.revision_of(dict(ft,type=cl['type']),path,pr['sheets'],_pdir(pid))
         except Exception: rv=None
         if rv:
             s['pending_of']=rv[0]['sid']; s['sim']=round(rv[1]*100); pr['pending']=[x for x in pr['pending'] if x['hash']!=h]+[s]; seen[h]=s
@@ -272,6 +290,10 @@ def run(pid:str):
                 q=MP.measure(path(s),scale,layer,m['mode'])
                 if q: lines.append(dict(ch=int(m['ch']),sub=int(m.get('sub',1)),desc=m['desc'],unit=m['unit'],q=q,st='נמדד',src=f"מיפוי שכבה {layer} ({s['file'][:18]})",need='',cover=[m['desc']]))
             except Exception as e: log.append(f"{s['file']}: שגיאת מיפוי שכבה {layer}: {str(e)[:60]}")
+    try:
+        sl,sw,si=SCH.lines(sheets,path); lines+=sl; assumptions+=sw
+        for k,v in si.items(): log.append(f"רשימות {k}: {v['rows']} סוגים, נספרו {v['counted']} בתוכנית"+(f", תגיות לא ברשימה {v['unlisted']}" if v['unlisted'] else ''))
+    except Exception as e: log.append(f"רשימות: שגיאה {str(e)[:100]}")
     P=BR.params(pr)
     lines+=WR.plumbing_points(lines); lines+=WR.plumbing_pipes(lines,BR.params(pr))
     op_m2=sum(float(re.search(r'([\d.]+) מ"ר',l['need']).group(1)) for l in lines if l['ch']==6 and l['unit']=="יח'" and re.search(r'([\d.]+) מ"ר',l.get('need','')))

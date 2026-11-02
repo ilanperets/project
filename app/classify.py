@@ -5,9 +5,9 @@ import collections, hashlib, json, os, pymupdf as fitz
 TYPES={
  'foundation_piles':'תוכנית יסודות וכלונסאות','structure_plan':'תוכנית קונסטרוקציה (תקרה, קורות, גג)','structure_other':'קונסטרוקציה: פרטים ומדרגות',
  'floor_plan':'תוכנית קומה','elevation':'חזיתות','section':'חתכים','site':'תוכנית פיתוח','details':'פרטי בנייה','openings_details':'פרטי דלתות וחלונות',
- 'waterproofing':'תוכנית איטום','tile_layout':'פריסת אריחים (חדר רחצה)','wetroom_plan':'חדר רחצה: אדריכלות, אינסטלציה וחשמל','electrical':'תוכנית חשמל','plumbing':'תוכנית אינסטלציה','hvac':'תוכנית מיזוג אוויר','comm':'תוכנית תקשורת ומתח נמוך','fire':'תוכנית גילוי וכיבוי אש','bms':'תוכנית בקרה ובית חכם','demolition':'תוכנית הריסות ופירוקים','unknown':'לא זוהה'}
+ 'waterproofing':'תוכנית איטום','tile_layout':'פריסת אריחים (חדר רחצה)','wetroom_plan':'חדר רחצה: אדריכלות, אינסטלציה וחשמל','electrical':'תוכנית חשמל','plumbing':'תוכנית אינסטלציה','hvac':'תוכנית מיזוג אוויר','comm':'תוכנית תקשורת ומתח נמוך','fire':'תוכנית גילוי וכיבוי אש','bms':'תוכנית בקרה ובית חכם','demolition':'תוכנית הריסות ופירוקים','door_schedule':'רשימת דלתות נגרות','window_schedule':'רשימת אלומיניום (חלונות ודלתות)','frames_schedule':'רשימת מסגרות','sheet_index':'רשימת גליונות','ceiling':'תוכנית תקרה ותאורה','flooring':'תוכנית ריצוף','existing':'מצב קיים','layout':'תוכנית העמדה','unknown':'לא זוהה'}
 
-DISC={'foundation_piles':'construction','structure_plan':'construction','structure_other':'construction','floor_plan':'arch','elevation':'arch','section':'arch','details':'arch','openings_details':'arch','electrical':'elec','plumbing':'plumb','hvac':'hvac','waterproofing':'seal','tile_layout':'arch','wetroom_plan':'plumb','comm':'elec','fire':'elec','bms':'elec','demolition':'arch','site':'dev','unknown':''}
+DISC={'door_schedule':'arch','window_schedule':'arch','frames_schedule':'arch','sheet_index':'arch','ceiling':'arch','flooring':'arch','existing':'arch','layout':'arch','foundation_piles':'construction','structure_plan':'construction','structure_other':'construction','floor_plan':'arch','elevation':'arch','section':'arch','details':'arch','openings_details':'arch','electrical':'elec','plumbing':'plumb','hvac':'hvac','waterproofing':'seal','tile_layout':'arch','wetroom_plan':'plumb','comm':'elec','fire':'elec','bms':'elec','demolition':'arch','site':'dev','unknown':''}
 DISCS=[('construction','קונסטרוקציה'),('arch','אדריכלות'),('elec','חשמל'),('hvac','מיזוג אוויר'),('plumb','אינסטלציה'),('seal','איטום'),('dev','פיתוח')]
 
 def _ink(path,W=220):
@@ -27,6 +27,7 @@ def ink_similarity(p1,p2):
 def revision_of(ft,path,sheets,pdir):
     """an uploaded sheet that looks like a new revision of an existing one: same paper size, same layers, same drawing"""
     best=None
+    if ft.get('type','') in ('door_schedule','window_schedule','frames_schedule','sheet_index'): return None
     for e in sheets:
         if abs(e['w_mm']-ft['w_mm'])/max(1,e['w_mm'])>.02 or abs(e['h_mm']-ft['h_mm'])/max(1,e['h_mm'])>.02: continue
         a=set(sig(e['layers'])); b=set(sig(ft['layers']))
@@ -45,11 +46,12 @@ def features(path):
     for dr in pg.get_drawings():
         L[dr.get('layer') or '']+=1; n+=1
     mb=pg.mediabox
+    txt=pg.get_text()
     try:
         from .wetroom import _elevations,PT_CM
         te=len(_elevations(pg,PT_CM*50))
     except Exception: te=0
-    return dict(pages=len(d),w_mm=round(mb.width*25.4/72),h_mm=round(mb.height*25.4/72),layers=dict(L),n_draw=n,chars=len(pg.get_text()),tile_elev=te)
+    return dict(pages=len(d),w_mm=round(mb.width*25.4/72),h_mm=round(mb.height*25.4/72),layers=dict(L),n_draw=n,chars=len(pg.get_text()),text=txt,tile_elev=te)
 
 def sig(layers): return sorted(k for k,v in layers.items() if v>=5)
 
@@ -60,10 +62,22 @@ def _learned(layers,rules):
         if j>=0.9: return r['type'],'לפי כלל שנלמד מתיקון קודם'
     return None
 
+TITLES=[(r'רשימת דלתות נגרות','door_schedule'),(r'רשימת אלומיניום','window_schedule'),(r'רשימת מסגרות','frames_schedule'),(r'רשימת גליונות','sheet_index'),
+ (r'תכנית בניה|תוכנית בניה|תכנית בנייה','floor_plan'),(r'תכנית הריסה|תוכנית הריסה','demolition'),(r'תכנית תקרה( ותאורה)?|תוכנית תקרה( ותאורה)?','ceiling'),(r'תכנית ריצוף|תוכנית ריצוף','flooring'),(r'מצב קיים','existing'),(r'העמדה','layout')]
+def _title(text):
+    import re
+    lines=[l.strip() for l in text.split('\n')]
+    for l in lines:
+        for rx,t in TITLES:
+            if re.fullmatch(rx,l): return t,l
+    return None
+
 def classify(feat,rules=()):
     L=feat['layers']; has=lambda k:L.get(k,0)>0
     got=_learned(L,rules)
     if got: return dict(type=got[0],conf='learned',why=got[1])
+    tt=_title(feat.get('text',''))
+    if tt: return dict(type=tt[0],conf='high',why=f'הכותרת בגיליון: "{tt[1]}"')
     if has('ker') and has('SANO') and has('DOOR') and not has('WL'):
         if feat.get('tile_elev',0)>=3: return dict(type='tile_layout',conf='high',why='חזיתות פנים בשכבת האריחים: פריסת אריחים של חדר רחצה')
         if has('graff-elc') or has('SANIT'): return dict(type='wetroom_plan',conf='med',why='כלים סניטריים ושכבת חשמל בגיליון קטן: תוכנית חדר רחצה')
