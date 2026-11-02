@@ -335,6 +335,15 @@ def run(pid:str):
                     assumptions.append(dict(t=f"גובה מחיצות הונח {h} מ'",why='התקרה המונמכת בגובה 2.70 מ׳ אבל המחיצה בדרך כלל עולה עד התקרה העליונה',how='עדכן את גובה המחיצה בסעיף'))
             except Exception as e: log.append(f"{s['file']}: מחיצות שגיאה {str(e)[:60]}")
     for s in sheets:
+        if s['type']!='electrical': continue
+        try:
+            from . import vlegend as VL
+            vl,vi=VL.lines(path(s))
+            for l in vl:
+                if not any(x['desc']==l['desc'] and x.get('q') for x in lines): lines.append(l)
+            if vl: log.append(f"{s['file']}: ספירת חשמל לפי מקרא: "+', '.join(f"{l['desc']} {l['q']}" for l in vl))
+        except Exception as e: log.append(f"{s['file']}: ספירת חשמל לפי מקרא שגיאה {str(e)[:60]}")
+    for s in sheets:
         if s['type']!='flooring': continue
         try:
             from . import ceilings as CE
