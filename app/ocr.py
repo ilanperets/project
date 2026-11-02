@@ -9,10 +9,10 @@ def available():
 def _img(pg,zoom,clip=None):
     pm=pg.get_pixmap(matrix=pymupdf.Matrix(zoom,zoom),colorspace=pymupdf.csGRAY,clip=clip)
     return Image.frombytes('L',(pm.width,pm.height),pm.samples)
-def lines(path,zoom=1.5,psm=11,timeout=240):
+def lines(path,zoom=1.5,psm=11,timeout=45,maxpx=4500):
     """-> list of dict(text,x,y,w,h) in PDF points (line level)"""
     import pytesseract
-    pg=pymupdf.open(path)[0]; im=_img(pg,zoom)
+    pg=pymupdf.open(path)[0]; zoom=min(zoom,maxpx/max(pg.rect.width,pg.rect.height)); im=_img(pg,zoom)
     d=pytesseract.image_to_data(im,lang='heb',config=f'--tessdata-dir {TESS} --psm {psm}',output_type=pytesseract.Output.DICT,timeout=timeout)
     rows={}
     for i,t in enumerate(d['text']):

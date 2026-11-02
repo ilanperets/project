@@ -23,7 +23,7 @@ def _ocr_lines(path):
     try:
         from . import ocr
         return ocr.lines(path,zoom=1.5) if ocr.available() else []
-    except Exception: return []
+    except Exception: return []      # includes the OCR timeout: slow sheets are skipped, never block the run
 
 def scan(path):
     pg=pymupdf.open(path)[0]; q=[]; notes=[]
@@ -41,7 +41,7 @@ def scan(path):
 def lines(sheets,path_of):
     L=[]; notes=[]; seen=set()
     for s in sheets:
-        if s['type'] in('door_schedule','window_schedule','frames_schedule','sheet_index'): continue
+        if s['type'] in('door_schedule','window_schedule','frames_schedule','sheet_index','structure_plan','foundation_piles','section','elevation','electrical','hvac'): continue
         try: qs,ns=scan(path_of(s))
         except Exception: continue
         notes+=[dict(sheet=s['file'],text=n) for n in ns]
