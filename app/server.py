@@ -718,6 +718,62 @@ def supplier_quote(pid:str,body:dict):
         if price is not None: pr['mprices'][m]=price
     _save(pr); return dict(sq=pr['sq'],pref=pr['pref'],mprices=pr['mprices'])
 
+# ---------- Word-style quote ----------
+from fastapi import Response
+from fastapi.responses import HTMLResponse
+from . import quote_pdf as QP, quote_xlsx as QX, quote_editor as QE
+COMPANY=AU.LP('company_quote.json')
+def _qopts(pr):
+    try: co=json.load(open(COMPANY,encoding='utf-8'))
+    except Exception: co={}
+    o=dict(co); o.update(pr.get('quote_opts') or {}); return o
+def _qbuild(pr,parts=True):
+    o=_qopts(pr)
+    return QP.build_html(pr,[r for r in pr['boq'] if r['kind'] in('ch','sub','note','item') and not r.get('hidden')],pr.get('prices',{}),company=dict(name=o.get('name') or 'שם החברה שלך',logo=o.get('logo')),opts=dict(discount=o.get('discount',0),vat=o.get('vat',18),valid_days=o.get('valid_days',30)),parts=parts)
+@app.get('/quote-editor/{pid}')
+def quote_editor(pid:str):
+    _load(pid); return HTMLResponse(QE.page(pid))
+@app.get('/api/projects/{pid}/quote_doc')
+def quote_doc_get(pid:str,refresh:int=0):
+    pr=_load(pid)
+    if not pr.get('boq'): raise HTTPException(400,'עוד לא חושב כתב')
+    o=_qopts(pr); css,body=_qbuild(pr); f=os.path.join(_pdir(pid),'quote_doc.html')
+    if not refresh and os.path.exists(f): body=open(f,encoding='utf-8').read()
+    else: open(f,'w',encoding='utf-8').write(body)
+    return dict(css=css,body=body,opts=dict(name=o.get('name',''),discount=o.get('discount',0),vat=o.get('vat',18),valid_days=o.get('valid_days',30)))
+@app.put('/api/projects/{pid}/quote_doc')
+def quote_doc_put(pid:str,body:dict):
+    _pdir(pid); open(os.path.join(_pdir(pid),'quote_doc.html'),'w',encoding='utf-8').write(str(body.get('body',''))[:8_000_000]); return dict(ok=True)
+@app.put('/api/projects/{pid}/quote_opts')
+def quote_opts_put(pid:str,body:dict):
+    pr=_load(pid); keep=('name','discount','vat','valid_days')
+    o={k:body[k] for k in keep if k in body}
+    if body.get('logo'): o['logo']=body['logo'] if str(body['logo']).startswith('data:image/') and len(body['logo'])<1_500_000 else None
+    try: co=json.load(open(COMPANY,encoding='utf-8'))
+    except Exception: co={}
+    for k in ('name','logo','vat','valid_days'):
+        if o.get(k): co[k]=o[k]
+    os.makedirs(os.path.dirname(str(COMPANY)),exist_ok=True); json.dump(co,open(COMPANY,'w',encoding='utf-8'),ensure_ascii=False)
+    pr['quote_opts']=dict(discount=o.get('discount',0)); _save(pr); return dict(ok=True)
+def _qfull(pid,body):
+    pr=_load(pid); css,_=_qbuild(pr); return QP.wrap(css,str(body.get('body','')))
+@app.post('/api/projects/{pid}/quote_doc.pdf')
+def quote_doc_pdf(pid:str,body:dict):
+    h=_qfull(pid,body); out=os.path.join(_pdir(pid),'quote_out.pdf'); QP.render_pdf(h.replace('contenteditable="true"',''),out); return FileResponse(out,filename='quote.pdf',media_type='application/pdf')
+@app.post('/api/projects/{pid}/quote_doc.docx')
+def quote_doc_docx(pid:str,body:dict):
+    import subprocess
+    from . import quote_docx as QD
+    _pdir(pid); d=os.path.join(_pdir(pid),'qdocx'); shutil.rmtree(d,ignore_errors=True); os.makedirs(d)
+    out=os.path.join(d,'quote.docx')
+    try: QD.html_to_docx(str(body.get('body','')),out,d)
+    except Exception as e: raise HTTPException(500,'המרה ל-Word נכשלה')
+    return FileResponse(out,filename='quote.docx')
+@app.get('/api/projects/{pid}/quote_pro.xlsx')
+def quote_pro(pid:str):
+    pr=_load(pid); o=_qopts(pr); out=os.path.join(_pdir(pid),'quote_pro.xlsx')
+    QX.to_xlsx(pr,pr['boq'],pr.get('prices',{}),out,company=dict(name=o.get('name') or 'שם החברה'),opts=dict(discount=o.get('discount',0),vat=o.get('vat',18),valid_days=o.get('valid_days',30))); return FileResponse(out,filename='quote.xlsx')
+
 @app.get('/api/projects/{pid}/quote.xlsx')
 def quote(pid:str,ch:str='',only:str='',missing:str='show',hide:str=''):
     pr=_load(pid)
