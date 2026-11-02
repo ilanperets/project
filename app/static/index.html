@@ -1229,7 +1229,7 @@ function wxDraw(){const root=document.getElementById('wxroot');if(!root)return;c
    <div class="wxf" id="wxfx"></div>
    <div class="wxm">${isB?`<nav class="wxr"><h3>פרקים</h3>${chs.map(c=>`<a onclick="wxGo('${c.code}')"><b>${c.code} · ${esc(c.name)}</b><span><em style="font-style:normal">${c.items.length} סעיפים</em><em style="font-style:normal">${money(c.t)}</em></span><div class="pb"><i style="width:${c.items.length?c.items.filter(r=>!wxMiss(r)).length/c.items.length*100:0}%"></i></div></a>`).join('')}</nav>`:''}
    <div class="wxy">${{dash:()=>wxDash(chs),boq:()=>wxGrid(chs),sum:()=>wxSum(chs),calc:()=>wxCalc(chs),need:wxNeed,mat:wxMat,how:()=>wxHow(chs),guide:wxGuide,prm:wxPrm}[WX.tab]()}</div><div id="wxdr"></div></div>
-   <div class="wxbot"><div class="wxsb"><span>סעיפים <b>${n}</b></span><span>כיסוי כמויות <b>${n?Math.round(its.filter(r=>!wxMiss(r)).length/n*100):0}%</b></span><span>סה"כ <b>${money(T)}</b></span><span>כולל מע"מ ${Math.round(V*100)}% <b>${money(T*(1+V))}</b></span></div></div>`;
+   <div class="wxbot"><div class="wxsb"><span>סעיפים <b>${n}</b></span><span>עם כמות <b>${its.filter(r=>!wxMiss(r)).length} מתוך ${n}</b></span><span>סה"כ <b>${money(T)}</b></span><span>כולל מע"מ ${Math.round(V*100)}% <b>${money(T*(1+V))}</b></span></div></div>`;
   const y2=document.querySelector('.wxy');if(y2)y2.scrollTop=sc;wxFx();wxDrawer()}
 async function boq(){
   if(!P.boq)return `<h1>כתב כמויות</h1><div class="card empty">עוד לא חושב. <a href="#/p/${P.id}/plans">העלה תוכניות</a> והרץ חישוב, או <button class="btn sec" onclick="startEmpty()">התחל כתב ריק</button></div>`;
