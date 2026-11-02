@@ -76,13 +76,18 @@ def _cluster_layer(pg,layer,gap=40):
     def f(i):
         while par[i]!=i: par[i]=par[par[i]]; i=par[i]
         return i
-    order=sorted(range(n),key=lambda i:items[i][0].x0)
-    for a in range(n):
-        ia=order[a]; ra=items[ia][0]
-        for b in range(a+1,n):
-            ib=order[b]; rb=items[ib][0]
-            if rb.x0>ra.x1+gap and rb.x0>max(items[order[k]][0].x1 for k in range(a,b)) +gap: break
-            if ra.x0-gap<=rb.x1 and rb.x0-gap<=ra.x1 and ra.y0-gap<=rb.y1 and rb.y0-gap<=ra.y1: par[f(ia)]=f(ib)
+    CELL=max(gap*4,100.0); grid=collections.defaultdict(list)
+    for i,(r,_) in enumerate(items):
+        for gx in range(int((r.x0-gap)//CELL),int((r.x1+gap)//CELL)+1):
+            for gy in range(int((r.y0-gap)//CELL),int((r.y1+gap)//CELL)+1): grid[(gx,gy)].append(i)
+    for cell in grid.values():
+        for x in range(len(cell)):
+            ia=cell[x]; ra=items[ia][0]
+            for y in range(x+1,len(cell)):
+                ib=cell[y]
+                if f(ia)==f(ib): continue
+                rb=items[ib][0]
+                if ra.x0-gap<=rb.x1 and rb.x0-gap<=ra.x1 and ra.y0-gap<=rb.y1 and rb.y0-gap<=ra.y1: par[f(ia)]=f(ib)
     cl=collections.defaultdict(lambda:[fitz.Rect(1e9,1e9,-1e9,-1e9),0.0])
     for i in range(n): c=cl[f(i)]; c[0]|=items[i][0]; c[1]+=items[i][1]
     return sorted(cl.values(),key=lambda c:-c[1])
