@@ -329,7 +329,7 @@ def run(pid:str):
                 import pymupdf as _pm; from . import discover as DI
                 ply=[l for l in DI.partition_layers(_pm.open(path(s))[0],scale) if 'htch' not in l.lower()]
                 r=PA.new_partitions(path(s),scale,ply) if ply else None
-                if r:
+                if r and not any(l['desc']=='מחיצות גבס חד קרומיות ודו קרומיות עם קונסטרוקציה' and l.get('q') for l in lines):
                     h=3.0; q=round(r['length_m']*h,1)
                     lines.append(dict(ch=22,sub=1,desc='מחיצות גבס חד קרומיות ודו קרומיות עם קונסטרוקציה',unit='מ"ר',q=q,st='נמדד',src=f"אורך מחיצות חדשות בתוכנית {r['length_m']} מ' × גובה {h} מ' (הונח)",need='לאמת גובה מחיצה ומספר קרומים',cover=['מחיצות גבס חד קרומיות ודו קרומיות עם קונסטרוקציה']))
                     assumptions.append(dict(t=f"גובה מחיצות הונח {h} מ'",why='התקרה המונמכת בגובה 2.70 מ׳ אבל המחיצה בדרך כלל עולה עד התקרה העליונה',how='עדכן את גובה המחיצה בסעיף'))
@@ -341,7 +341,7 @@ def run(pid:str):
             import pymupdf as _pm; from . import discover as DI
             ly=tuple(DI.tile_layers(_pm.open(path(s))[0],scale))
             r=CE.tiles(path(s),scale,layers=ly) if ly else None
-            if r and r['area_m2']>0:
+            if r and r['area_m2']>0 and not any(l['desc']=='ריצוף באריחי גרניט פורצלן, כולל פנלים' and l.get('q') for l in lines):
                 lines.append(dict(ch=10,sub=1,desc='ריצוף באריחי גרניט פורצלן, כולל פנלים',unit='מ"ר',q=r['area_m2'],st='נמדד',src=f"שטח רשת האריחים בתוכנית הריצוף (אריח כ-{r['pitch_cm']} ס\"מ). שטחי ציפוי אפוקסי ללא רשת אריחים לא נכללו",need='לאמת סוגי ריצוף ושטח הציפוי האחיד',cover=['ריצוף באריחי גרניט פורצלן, כולל פנלים']))
                 log.append(f"{s['file']}: ריצוף אריחים {r['area_m2']} מ\"ר")
                 assumptions.append(dict(t='שטח ציפוי רצפה אחיד (ללא אריחים) לא נמדד',why='אזורים בלי רשת אריחים בתוכנית הריצוף דורשים קווי גבול סגורים של חדרים',how='סמן את גבולות החדרים או הזן שטח'))
@@ -353,7 +353,7 @@ def run(pid:str):
             import pymupdf as _pm; from . import discover as DI
             ly=tuple(DI.tile_layers(_pm.open(path(s))[0],scale))
             r=CE.tiles(path(s),scale,layers=ly) if ly else None
-            if r and r['area_m2']>0:
+            if r and r['area_m2']>0 and not any(l['desc']=='תקרות אקוסטיות מודולריות' and l.get('q') for l in lines):
                 lines.append(dict(ch=22,sub=1,desc='תקרות אקוסטיות מודולריות',unit='מ"ר',q=r['area_m2'],st='נמדד',src=f"שטח רשת האריחים בתוכנית התקרה ({r['areas']} אזורים, אריח כ-{r['pitch_cm']} ס\"מ), ללא קירות",need='לאמת סוג אריח ושטחי גבס נפרדים',cover=['תקרות אקוסטיות מודולריות']))
                 log.append(f"{s['file']}: תקרה אקוסטית {r['area_m2']} מ\"ר")
         except Exception as e: log.append(f"{s['file']}: תקרות שגיאה {str(e)[:60]}")

@@ -18,6 +18,7 @@ def _segs(pg):
 def tile_layers(pg,scale=50,pitches=(0.3,0.45,0.6,0.8,0.9)):
     k=25.4/72*scale/1000.0; out=[]
     for ly,S in _segs(pg).items():
+        if not ly or any(x in ly.lower() for x in ('hatch','htch','strip','beton','xr-')): continue      # unlayered / generic fills are not a tile grid
         S=[s for s in S if s[3]-s[2]>=40]
         if len(S)<20: continue
         ok=0;tot=0
