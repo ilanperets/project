@@ -7,3 +7,4 @@ scikit-image
 shapely
 numpy
 openpyxl
+requests

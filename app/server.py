@@ -2,7 +2,7 @@ import json, os, re, shutil, time, uuid
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from . import annotations as ANN, schedules as SCH, wetroom as WR, classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP, sitework as SW, dwg as DW, auth as AU, score as SC
+from . import agent as AG, refboq as RB, compare as CMP, annotations as ANN, schedules as SCH, wetroom as WR, classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP, sitework as SW, dwg as DW, auth as AU, score as SC
 import datetime
 
 ROOT=os.environ.get('KAMUYOT_DATA',os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'data'))
@@ -743,6 +743,48 @@ def supplier_quote(pid:str,body:dict):
         pr.setdefault('pref',{})[m]=sup
         if price is not None: pr['mprices'][m]=price
     _save(pr); return dict(sq=pr['sq'],pref=pr['pref'],mprices=pr['mprices'])
+
+# ---------- reference BOQ (training) + agent ----------
+MEMF=AU.LP('agent_memory.json')
+def _jmem():
+    try: return json.load(open(MEMF,encoding='utf-8'))
+    except Exception: return []
+def _smem(m):
+    os.makedirs(os.path.dirname(str(MEMF)),exist_ok=True); json.dump(m,open(MEMF,'w',encoding='utf-8'),ensure_ascii=False)
+def _compare_rows(pr):
+    ref=pr.get('reference')
+    if not ref: return None
+    refl=[(x['desc'],x.get('unit'),x['q']) for x in ref['items']]
+    ol=[(r['desc'],r['unit'],r['q']) for r in (pr.get('boq') or []) if r['kind']=='item']
+    return CMP.compare(refl,ol)
+@app.post('/api/projects/{pid}/reference')
+async def upload_reference(pid:str,files:list[UploadFile]=File(...)):
+    pr=_load(pid); f=files[0]; tmp=os.path.join(_pdir(pid),'reference.pdf'); open(tmp,'wb').write(await f.read())
+    try: items=RB.parse(tmp)
+    except Exception as e: raise HTTPException(400,'כתב הייחוס לא נקרא: '+str(e)[:80])
+    if not items: raise HTTPException(400,'לא נמצאו סעיפים בכתב הייחוס')
+    pr['reference']=dict(file=f.filename,items=items,total=round(sum(x['total'] for x in items))); _ev(pr,f'נטען כתב ייחוס: {len(items)} סעיפים'); _save(pr)
+    return dict(items=len(items),total=pr['reference']['total'])
+@app.get('/api/projects/{pid}/compare')
+def compare_ref(pid:str):
+    pr=_load(pid); rows=_compare_rows(pr)
+    if rows is None: raise HTTPException(404,'לא נטען כתב ייחוס')
+    both=[r for r in rows if r['ref'] and r['ours']]
+    return dict(rows=rows,ref_items=len(pr['reference']['items']),ref_total=pr['reference']['total'],matched=len(both),close=sum(1 for r in both if r['status']!='סטייה'),missing=sum(1 for r in rows if r['status']=='חסר אצלנו'))
+@app.get('/api/agent/memory')
+def agent_memory(): return _jmem()
+@app.delete('/api/agent/memory')
+def agent_memory_clear(): _smem([]); return dict(ok=True)
+@app.post('/api/projects/{pid}/agent')
+def agent_chat(pid:str,body:dict):
+    key=os.environ.get('ANTHROPIC_API_KEY','')
+    if not key: raise HTTPException(503,'הסוכן עוד לא הופעל: צריך להגדיר מפתח שירות (ANTHROPIC_API_KEY) בשרת')
+    pr=_load(pid); path=lambda s:os.path.join(_pdir(pid),'files',s['sid']+'.pdf')
+    ctx=dict(pr=pr,path=path,compare=_compare_rows(pr),memory_load=_jmem,memory_save=_smem)
+    msgs=[dict(role=m['role'],content=m['content']) for m in body.get('messages',[]) if m.get('role') in('user','assistant') and isinstance(m.get('content'),str)][-12:]
+    try: reply,_=AG.chat(msgs,ctx,key)
+    except Exception as e: raise HTTPException(502,str(e)[:150])
+    return dict(reply=reply)
 
 # ---------- Word-style quote ----------
 from fastapi import Response
