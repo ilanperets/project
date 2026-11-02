@@ -333,6 +333,17 @@ def run(pid:str):
                     assumptions.append(dict(t=f"גובה מחיצות הונח {h} מ'",why='התקרה המונמכת בגובה 2.70 מ׳ אבל המחיצה בדרך כלל עולה עד התקרה העליונה',how='עדכן את גובה המחיצה בסעיף'))
             except Exception as e: log.append(f"{s['file']}: מחיצות שגיאה {str(e)[:60]}")
     for s in sheets:
+        if s['type']!='flooring': continue
+        try:
+            from . import ceilings as CE
+            ly=tuple(k for k,v in s.get('layers',{}).items() if k.upper().startswith('FL-') and not any(x in k.lower() for x in ('text','symb','dim')) and v>=200)
+            r=CE.tiles(path(s),scale,layers=ly) if ly else None
+            if r and r['area_m2']>0:
+                lines.append(dict(ch=10,sub=1,desc='ריצוף באריחי גרניט פורצלן, כולל פנלים',unit='מ"ר',q=r['area_m2'],st='נמדד',src=f"שטח רשת האריחים בתוכנית הריצוף (אריח כ-{r['pitch_cm']} ס\"מ). שטחי ציפוי אפוקסי ללא רשת אריחים לא נכללו",need='לאמת סוגי ריצוף ושטח הציפוי האחיד',cover=['ריצוף באריחי גרניט פורצלן, כולל פנלים']))
+                log.append(f"{s['file']}: ריצוף אריחים {r['area_m2']} מ\"ר")
+                assumptions.append(dict(t='שטח ציפוי רצפה אחיד (ללא אריחים) לא נמדד',why='אזורים בלי רשת אריחים בתוכנית הריצוף דורשים קווי גבול סגורים של חדרים',how='סמן את גבולות החדרים או הזן שטח'))
+        except Exception as e: log.append(f"{s['file']}: ריצוף שגיאה {str(e)[:60]}")
+    for s in sheets:
         if s['type']!='ceiling': continue
         try:
             from . import ceilings as CE

@@ -5,7 +5,7 @@ from scipy import ndimage as ndi
 PT_M=lambda scale: 25.4/72*scale/1000.0           # metres per PDF point at 1:scale
 def tiles(path,scale=50,layers=('CL-tile',),wall_layers=('CL-WALL','AA-WALL')):
     pg=pymupdf.open(path)[0]; W,H=int(pg.rect.width),int(pg.rect.height)
-    ds=pg.get_drawings(); g=[d for d in ds if (d.get('layer') or '') in layers]
+    ds=pg.get_drawings(); g=[d for d in ds if (d.get('layer') or '') in layers and max(d['rect'].width,d['rect'].height)>=40]
     if len(g)<20: return None
     S=1                                              # raster px per PDF pt
     im=Image.new('L',(W*S+2,H*S+2),0); dr=ImageDraw.Draw(im)
