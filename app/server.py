@@ -2,7 +2,7 @@ import json, os, re, shutil, time, uuid
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from . import agent as AG, refboq as RB, compare as CMP, annotations as ANN, schedules as SCH, wetroom as WR, classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP, sitework as SW, dwg as DW, auth as AU, score as SC
+from . import fillwalls as FW, agent as AG, refboq as RB, compare as CMP, annotations as ANN, schedules as SCH, wetroom as WR, classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP, sitework as SW, dwg as DW, auth as AU, score as SC
 import datetime
 
 ROOT=os.environ.get('KAMUYOT_DATA',os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'data'))
@@ -260,6 +260,10 @@ def run(pid:str):
                     l,info=E.walls(path(s),scale,'מעקות גג'); lines+=l
                 else:
                     l,info=E.walls(path(s),scale,fl); lines+=l; log.append(f"{s['file']}: קירות {info}")
+                    if info.get('note')=='לא נמצאה שכבת קירות':
+                        try:
+                            fl_,fi_=FW.lines(path(s),scale,BR.params(pr).get('wall_height',3.0)); lines+=fl_; log.append(f"{s['file']}: קירות לפי צבעי מילוי {fi_}")
+                        except Exception as e: log.append(f"{s['file']}: שגיאת צבעי מילוי {str(e)[:80]}")
                     try:
                         _,ri=E.roof(path(s),scale)
                         if ri.get('area_m2'): slab_areas.append(ri['area_m2'])
