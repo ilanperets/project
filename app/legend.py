@@ -3,11 +3,11 @@ template-matched on the plan (4 rotations). No labelling by the user and no depe
 import re, numpy as np, cv2, pymupdf
 from . import ocr
 ZL=4; ZP=2
-VOCAB=re.compile(r'שקע|תקע|מפסק|נקודת|לחצן|גוף|תאורה|מזגן|מפזר|מפוח|גלאי|ספרינקלר|מצלמ|לוח|ארון|שעון|פנס|תעלה|ברז|כיור|אסלה')
-def _rows(path):
-    L=ocr.lines(path,zoom=1.5)
+VOCAB=re.compile(r'שקע|תקע|מפסק|נקודת|לחצן|גוף|תאורה|מזגן|מפזר|מפוח|גלאי|ספרינקלר|מצלמ|לוח|ארון|שעון|פנס|תעלה|ברז|כיור|אסלה|תריס|דמפר|יחידה|קסטה|מאייד|צנרת|חיבור|שרוול|מדף|בידוד')
+def _rows(path,tiled=False):
+    L=ocr.lines_tiled(path) if tiled else ocr.lines(path,zoom=1.5)
     R=[l for l in L if VOCAB.search(l['text']) and len(l['text'])>=6]
-    if len(R)<4: return []
+    if len(R)<4: return _rows(path,True) if not tiled else []
     # legend rows share a right edge: take the biggest group of lines whose right edges are within 45pt
     xs=sorted(R,key=lambda l:l['x']+l['w']); best=[]
     for a in xs:
