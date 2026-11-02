@@ -321,6 +321,17 @@ def run(pid:str):
         al,notes=ANN.lines(sheets,path); lines+=al; pr['plan_notes']=notes
         if al: log.append(f"כמויות כתובות בתוכניות: {len(al)} סעיפים")
     except Exception as e: log.append(f"הערות ותבלאות: שגיאה {str(e)[:100]}")
+    if {x['type'] for x in sheets}&{'demolition','ceiling'}:
+        for s in sheets:
+            if s['type']!='floor_plan': continue
+            try:
+                from . import partitions as PA
+                r=PA.new_partitions(path(s),scale)
+                if r:
+                    h=3.0; q=round(r['length_m']*h,1)
+                    lines.append(dict(ch=22,sub=1,desc='מחיצות גבס חד קרומיות ודו קרומיות עם קונסטרוקציה',unit='מ"ר',q=q,st='נמדד',src=f"אורך מחיצות חדשות בתוכנית {r['length_m']} מ' × גובה {h} מ' (הונח)",need='לאמת גובה מחיצה ומספר קרומים',cover=['מחיצות גבס חד קרומיות ודו קרומיות עם קונסטרוקציה']))
+                    assumptions.append(dict(t=f"גובה מחיצות הונח {h} מ'",why='התקרה המונמכת בגובה 2.70 מ׳ אבל המחיצה בדרך כלל עולה עד התקרה העליונה',how='עדכן את גובה המחיצה בסעיף'))
+            except Exception as e: log.append(f"{s['file']}: מחיצות שגיאה {str(e)[:60]}")
     for s in sheets:
         if s['type']!='ceiling': continue
         try:
