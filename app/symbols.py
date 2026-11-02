@@ -3,6 +3,8 @@ by a rotation-independent signature. The user labels a signature once (light / s
 counts that signature on every electrical sheet from then on."""
 import collections, pymupdf as fitz
 LAYERS={'elect','ELEC'}
+LAYER_KEYS=('HASHMAL','E-LITE','E-POWR')
+def is_elec(name): return name in LAYERS or any(k in (name or '') for k in LAYER_KEYS)
 LABELS={'light':('נקודות מאור',"נק'"),'socket':('נקודות תקע',"נק'"),'switch':('מפסקים',"נק'"),'comm':('נקודות תקשורת וטלוויזיה',"נק'"),
         'power':('נקודות כוח (מזגן, תנור, דוד)',"נק'"),'panel':('לוחות חשמל',"יח'"),'ignore':None}
 LABEL_NAMES={'toilet':'אסלה','toilet_acc':'אסלה נגישה','sink':'כיור','sink_acc':'כיור נגיש','light':'גוף תאורה','socket':'שקע','switch':'מפסק','comm':'תקשורת / טלוויזיה','power':'נקודת כוח','panel':'לוח חשמל','ignore':'התעלם'}
@@ -11,7 +13,7 @@ def _page(p): return fitz.open(p)[0]
 def clusters(path,gap=1.2):
     pg=_page(path); items=[]
     for dr in pg.get_drawings():
-        if dr.get('layer') not in LAYERS: continue
+        if not is_elec(dr.get('layer')): continue
         r=dr['rect']
         if r.width>60 or r.height>60: continue
         col=tuple(round(x,1) for x in dr['color']) if dr.get('color') else (tuple(round(x,1) for x in dr['fill']) if dr.get('fill') else None)

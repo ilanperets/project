@@ -81,6 +81,11 @@ def classify(feat,rules=()):
     if has('ker') and has('SANO') and has('DOOR') and not has('WL'):
         if feat.get('tile_elev',0)>=3: return dict(type='tile_layout',conf='high',why='חזיתות פנים בשכבת האריחים: פריסת אריחים של חדר רחצה')
         if has('graff-elc') or has('SANIT'): return dict(type='wetroom_plan',conf='med',why='כלים סניטריים ושכבת חשמל בגיליון קטן: תוכנית חדר רחצה')
+    sub=lambda *ks:sum(v for k,v in L.items() if any(x in k for x in ks))
+    if sub('HASHMAL','E-POWR','E-LITE','E-COMM')>=300 and sub('E-LITE')<2000: return dict(type='electrical',conf='med',why='שכבות חשמל בשם השכבה (HASHMAL / E-POWR / E-LITE)')
+    if sub('E-LITE')>=2000: return dict(type='ceiling',conf='med',why='שכבות גופי תאורה ותקרה: תוכנית תקרה ותאורה')
+    if sub('P-SANR','P-PIPE','P-FIXT')>=200 and not has('HASHMAL') and sub('E-LITE')<2000: return dict(type='plumbing',conf='med',why='שכבות כלים סניטריים וצנרת בשם השכבה')
+    if sub('AC_','HVAC')>=200 and not has('HASHMAL'): return dict(type='hvac',conf='med',why='שכבות מיזוג אוויר בשם השכבה')
     if has('ELC') or L.get('elect',0)>=300: return dict(type='electrical',conf='high',why='שכבות חשמל ELC/elect עם מאות אלמנטים')
     if has('fl00d') and not has('WL'): return dict(type='foundation_piles',conf='high',why='שכבות כלונסאות fl00/fl00d ובלי שכבת קירות')
     if (has('fl1zb') or has('0kon')) and (has('WL') or has('fl00d')): return dict(type='structure_plan',conf='med',why='שכבות קונסטרוקציה ו-WL, כנראה תקרה או קורות')
