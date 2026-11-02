@@ -19,9 +19,16 @@ RULES=[
 ]
 NOTE=re.compile(r'^(הערות?|הערה|יש |כל |קירות? |אין |יחופו|חובה|בכפוף|לאשר|לתאם)')
 
+def _ocr_lines(path):
+    try:
+        from . import ocr
+        return ocr.lines(path,zoom=1.5) if ocr.available() else []
+    except Exception: return []
+
 def scan(path):
     pg=pymupdf.open(path)[0]; q=[]; notes=[]
-    for b in pg.get_text('blocks'):
+    blocks=[(0,0,0,0,l) for l in [x['text'] for x in _ocr_lines(path)]] if len(pg.get_text())<300 else pg.get_text('blocks')
+    for b in blocks:
         t=' '.join(_c(b[4]).split())
         if not t: continue
         for m in QTY.finditer(t):

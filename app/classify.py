@@ -47,6 +47,11 @@ def features(path):
         L[dr.get('layer') or '']+=1; n+=1
     mb=pg.mediabox
     txt=pg.get_text()
+    if len(txt)<400 and mb.width>1000:
+        try:
+            from . import ocr
+            if ocr.available(): txt=txt+'\n'+ocr.text(path,zoom=1.0)
+        except Exception: pass
     try:
         from .wetroom import _elevations,PT_CM
         te=len(_elevations(pg,PT_CM*50))
@@ -67,6 +72,10 @@ TITLES=[(r'רשימת דלתות נגרות','door_schedule'),(r'רשימת אל
  (r'תכנית בניה|תוכנית בניה|תכנית בנייה','floor_plan'),(r'תכנית הריסה|תוכנית הריסה','demolition'),(r'תכנית תקרה( ותאורה)?|תוכנית תקרה( ותאורה)?','ceiling'),(r'תכנית ריצוף|תוכנית ריצוף','flooring'),(r'מצב קיים','existing'),(r'העמדה','layout')]
 def _title(text):
     import re
+    j=re.sub(r'[ \t]+',' ',text)
+    for rx,t in ((r'תכנית\s*\n?\s*הריסה|תוכנית\s*\n?\s*הריסה','demolition'),(r'תכנית\s*\n?\s*ריצוף|תוכנית\s*\n?\s*ריצוף','flooring'),(r'תכנית\s*\n?\s*תקרה|תוכנית\s*\n?\s*תקרה','ceiling'),(r'תכנית\s*\n?\s*מצב קיים|מצב קיים','existing')):
+        if re.search(rx,j) and len(text)>400 and not re.search(r'^\s*(רשימת)',j): 
+            if re.search(rx,j): return t,rx.split('|')[0].replace('\\s*\\n?\\s*',' ')
     lines=[l.strip() for l in text.split('\n')]
     for l in lines:
         for rx,t in TITLES:
