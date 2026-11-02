@@ -11,7 +11,10 @@ def _img(pg,zoom,clip=None):
     return Image.frombytes('L',(pm.width,pm.height),pm.samples)
 def lines(path,zoom=1.5,psm=11,timeout=45,maxpx=4500):
     """-> list of dict(text,x,y,w,h) in PDF points (line level)"""
-    import pytesseract
+    import pytesseract, json, hashlib
+    st=os.stat(path); ck=os.path.join(os.path.dirname(path),'.ocr_'+hashlib.md5(f"{os.path.basename(path)}|{st.st_size}|{st.st_mtime_ns}|{zoom}|{psm}".encode()).hexdigest()+'.json')
+    try: return json.load(open(ck))
+    except Exception: pass
     pg=pymupdf.open(path)[0]; zoom=min(zoom,maxpx/max(pg.rect.width,pg.rect.height)); im=_img(pg,zoom)
     d=pytesseract.image_to_data(im,lang='heb',config=f'--tessdata-dir {TESS} --psm {psm}',output_type=pytesseract.Output.DICT,timeout=timeout)
     rows={}
@@ -24,5 +27,7 @@ def lines(path,zoom=1.5,psm=11,timeout=45,maxpx=4500):
         ws.sort(key=lambda w:-w[0])      # right to left for Hebrew
         x0=min(w[0] for w in ws); y0=min(w[1] for w in ws); x1=max(w[0]+w[2] for w in ws); y1=max(w[1]+w[3] for w in ws)
         out.append(dict(text=' '.join(w[4] for w in ws),x=x0/zoom,y=y0/zoom,w=(x1-x0)/zoom,h=(y1-y0)/zoom))
+    try: json.dump(out,open(ck,'w'),ensure_ascii=False)
+    except Exception: pass
     return out
 def text(path,**k): return '\n'.join(l['text'] for l in lines(path,**k))
