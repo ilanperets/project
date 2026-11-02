@@ -321,6 +321,15 @@ def run(pid:str):
         al,notes=ANN.lines(sheets,path); lines+=al; pr['plan_notes']=notes
         if al: log.append(f"כמויות כתובות בתוכניות: {len(al)} סעיפים")
     except Exception as e: log.append(f"הערות ותבלאות: שגיאה {str(e)[:100]}")
+    for s in sheets:
+        if s['type']!='ceiling': continue
+        try:
+            from . import ceilings as CE
+            r=CE.tiles(path(s),scale)
+            if r and r['area_m2']>0:
+                lines.append(dict(ch=22,sub=1,desc='תקרות אקוסטיות מודולריות',unit='מ"ר',q=r['area_m2'],st='נמדד',src=f"שטח רשת האריחים בתוכנית התקרה ({r['areas']} אזורים, אריח כ-{r['pitch_cm']} ס\"מ), ללא קירות",need='לאמת סוג אריח ושטחי גבס נפרדים',cover=['תקרות אקוסטיות מודולריות']))
+                log.append(f"{s['file']}: תקרה אקוסטית {r['area_m2']} מ\"ר")
+        except Exception as e: log.append(f"{s['file']}: תקרות שגיאה {str(e)[:60]}")
     try: assumptions+=KN.check(lines,sheets,pr.get('ptype'))
     except Exception as e: log.append(f'בדיקת השלמות: שגיאה {str(e)[:80]}')
     P=BR.params(pr)
