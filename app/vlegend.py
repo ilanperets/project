@@ -7,12 +7,12 @@ def _sig(d):
     """scale-invariant signature: lengths relative to the path's own size"""
     r=d['rect']; z=_sz(d) or 1.0; parts=[]
     for it in d['items']:
-        if it[0]=='l': parts.append(('l',round(it[1].distance_to(it[2])/z,2)))
-        elif it[0]=='c': parts.append(('c',round(it[1].distance_to(it[4])/z,2)))
-        elif it[0]=='re': parts.append(('r',)+tuple(sorted((round(it[1].width/z,2),round(it[1].height/z,2)))))
-        elif it[0]=='qu': parts.append(('q',)+tuple(sorted((round(it[1].rect.width/z,2),round(it[1].rect.height/z,2)))))
-    w,h=sorted((round(r.width/z,2),round(r.height/z,2)))
-    return (d['type'],tuple(sorted(parts)),w,h)
+        if it[0]=='l': parts.append(('l',round(it[1].distance_to(it[2])/z,1)))
+        elif it[0]=='c': parts.append(('c',round(it[1].distance_to(it[4])/z,1)))
+        elif it[0]=='re': parts.append(('r',)+tuple(sorted((round(it[1].width/z,1),round(it[1].height/z,1)))))
+        elif it[0]=='qu': parts.append(('q',)+tuple(sorted((round(it[1].rect.width/z,1),round(it[1].rect.height/z,1)))))
+    w,h=sorted((round(r.width/z,1),round(r.height/z,1)))
+    return ('f' if d.get('fill') is not None else 's',tuple(sorted(parts)),w,h)
 def _ctr(d): r=d['rect']; return ((r.x0+r.x1)/2,(r.y0+r.y1)/2)
 def analyse(path):
     pg=pymupdf.open(path)[0]; rows=LG._rows(path)
@@ -51,7 +51,8 @@ def analyse(path):
         if not sw or len(sw)>14: out.append(dict(text=l['text'],n=None,why='לא נגזר סמל')); continue
         cx=sum(xs[i][0] for i in sw)/len(sw); cy=sum(xs[i][1] for i in sw)/len(sw)
         sigs=[(_sig(ds[i]),xs[i][0]-cx,xs[i][1]-cy,_sz(ds[i])) for i in sw]
-        anchor=max(sorted(sigs,key=lambda s:len(by.get(s[0],[])) or 10**9)[:1],key=lambda s:s[3])
+        anchor=max((s_ for s_ in sigs if 0<len(by.get(s_[0],[]))<=300),key=lambda s_:s_[3],default=None)
+        if anchor is None: out.append(dict(text=l['text'],n=0)); continue
         cand=by.get(anchor[0],[])
         if not cand: out.append(dict(text=l['text'],n=0)); continue
         found=[]; asz=anchor[3]
@@ -65,10 +66,10 @@ def analyse(path):
                 ox,oy=tr(anchor[1],anchor[2]); bx,by_=ax-ox,ay-oy
                 ok=0
                 for s_,dx,dy,sz_ in sigs:
-                    px,py=tr(dx,dy); tx,ty=bx+px,by_+py; tol=max(1.0,sz_*k*0.15)
+                    px,py=tr(dx,dy); tx,ty=bx+px,by_+py; tol=max(1.2,sz_*k*0.25)
                     gx,gy=int(tx//24),int(ty//24)
                     if any(abs(_sz(ds[j])-sz_*k)<=tol and math.hypot(xs[j][0]-tx,xs[j][1]-ty)<=tol for ax_ in (-1,0,1) for ay_ in (-1,0,1) for j in G.get((s_,gx+ax_,gy+ay_),())): ok+=1
-                if ok>=(len(sigs) if len(sigs)<5 else len(sigs)-1): found.append((round(bx),round(by_),round(k,2))); break
+                if ok>=(len(sigs) if len(sigs)<4 else max(len(sigs)-1,int(0.75*len(sigs)+0.99))): found.append((round(bx),round(by_),round(k,2))); break
         # dedupe
         uniq=[]
         for f in found:
