@@ -326,7 +326,9 @@ def run(pid:str):
             if s['type']!='floor_plan': continue
             try:
                 from . import partitions as PA
-                r=PA.new_partitions(path(s),scale)
+                import pymupdf as _pm; from . import discover as DI
+                ply=[l for l in DI.partition_layers(_pm.open(path(s))[0],scale) if 'htch' not in l.lower()]
+                r=PA.new_partitions(path(s),scale,ply) if ply else None
                 if r:
                     h=3.0; q=round(r['length_m']*h,1)
                     lines.append(dict(ch=22,sub=1,desc='מחיצות גבס חד קרומיות ודו קרומיות עם קונסטרוקציה',unit='מ"ר',q=q,st='נמדד',src=f"אורך מחיצות חדשות בתוכנית {r['length_m']} מ' × גובה {h} מ' (הונח)",need='לאמת גובה מחיצה ומספר קרומים',cover=['מחיצות גבס חד קרומיות ודו קרומיות עם קונסטרוקציה']))
@@ -336,7 +338,8 @@ def run(pid:str):
         if s['type']!='flooring': continue
         try:
             from . import ceilings as CE
-            ly=tuple(k for k,v in s.get('layers',{}).items() if k.upper().startswith('FL-') and not any(x in k.lower() for x in ('text','symb','dim')) and v>=200)
+            import pymupdf as _pm; from . import discover as DI
+            ly=tuple(DI.tile_layers(_pm.open(path(s))[0],scale))
             r=CE.tiles(path(s),scale,layers=ly) if ly else None
             if r and r['area_m2']>0:
                 lines.append(dict(ch=10,sub=1,desc='ריצוף באריחי גרניט פורצלן, כולל פנלים',unit='מ"ר',q=r['area_m2'],st='נמדד',src=f"שטח רשת האריחים בתוכנית הריצוף (אריח כ-{r['pitch_cm']} ס\"מ). שטחי ציפוי אפוקסי ללא רשת אריחים לא נכללו",need='לאמת סוגי ריצוף ושטח הציפוי האחיד',cover=['ריצוף באריחי גרניט פורצלן, כולל פנלים']))
@@ -347,7 +350,9 @@ def run(pid:str):
         if s['type']!='ceiling': continue
         try:
             from . import ceilings as CE
-            r=CE.tiles(path(s),scale)
+            import pymupdf as _pm; from . import discover as DI
+            ly=tuple(DI.tile_layers(_pm.open(path(s))[0],scale))
+            r=CE.tiles(path(s),scale,layers=ly) if ly else None
             if r and r['area_m2']>0:
                 lines.append(dict(ch=22,sub=1,desc='תקרות אקוסטיות מודולריות',unit='מ"ר',q=r['area_m2'],st='נמדד',src=f"שטח רשת האריחים בתוכנית התקרה ({r['areas']} אזורים, אריח כ-{r['pitch_cm']} ס\"מ), ללא קירות",need='לאמת סוג אריח ושטחי גבס נפרדים',cover=['תקרות אקוסטיות מודולריות']))
                 log.append(f"{s['file']}: תקרה אקוסטית {r['area_m2']} מ\"ר")
