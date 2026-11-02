@@ -2,7 +2,7 @@ import json, os, re, shutil, time, uuid
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from . import fillwalls as FW, agent as AG, refboq as RB, compare as CMP, annotations as ANN, schedules as SCH, wetroom as WR, classify as C, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP, sitework as SW, dwg as DW, auth as AU, score as SC
+from . import fillwalls as FW, agent as AG, refboq as RB, compare as CMP, annotations as ANN, schedules as SCH, wetroom as WR, classify as C, knowledge as KN, engines as E, boq as B, brain as BR, derive as DV, symbols as SY, mapper as MP, sitework as SW, dwg as DW, auth as AU, score as SC
 import datetime
 
 ROOT=os.environ.get('KAMUYOT_DATA',os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'data'))
@@ -121,6 +121,19 @@ def get(pid:str): return _load(pid)
 
 @app.delete('/api/projects/{pid}')
 def delete(pid:str): shutil.rmtree(_pdir(pid),ignore_errors=True); return dict(ok=True)
+
+@app.post('/api/projects/{pid}/reclassify')
+def reclassify(pid:str):
+    """Re-run sheet identification on a project's sheets (after engine improvements). Sheets the user already confirmed keep their type."""
+    pr=_load(pid); rules=_rules(); ch=[]
+    for s in pr['sheets']:
+        if s.get('confirmed'): continue
+        pth=os.path.join(_pdir(pid),'files',s['sid']+'.pdf')
+        try: ft=C.features(pth); cl=C.classify(ft,rules)
+        except Exception: continue
+        if cl['type']!=s['type']: ch.append(dict(file=s['file'],was=s['type'],now=cl['type']))
+        s.update(type=cl['type'],conf=cl['conf'],why=cl['why'])
+    _save(pr); return dict(changed=ch)
 
 @app.post('/api/projects/{pid}/upload')
 async def upload(pid:str,files:list[UploadFile]=File(...)):
@@ -308,6 +321,8 @@ def run(pid:str):
         al,notes=ANN.lines(sheets,path); lines+=al; pr['plan_notes']=notes
         if al: log.append(f"כמויות כתובות בתוכניות: {len(al)} סעיפים")
     except Exception as e: log.append(f"הערות ותבלאות: שגיאה {str(e)[:100]}")
+    try: assumptions+=KN.check(lines,sheets,pr.get('ptype'))
+    except Exception as e: log.append(f'בדיקת השלמות: שגיאה {str(e)[:80]}')
     P=BR.params(pr)
     lines+=WR.plumbing_points(lines); lines+=WR.plumbing_pipes(lines,BR.params(pr))
     op_m2=sum(float(re.search(r'([\d.]+) מ"ר',l['need']).group(1)) for l in lines if l['ch']==6 and l['unit']=="יח'" and re.search(r'([\d.]+) מ"ר',l.get('need','')))

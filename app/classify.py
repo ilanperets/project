@@ -5,9 +5,9 @@ import collections, hashlib, json, os, pymupdf as fitz
 TYPES={
  'foundation_piles':'תוכנית יסודות וכלונסאות','structure_plan':'תוכנית קונסטרוקציה (תקרה, קורות, גג)','structure_other':'קונסטרוקציה: פרטים ומדרגות',
  'floor_plan':'תוכנית קומה','elevation':'חזיתות','section':'חתכים','site':'תוכנית פיתוח','details':'פרטי בנייה','openings_details':'פרטי דלתות וחלונות',
- 'waterproofing':'תוכנית איטום','tile_layout':'פריסת אריחים (חדר רחצה)','wetroom_plan':'חדר רחצה: אדריכלות, אינסטלציה וחשמל','electrical':'תוכנית חשמל','plumbing':'תוכנית אינסטלציה','hvac':'תוכנית מיזוג אוויר','comm':'תוכנית תקשורת ומתח נמוך','fire':'תוכנית גילוי וכיבוי אש','bms':'תוכנית בקרה ובית חכם','demolition':'תוכנית הריסות ופירוקים','door_schedule':'רשימת דלתות נגרות','window_schedule':'רשימת אלומיניום (חלונות ודלתות)','frames_schedule':'רשימת מסגרות','sheet_index':'רשימת גליונות','ceiling':'תוכנית תקרה ותאורה','flooring':'תוכנית ריצוף','existing':'מצב קיים','layout':'תוכנית העמדה','unknown':'לא זוהה'}
+ 'waterproofing':'תוכנית איטום','tile_layout':'פריסת אריחים (חדר רחצה)','wetroom_plan':'חדר רחצה: אדריכלות, אינסטלציה וחשמל','electrical':'תוכנית חשמל','plumbing':'תוכנית אינסטלציה','hvac':'תוכנית מיזוג אוויר','comm':'תוכנית תקשורת ומתח נמוך','fire':'תוכנית גילוי וכיבוי אש','bms':'תוכנית בקרה ובית חכם','demolition':'תוכנית הריסות ופירוקים','door_schedule':'רשימת דלתות נגרות','window_schedule':'רשימת אלומיניום (חלונות ודלתות)','frames_schedule':'רשימת מסגרות','sheet_index':'רשימת גליונות','ceiling':'תוכנית תקרה ותאורה','flooring':'תוכנית ריצוף','existing':'מצב קיים','layout':'תוכנית העמדה','roof_plan':'תוכנית גגות','unknown':'לא זוהה'}
 
-DISC={'door_schedule':'arch','window_schedule':'arch','frames_schedule':'arch','sheet_index':'arch','ceiling':'arch','flooring':'arch','existing':'arch','layout':'arch','foundation_piles':'construction','structure_plan':'construction','structure_other':'construction','floor_plan':'arch','elevation':'arch','section':'arch','details':'arch','openings_details':'arch','electrical':'elec','plumbing':'plumb','hvac':'hvac','waterproofing':'seal','tile_layout':'arch','wetroom_plan':'plumb','comm':'elec','fire':'elec','bms':'elec','demolition':'arch','site':'dev','unknown':''}
+DISC={'door_schedule':'arch','window_schedule':'arch','frames_schedule':'arch','sheet_index':'arch','ceiling':'arch','flooring':'arch','existing':'arch','layout':'arch','foundation_piles':'construction','structure_plan':'construction','structure_other':'construction','floor_plan':'arch','elevation':'arch','section':'arch','details':'arch','openings_details':'arch','electrical':'elec','plumbing':'plumb','hvac':'hvac','waterproofing':'seal','tile_layout':'arch','wetroom_plan':'plumb','comm':'elec','fire':'elec','bms':'elec','demolition':'arch','site':'dev','roof_plan':'arch','unknown':''}
 DISCS=[('construction','קונסטרוקציה'),('arch','אדריכלות'),('elec','חשמל'),('hvac','מיזוג אוויר'),('plumb','אינסטלציה'),('seal','איטום'),('dev','פיתוח')]
 
 def _ink(path,W=220):
@@ -50,7 +50,7 @@ def features(path):
     if len(txt)<400 and mb.width>1000:
         try:
             from . import ocr
-            if ocr.available(): txt=txt+'\n'+ocr.text(path,zoom=1.0)
+            if ocr.available(): txt=txt+'\n'+ocr.text(path,zoom=1.0)+'\n'+ocr.title_block(path)
         except Exception: pass
     try:
         from .wetroom import _elevations,PT_CM
@@ -68,12 +68,12 @@ def _learned(layers,rules):
     return None
 
 LAYER_PFX=[('DM-','demolition'),('WO-','floor_plan'),('CL-','ceiling'),('FL-','flooring'),('EQ-','layout'),('EX-','existing')]
-TITLES=[(r'רשימת דלתות נגרות','door_schedule'),(r'רשימת אלומיניום','window_schedule'),(r'רשימת מסגרות','frames_schedule'),(r'רשימת גליונות','sheet_index'),
+TITLES=[(r'תכנית גגות|תוכנית גגות|תכנית גג|תוכנית גג','roof_plan'),(r'רשימת דלתות נגרות','door_schedule'),(r'רשימת אלומיניום','window_schedule'),(r'רשימת מסגרות','frames_schedule'),(r'רשימת גליונות','sheet_index'),
  (r'תכנית בניה|תוכנית בניה|תכנית בנייה','floor_plan'),(r'תכנית הריסה|תוכנית הריסה','demolition'),(r'תכנית תקרה( ותאורה)?|תוכנית תקרה( ותאורה)?','ceiling'),(r'תכנית ריצוף|תוכנית ריצוף','flooring'),(r'מצב קיים','existing'),(r'העמדה','layout')]
 def _title(text):
     import re
     j=re.sub(r'[ \t]+',' ',text)
-    for rx,t in ((r'תכנית\s*\n?\s*הריסה|תוכנית\s*\n?\s*הריסה','demolition'),(r'תכנית\s*\n?\s*ריצוף|תוכנית\s*\n?\s*ריצוף','flooring'),(r'תכנית\s*\n?\s*תקרה|תוכנית\s*\n?\s*תקרה','ceiling'),(r'תכנית\s*\n?\s*מצב קיים|מצב קיים','existing')):
+    for rx,t in ((r'ת[כו]נית\s*\n?\s*גגות','roof_plan'),(r'תכנית\s*\n?\s*הריסה|תוכנית\s*\n?\s*הריסה','demolition'),(r'תכנית\s*\n?\s*ריצוף|תוכנית\s*\n?\s*ריצוף','flooring'),(r'תכנית\s*\n?\s*תקרה|תוכנית\s*\n?\s*תקרה','ceiling'),(r'תכנית\s*\n?\s*מצב קיים|מצב קיים','existing')):
         if re.search(rx,j) and len(text)>400 and not re.search(r'^\s*(רשימת)',j): 
             if re.search(rx,j): return t,rx.split('|')[0].replace('\\s*\\n?\\s*',' ')
     lines=[l.strip() for l in text.split('\n')]
@@ -86,6 +86,8 @@ def classify(feat,rules=()):
     L=feat['layers']; has=lambda k:L.get(k,0)>0
     got=_learned(L,rules)
     if got: return dict(type=got[0],conf='learned',why=got[1])
+    tt=_title(feat.get('text',''))
+    if tt: return dict(type=tt[0],conf='high',why=f'הכותרת בגיליון: "{tt[1]}"')
     tot={pf:sum(v for k,v in L.items() if k.startswith(pf)) for pf,_ in LAYER_PFX}
     best=max(tot,key=tot.get)
     if tot[best]>=300:

@@ -31,3 +31,18 @@ def lines(path,zoom=1.5,psm=11,timeout=45,maxpx=4500):
     except Exception: pass
     return out
 def text(path,**k): return '\n'.join(l['text'] for l in lines(path,**k))
+
+def title_block(path,zoom=3.0):
+    """OCR only the title block (lower-right corner of the sheet), where drawing names are usually written. Cached."""
+    import pytesseract, json, hashlib
+    st=os.stat(path); ck=os.path.join(os.path.dirname(path),'.ocrt_'+hashlib.md5(f"{os.path.basename(path)}|{st.st_size}|{st.st_mtime_ns}|{zoom}".encode()).hexdigest()+'.json')
+    try: return json.load(open(ck))
+    except Exception: pass
+    pg=pymupdf.open(path)[0]; r=pg.rect
+    clip=pymupdf.Rect(r.x0+r.width*0.80,r.y0+r.height*0.78,r.x1,r.y1)
+    zoom=min(zoom,3500/max(clip.width,clip.height))
+    im=_img(pg,zoom,clip)
+    out=pytesseract.image_to_string(im,lang='heb',config=f'--tessdata-dir {TESS} --psm 6',timeout=40)
+    try: json.dump(out,open(ck,'w'),ensure_ascii=False)
+    except Exception: pass
+    return out
