@@ -62,6 +62,7 @@ def _learned(layers,rules):
         if j>=0.9: return r['type'],'לפי כלל שנלמד מתיקון קודם'
     return None
 
+LAYER_PFX=[('DM-','demolition'),('WO-','floor_plan'),('CL-','ceiling'),('FL-','flooring'),('EQ-','layout'),('EX-','existing')]
 TITLES=[(r'רשימת דלתות נגרות','door_schedule'),(r'רשימת אלומיניום','window_schedule'),(r'רשימת מסגרות','frames_schedule'),(r'רשימת גליונות','sheet_index'),
  (r'תכנית בניה|תוכנית בניה|תכנית בנייה','floor_plan'),(r'תכנית הריסה|תוכנית הריסה','demolition'),(r'תכנית תקרה( ותאורה)?|תוכנית תקרה( ותאורה)?','ceiling'),(r'תכנית ריצוף|תוכנית ריצוף','flooring'),(r'מצב קיים','existing'),(r'העמדה','layout')]
 def _title(text):
@@ -76,6 +77,10 @@ def classify(feat,rules=()):
     L=feat['layers']; has=lambda k:L.get(k,0)>0
     got=_learned(L,rules)
     if got: return dict(type=got[0],conf='learned',why=got[1])
+    tot={pf:sum(v for k,v in L.items() if k.startswith(pf)) for pf,_ in LAYER_PFX}
+    best=max(tot,key=tot.get)
+    if tot[best]>=300:
+        t=dict(LAYER_PFX)[best]; return dict(type=t,conf='med',why=f'קידומת שכבות {best}: {TYPES[t]}')
     tt=_title(feat.get('text',''))
     if tt: return dict(type=tt[0],conf='high',why=f'הכותרת בגיליון: "{tt[1]}"')
     if has('ker') and has('SANO') and has('DOOR') and not has('WL'):
