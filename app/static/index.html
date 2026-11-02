@@ -460,6 +460,7 @@ table.wxmini{width:100%;border-collapse:collapse;font-size:13.5px}.wxmini th{fon
 .sgr8{display:grid;grid-template-columns:1fr 1fr;gap:14px}.sc8{display:flex;align-items:center;gap:16px;border:1px solid #E4EAF3;border-radius:18px;padding:16px 18px}.th8{width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,#EAF1FF,#fff);border:1px dashed #B9D2F3;color:var(--pri);display:grid;place-items:center;flex:none}.bd8{flex:1}.bd8 b{display:block;font-size:15.5px}.bd8 span{color:#B94A14;font-size:13px;font-weight:600}.bar8{height:6px;background:#FDEBDD;border-radius:4px;margin-top:8px;overflow:hidden}.bar8 i{display:block;height:100%;background:#D9622B;border-radius:4px}
 .ms8{display:flex;align-items:center;gap:16px;padding:12px 0;border-top:1px solid #E4EAF3}.ms8>div{flex:1}.ms8 b{display:block;font-size:14.5px}
 @media(max-width:1000px){.vh8,.bc8,.sgr8,.mh8{grid-template-columns:1fr}.rs8{grid-template-columns:1fr 1fr}.cp8{grid-template-columns:30px 1fr 50px}.cp8 .sb8,.cp8 .pl8,.cp8 .cv8,.cp8 .mn8{display:none}}
+.wxtabs{display:flex;gap:2px;padding:0 14px;border-bottom:1px solid var(--w-line);background:#fff;overflow-x:auto}.wxtabs button{all:unset;cursor:pointer;white-space:nowrap;padding:11px 16px;font-size:14.5px;color:var(--w-ink2);border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;align-items:center;gap:7px}.wxtabs button:hover{color:var(--ink)}.wxtabs button.on{color:var(--pri2);border-color:var(--pri2);font-weight:600}.wxtabs .n{font-size:11px;font-weight:700;background:var(--acc);color:#fff;border-radius:9px;padding:0 6px}
 </style>
 </head>
 <body>
@@ -486,7 +487,7 @@ async function render(){
   if(ME.enabled&&ME.user.role==='platform'&&!ME.org&&page!=='admin'){location.hash='#/admin';return}
   const v={projects,dash,plans,view,boq,materials,bills,brain,spec,engines,legacy,sheet,admin,users}[page]||dash;
   $('#main').innerHTML='<div class="empty">טוען…</div>';
-  const body=await v();$('#main').innerHTML=supportBanner()+(pid&&page!=='dash'&&page!=='view'?stepper(page):'')+(pid&&P.stale&&P.boq&&P.sheets.length?`<div class="up2" style="border-color:#F0C766;background:var(--warnb);margin:0 0 16px"><div class="ico" style="background:var(--warn)">${ic('alert',20)}</div><div><b>התוכניות השתנו מאז החישוב האחרון</b><div style="font-size:13px">הכמויות בכתב עוד לא משקפות את השינוי.</div></div><span class="sp"></span><button class="btn p" onclick="runNow(this)">חשב מחדש</button></div>`:'')+body;
+  const body=await v();$('#main').innerHTML=supportBanner()+(pid&&page!=='dash'&&page!=='view'&&page!=='boq'?stepper(page):'')+(pid&&P.stale&&P.boq&&P.sheets.length?`<div class="up2" style="border-color:#F0C766;background:var(--warnb);margin:0 0 16px"><div class="ico" style="background:var(--warn)">${ic('alert',20)}</div><div><b>התוכניות השתנו מאז החישוב האחרון</b><div style="font-size:13px">הכמויות בכתב עוד לא משקפות את השינוי.</div></div><span class="sp"></span><button class="btn p" onclick="runNow(this)">חשב מחדש</button></div>`:'')+body;
   if(window['after_'+page])window['after_'+page]();
 }
 window.addEventListener('hashchange',render);
@@ -1224,11 +1225,11 @@ function wxDraw(){const root=document.getElementById('wxroot');if(!root)return;c
    <div class="wxg">${[['all','הכל'],['miss','חסר'],['part','חלקי'],['man','ידני']].map(x=>`<button class="${WX.flt===x[0]?'on':''}" onclick="WX.flt='${x[0]}';wxDraw()">${x[1]}</button>`).join('')}</div>
    <button class="wxb ${WX.dens?'on':''}" onclick="WX.dens=!WX.dens;wxDraw()">צפיפות</button><button class="wxb ${WX.showP?'on':''}" onclick="WX.showP=!WX.showP;wxDraw()">מחירים</button>`:''}
    ${isB?`<select class="wxb wxjump" onchange="if(this.value)wxGo(this.value);this.selectedIndex=0"><option value="">קפוץ לפרק…</option>${chs.map(c=>`<option value="${c.code}">${c.code} · ${esc(c.name)}</option>`).join('')}</select>`:''}<button class="wxb" onclick="wxUndo()">ביטול</button><button class="wxb" onclick="dlgAdd(true)">פרק חדש</button><button class="wxb p" onclick="dlgExport()">ייצוא</button></div>
+   <div class="wxtabs">${tabs.map(t=>`<button class="${WX.tab===t[0]?'on':''}" onclick="WX.tab='${t[0]}';WX.cur=null;WX.sel.clear();WX.drawer=null;wxDraw()">${t[1]}${t[2]?`<span class="n">${t[2]}</span>`:''}</button>`).join('')}</div>
    <div class="wxf" id="wxfx"></div>
    <div class="wxm">${isB?`<nav class="wxr"><h3>פרקים</h3>${chs.map(c=>`<a onclick="wxGo('${c.code}')"><b>${c.code} · ${esc(c.name)}</b><span><em style="font-style:normal">${c.items.length} סעיפים</em><em style="font-style:normal">${money(c.t)}</em></span><div class="pb"><i style="width:${c.items.length?c.items.filter(r=>!wxMiss(r)).length/c.items.length*100:0}%"></i></div></a>`).join('')}</nav>`:''}
    <div class="wxy">${{dash:()=>wxDash(chs),boq:()=>wxGrid(chs),sum:()=>wxSum(chs),calc:()=>wxCalc(chs),need:wxNeed,mat:wxMat,how:()=>wxHow(chs),guide:wxGuide,prm:wxPrm}[WX.tab]()}</div><div id="wxdr"></div></div>
-   <div class="wxbot"><div class="wxst">${tabs.map(t=>`<button class="${WX.tab===t[0]?'on':''}" onclick="WX.tab='${t[0]}';WX.cur=null;WX.sel.clear();WX.drawer=null;wxDraw()">${t[1]}${t[2]?`<span class="n">${t[2]}</span>`:''}</button>`).join('')}</div>
-   <div class="wxsb"><span>סעיפים <b>${n}</b></span><span>כיסוי כמויות <b>${n?Math.round(its.filter(r=>!wxMiss(r)).length/n*100):0}%</b></span><span>סה"כ <b>${money(T)}</b></span><span>כולל מע"מ ${Math.round(V*100)}% <b>${money(T*(1+V))}</b></span></div></div>`;
+   <div class="wxbot"><div class="wxsb"><span>סעיפים <b>${n}</b></span><span>כיסוי כמויות <b>${n?Math.round(its.filter(r=>!wxMiss(r)).length/n*100):0}%</b></span><span>סה"כ <b>${money(T)}</b></span><span>כולל מע"מ ${Math.round(V*100)}% <b>${money(T*(1+V))}</b></span></div></div>`;
   const y2=document.querySelector('.wxy');if(y2)y2.scrollTop=sc;wxFx();wxDrawer()}
 async function boq(){
   if(!P.boq)return `<h1>כתב כמויות</h1><div class="card empty">עוד לא חושב. <a href="#/p/${P.id}/plans">העלה תוכניות</a> והרץ חישוב, או <button class="btn sec" onclick="startEmpty()">התחל כתב ריק</button></div>`;
