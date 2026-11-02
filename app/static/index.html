@@ -1346,9 +1346,9 @@ const st=document.createElement('style');st.textContent=`
 #agp .f{display:flex;gap:8px;padding:12px;border-top:1px solid #e3e9f3}#agp .f input{flex:1;border:1px solid #d5deec;border-radius:10px;padding:10px;font:inherit}#agp .f button,#agp .bt{background:#1F6FD1;color:#fff;border:0;border-radius:10px;padding:10px 16px;font:600 14px inherit;cursor:pointer}
 #agp table{width:100%;border-collapse:collapse;font-size:13px}#agp td,#agp th{padding:6px 4px;border-bottom:1px solid #eef2f8;text-align:right}#agp th{color:#5b6b88;font-weight:500}
 #agp .ok{color:#1b7f4b}#agp .wr{color:#b4541c}#agp .mu{color:#7a8aa6;font-size:13px}`;document.head.appendChild(st);
-const btn=document.createElement('button');btn.id='agb';btn.textContent='סוכן כמויות';btn.style.display='none';document.body.appendChild(btn);
+const btn=document.createElement('button');btn.id='agb';btn.textContent='בדיקת דיוק';btn.style.display='none';document.body.appendChild(btn);
 const pan=document.createElement('div');pan.id='agp';document.body.appendChild(pan);
-let TAB='chat',MSG=[];
+let TAB='cmp',MSG=[];
 function show(){const pid=(typeof P!=='undefined'&&P)?P.id:null;btn.style.display=pid?'block':'none';if(!pid)pan.classList.remove('on')}
 setInterval(show,800);
 btn.onclick=()=>{pan.classList.add('on');draw()};
@@ -1359,13 +1359,13 @@ async function cmpLoad(){const r=await fetch(`/api/projects/${P.id}/compare`);if
 window.agRef=async inp=>{const f=inp.files[0];if(!f)return;const fd=new FormData();fd.append('files',f);const r=await fetch(`/api/projects/${P.id}/reference`,{method:'POST',body:fd});const d=await r.json();toast(r.ok?`נטען כתב ייחוס: ${d.items} סעיפים`:(d.detail||'שגיאה'));draw()};
 window.agTab=t=>{TAB=t;draw()};
 async function draw(){
- const tabs=`<div class="t"><div class="${TAB==='chat'?'on':''}" onclick="agTab('chat')">סוכן</div><div class="${TAB==='cmp'?'on':''}" onclick="agTab('cmp')">השוואה לכתב ייחוס</div></div>`;
+ const tabs='';
  let body='',foot='';
  if(TAB==='chat'){body=(MSG.length?MSG.map(m=>`<div class="m ${m.role==='user'?'u':'a'}">${esc(m.content)}</div>`).join(''):'<div class="mu">שאל אותי איך חושבה כמות, מה חסר בגיליון, או איך כדאי למדוד סעיף. אני קורא את הגיליונות והכתב, ושומר לקחים לפרויקטים הבאים.</div>');foot=`<div class="f"><input id="agi" placeholder="כתוב שאלה" onkeydown="if(event.key==='Enter')agSend()"><button onclick="agSend()">שלח</button></div>`}
  else{const d=await cmpLoad();
   if(!d)body=`<div class="mu" style="margin-bottom:12px">העלה כתב כמויות של פרויקט שכבר חושב (PDF), והמערכת תשווה אליו לפי קטגוריות ותלמד מהפערים.</div><label class="bt" style="display:inline-block">בחר כתב ייחוס (PDF)<input type="file" accept=".pdf" hidden onchange="agRef(this)"></label>`;
   else body=`<div class="mu" style="margin-bottom:10px">${d.ref_items} סעיפים בכתב הייחוס · ${d.matched} קטגוריות עם כמות משני הצדדים · ${d.close} בטווח 15% · ${d.missing} חסרות אצלנו</div><table><tr><th>קטגוריה</th><th>ייחוס</th><th>שלנו</th><th>סטייה</th></tr>${d.rows.map(r=>`<tr><td>${esc(r.concept)} <span class="mu">${esc(r.unit||'')}</span></td><td dir="ltr">${r.ref??'—'}</td><td dir="ltr">${r.ours??'—'}</td><td class="${r.status==='תואם'||r.status==='קרוב'?'ok':'wr'}">${r.dev==null?r.status:Math.round(r.dev)+'%'}</td></tr>`).join('')}</table><label class="bt" style="display:inline-block;margin-top:12px">החלף כתב ייחוס<input type="file" accept=".pdf" hidden onchange="agRef(this)"></label>`}
- pan.innerHTML=`<div class="h"><b>סוכן כמויות</b><span onclick="document.getElementById('agp').classList.remove('on')">✕</span></div>${tabs}<div class="b">${body}</div>${foot}`;
+ pan.innerHTML=`<div class="h"><b>בדיקת דיוק מול כתב ייחוס</b><span onclick="document.getElementById('agp').classList.remove('on')">✕</span></div>${tabs}<div class="b">${body}</div>${foot}`;
  const b=pan.querySelector('.b');b.scrollTop=b.scrollHeight}
 })();
 </script>
