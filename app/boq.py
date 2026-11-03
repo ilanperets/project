@@ -5,6 +5,7 @@ from openpyxl.styles import Font, PatternFill, Alignment
 from .classify import TYPES
 
 from .spec import SPEC, CHAPTERS as CH
+from . import bank as _BK
 from .brain import toks
 from .phrasing import FULL,NOTES
 SUB={(2,2):'תבניות וזיון',(4,2):'אלמנטים משולבים',(6,2):'מעקות ומסגרות',(7,2):'צנרת',(8,2):'תעלות וכבלים',(8,3):'לוחות',(10,2):'חיפוי קירות',(40,2):'אדמה וגינון'}
@@ -56,7 +57,7 @@ def build(name,lines,present_types,ov=None,hidden=(),chnames=None,edits=None):
             if od: lst=sorted(lst,key=lambda x:(od.index(x['desc']) if x['desc'] in od else 10**6))
             for i,it in enumerate(lst,1):
                 nd=ren.get(it['desc'])
-                rows.append(dict(kind='item',code=f'{ch:02d}.{sub:02d}.{i*10:04d}',desc=nd or it['desc'],key=it['desc'],full=nd or FULL.get(it['desc'],it['desc']),unit=unm.get(it['desc'],it['unit']),q=it['q'],src=f"{it['st']} · {it['src']}",need=it['need'],st=it['st'],method=it.get('method',''),vsrc=it.get('vsrc',''),trace=it.get('trace')))
+                rows.append(dict(kind='item',code=f'{ch:02d}.{sub:02d}.{i*10:04d}',desc=nd or it['desc'],key=it['desc'],full=nd or _BK.text_for(it['desc'],it['unit'],0.6) or FULL.get(it['desc'],it['desc']),unit=unm.get(it['desc'],it['unit']),q=it['q'],src=f"{it['st']} · {it['src']}",need=it['need'],st=it['st'],method=it.get('method',''),vsrc=it.get('vsrc',''),trace=it.get('trace')))
     return rows
 
 def needs(sheets,missing_types,unbuilt_types,assumptions):
