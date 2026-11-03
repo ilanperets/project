@@ -88,6 +88,8 @@ def classify(feat,rules=()):
     if got: return dict(type=got[0],conf='learned',why=got[1])
     tt=_title(feat.get('text',''))
     if tt: return dict(type=tt[0],conf='high',why=f'הכותרת בגיליון: "{tt[1]}"')
+    tx=feat.get('text','')
+    if all(w in tx for w in ('ביוב','מים קרים','מי גשם')) and ('מקרא' in tx or 'ניקוז' in tx): return dict(type='plumbing',conf='high',why='מקרא מערכות אינסטלציה (ביוב, מים, גשם) בגיליון')
     tot={pf:sum(v for k,v in L.items() if k.startswith(pf)) for pf,_ in LAYER_PFX}
     best=max(tot,key=tot.get)
     if tot[best]>=300:

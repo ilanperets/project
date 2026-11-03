@@ -81,3 +81,32 @@ def tags(pg):
             m=re.search(r'Ø\s*(\d{1,3}(?:\.\d+)?)\s*(?:mm|מ"מ)?\s*(.*)',t)
             if m: out.append((re.sub(r'\s+',' ',m.group(2)).strip(' -'),round(float(m.group(1)),2)))
     return out
+
+SYS={ # legend name -> (desc, unit)
+ 'ביוב':'צינורות HDPE לשפכים וביוב','ביוב שומני':'צינורות HDPE לביוב שומני','מי גשם':'צינורות HDPE למי גשם',
+ 'ניקוז מזגנים':'צנרת PVC לניקוז מזגנים','ניקוז מרפסות':'צנרת ניקוז מרפסות','מים קרים':'צנרת מים קרים','מים חמים':'צנרת מים חמים',
+ 'כיבוי אש':'צנרת פלדה מגולוונת לכיבוי אש','מתזים':'צנרת מתזים (ספרינקלרים)','סניקה - ביוב':'צנרת סניקת ביוב'}
+def lines(paths):
+    """BOQ lines (status 'חלקי') from plumbing sheets. Identical results of duplicate sheets are counted once."""
+    import collections
+    tot=collections.Counter(); seen=set(); tg=collections.defaultdict(collections.Counter)
+    for p in paths:
+        r=length_by_system(p)
+        if not r: continue
+        key=tuple(sorted((k,round(v or 0)) for k,v in r['systems'].items()))
+        if key in seen: continue
+        seen.add(key)
+        for k,v in r['systems'].items():
+            if v: tot[k]+=v
+        for s,d in tags(pymupdf.open(p)[0]):
+            for n in SYS:
+                if n in s: tg[n][d]+=1; break
+    L=[]
+    for k,v in tot.items():
+        names=[n for n in SYS if n in k and not (n=='ביוב' and 'שומני' in k and False)]
+        n=max(names,key=len) if names else None
+        if not n or v<5: continue
+        dia=tg.get(n); ds=''
+        if dia: ds=' (קטרים שנקראו: '+', '.join(f'{d:g} מ"מ ×{c}' for d,c in dia.most_common(4))+')'
+        L.append(dict(ch=7,sub=1,desc=SYS[n],unit='מ"א',q=round(v,1),st='חלקי',src=f'אורך קווים לפי צבע המערכת במקרא, בקנה המידה של כל גיליון{ds}',need='הצנרת בתקרות ובקומות חוזרות ייתכן שלא נספרה במלואה; לאמת כמות קומות טיפוסיות וצנרת מוסתרת',cover=[SYS[n]]))
+    return L

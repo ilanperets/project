@@ -366,6 +366,15 @@ def run(pid:str):
                 lines.append(dict(ch=22,sub=1,desc='תקרות אקוסטיות מודולריות',unit='מ"ר',q=r['area_m2'],st='נמדד',src=f"שטח רשת האריחים בתוכנית התקרה ({r['areas']} אזורים, אריח כ-{r['pitch_cm']} ס\"מ), ללא קירות",need='לאמת סוג אריח ושטחי גבס נפרדים',cover=['תקרות אקוסטיות מודולריות']))
                 log.append(f"{s['file']}: תקרה אקוסטית {r['area_m2']} מ\"ר")
         except Exception as e: log.append(f"{s['file']}: תקרות שגיאה {str(e)[:60]}")
+    pl_sheets=[s for s in sheets if s['type']=='plumbing' and str(path(s)).lower().endswith('.pdf')]
+    if pl_sheets:
+        try:
+            from . import plumb as PLB
+            pls=PLB.lines([path(s) for s in pl_sheets])
+            for l in pls:
+                if not any(x['desc']==l['desc'] and x.get('q') for x in lines): lines.append(l)
+            if pls: log.append(f"אינסטלציה לפי צבעי מקרא: {len(pls)} מערכות נמדדו (חלקי)")
+        except Exception as e: log.append(f"אינסטלציה: שגיאה {str(e)[:80]}")
     try: assumptions+=KN.check(lines,sheets,pr.get('ptype'),pr.get('scope'))
     except Exception as e: log.append(f'בדיקת השלמות: שגיאה {str(e)[:80]}')
     P=BR.params(pr)
