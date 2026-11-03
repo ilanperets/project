@@ -39,10 +39,7 @@ def length_by_system(path,zoom=1.5,tol=34):
     zoom=min(zoom,(1.6e7/(pg.rect.width*pg.rect.height))**0.5)
     pix=pg.get_pixmap(matrix=pymupdf.Matrix(zoom,zoom),colorspace=pymupdf.csRGB)
     img=np.frombuffer(pix.samples,np.uint8).reshape(pix.h,pix.w,3).astype(np.int16)
-    if pg.rotation: img=np.rot90(img,-pg.rotation//90) if False else img
-    # pixmap is already in page (unrotated) space; rotate to the visual orientation
-    k={90:3,180:2,270:1,0:0}[pg.rotation]; img=np.rot90(img,k)
-    H,Wd=img.shape[:2]; res={}
+    res={}
     for name,rgb,q in lg:
         d=np.abs(img-np.array(rgb,dtype=np.int16)).sum(2)
         ch=img.max(2)-img.min(2); lch=max(rgb)-min(rgb)
@@ -86,18 +83,33 @@ SYS={ # legend name -> (desc, unit)
  'ביוב':'צינורות HDPE לשפכים וביוב','ביוב שומני':'צינורות HDPE לביוב שומני','מי גשם':'צינורות HDPE למי גשם',
  'ניקוז מזגנים':'צנרת PVC לניקוז מזגנים','ניקוז מרפסות':'צנרת ניקוז מרפסות','מים קרים':'צנרת מים קרים','מים חמים':'צנרת מים חמים',
  'כיבוי אש':'צנרת פלדה מגולוונת לכיבוי אש','מתזים':'צנרת מתזים (ספרינקלרים)','סניקה - ביוב':'צנרת סניקת ביוב'}
+def floors_of(path):
+    """(first,last) floor numbers a sheet stands for, from its title ('קומה טיפוסית 9-11', 'קומה 4-5', 'קומה 6') or file name."""
+    pg=pymupdf.open(path)[0]; t=pg.get_text()
+    m=re.findall(r'קומה\s*(?:טיפוסית\s*)?(\d{1,2})\s*-\s*(\d{1,2})',t)
+    if m: a,b=m[-1]; return int(a),int(b)
+    m=re.search(r'[-_ ](\d{1,2})\s*-\s*(\d{1,2})\.pdf$',path,re.I)
+    if m: return int(m.group(1)),int(m.group(2))
+    m=re.findall(r'קומה\s*(\d{1,2})(?!\d|\s*-)',t)
+    if m and re.search(r'[-_ ](\d{1,2})\.pdf$',path): return int(m[-1]),int(m[-1])
+    return None
+
 def lines(paths):
     """BOQ lines (status 'חלקי') from plumbing sheets. Identical results of duplicate sheets are counted once."""
     import collections
     tot=collections.Counter(); seen=set(); tg=collections.defaultdict(collections.Counter)
+    fl={p:floors_of(p) for p in paths}
     for p in paths:
+        f=fl[p]
+        if f and f[0]==f[1] and any(o!=p and fl[o] and fl[o][0]<=f[0]<=fl[o][1] and fl[o][0]!=fl[o][1] for o in paths): continue   # a single floor already inside a multi-floor sheet
         r=length_by_system(p)
         if not r: continue
+        mult=(f[1]-f[0]+1) if f else 1
         key=tuple(sorted((k,round(v or 0)) for k,v in r['systems'].items()))
         if key in seen: continue
         seen.add(key)
         for k,v in r['systems'].items():
-            if v: tot[k]+=v
+            if v: tot[k]+=v*mult
         for s,d in tags(pymupdf.open(p)[0]):
             for n in SYS:
                 if n in s: tg[n][d]+=1; break
@@ -108,5 +120,5 @@ def lines(paths):
         if not n or v<5: continue
         dia=tg.get(n); ds=''
         if dia: ds=' (קטרים שנקראו: '+', '.join(f'{d:g} מ"מ ×{c}' for d,c in dia.most_common(4))+')'
-        L.append(dict(ch=7,sub=1,desc=SYS[n],unit='מ"א',q=round(v,1),st='חלקי',src=f'אורך קווים לפי צבע המערכת במקרא, בקנה המידה של כל גיליון{ds}',need='הצנרת בתקרות ובקומות חוזרות ייתכן שלא נספרה במלואה; לאמת כמות קומות טיפוסיות וצנרת מוסתרת',cover=[SYS[n]]))
+        L.append(dict(ch=7,sub=1,desc=SYS[n],unit='מ"א',q=round(v,1),st='חלקי',src=f'אורך קווים לפי צבע המערכת במקרא, בקנה המידה של כל גיליון; גיליון קומה טיפוסית מוכפל במספר הקומות שבכותרת{ds}',need='הצנרת בתקרות ובקומות חוזרות ייתכן שלא נספרה במלואה; לאמת כמות קומות טיפוסיות וצנרת מוסתרת',cover=[SYS[n]]))
     return L
