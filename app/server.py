@@ -374,6 +374,10 @@ def run(pid:str):
             for l in pls:
                 if not any(x['desc']==l['desc'] and x.get('q') for x in lines): lines.append(l)
             if pls: log.append(f"אינסטלציה לפי צבעי מקרא: {len(pls)} מערכות נמדדו (חלקי)")
+            if pls and not any(x['type'] in('wetroom_plan','floor_plan') for x in sheets):
+                assumptions.append(dict(t='נקודות סניטריות וצנרת פנים החדרים לא נמדדו',why='תוכניות האינסטלציה מציגות קווים ראשיים בלבד. נקודות (אסלות, כיורים, מקלחות) וצנרת 20 מ"מ ודלוחין בתוך חדרים מחושבות מתוכניות האדריכלות של החדרים הרטובים, שלא הועלו',how='העלה תוכניות אדריכלות של הקומות או הזן מספר חדרי רחצה ומטבחונים'))
+            assumptions.append(dict(t='מתזים וניקוז מזגנים בתקרות נמדדו חלקית',why='הצנרת עוברת מעל תקרה מונמכת וחלקה לא מופיעה בתוכנית האינסטלציה',how='העלה תוכניות תקרה/מתזים או הזן שטח תקרה וצפיפות ראשים'))
+            assumptions.append(dict(t='מים חמים ומתזים באותו צבע במקרא',why='לא ניתן להפריד ביניהם לפי צבע, והאורך מוצג משותף',how='אשר חלוקה לפי כיתוב הקוטר בתוכנית'))
         except Exception as e: log.append(f"אינסטלציה: שגיאה {str(e)[:80]}")
     try: assumptions+=KN.check(lines,sheets,pr.get('ptype'),pr.get('scope'))
     except Exception as e: log.append(f'בדיקת השלמות: שגיאה {str(e)[:80]}')
