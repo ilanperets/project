@@ -75,7 +75,7 @@ def create(body:dict):
     lim=AU.limit('projects')
     if lim is not None and os.path.isdir(PROJ) and len(os.listdir(PROJ))>=lim: raise HTTPException(403,f'המסלול כולל עד {lim} פרויקטים. פנו אלינו לשדרוג')
     pid=uuid.uuid4().hex[:8]; os.makedirs(os.path.join(_pdir(pid),'files'))
-    now=datetime.datetime.now().isoformat(timespec='minutes'); pr=dict(id=pid,name=(body.get('name') or 'פרויקט חדש').strip()[:80],client=(body.get('client') or '').strip()[:60],measurer=(body.get('measurer') or '').strip()[:40],reviewer=(body.get('reviewer') or '').strip()[:40],due=(body.get('due') or '')[:10],status='received',version=1,created=now,ptype=(body.get('ptype') if body.get('ptype') in KN.EXPECT else None),area=str(body.get('area') or '')[:10],scope=[str(x)[:40] for x in (body.get('scope') or [])][:30],events=[dict(t='הפרויקט נפתח',at=now)],checks={},scale=None,sheets=[],boq=None,needs=[],log=[],materials=[],prices={},mprices={},params={},bills=[],orders=[],quotes=[]); _save(pr); return pr
+    now=datetime.datetime.now().isoformat(timespec='minutes'); pr=dict(id=pid,name=(body.get('name') or 'פרויקט חדש').strip()[:80],client=(body.get('client') or '').strip()[:60],measurer=(body.get('measurer') or '').strip()[:40],reviewer=(body.get('reviewer') or '').strip()[:40],due=(body.get('due') or '')[:10],status='received',version=1,created=now,ptype=(body.get('ptype') if body.get('ptype') in KN.EXPECT else None),area=str(body.get('area') or '')[:10],rooms=int(body.get('rooms') or 0) if str(body.get('rooms') or '').isdigit() else 0,scope=[str(x)[:40] for x in (body.get('scope') or [])][:30],events=[dict(t='הפרויקט נפתח',at=now)],checks={},scale=None,sheets=[],boq=None,needs=[],log=[],materials=[],prices={},mprices={},params={},bills=[],orders=[],quotes=[]); _save(pr); return pr
 
 @app.post('/api/reset')
 def reset(body:dict):
@@ -376,6 +376,10 @@ def run(pid:str):
             if pls: log.append(f"אינסטלציה לפי צבעי מקרא: {len(pls)} מערכות נמדדו (חלקי)")
             if pls and not any(x['type'] in('wetroom_plan','floor_plan') for x in sheets):
                 assumptions.append(dict(t='נקודות סניטריות וצנרת פנים החדרים לא נמדדו',why='תוכניות האינסטלציה מציגות קווים ראשיים בלבד. נקודות (אסלות, כיורים, מקלחות) וצנרת 20 מ"מ ודלוחין בתוך חדרים מחושבות מתוכניות האדריכלות של החדרים הרטובים, שלא הועלו',how='העלה תוכניות אדריכלות של הקומות או הזן מספר חדרי רחצה ומטבחונים'))
+            if pr.get('rooms'):
+                for l in PLB.estimate(pr['rooms'],measured_pipes=True):
+                    if not any(x['desc']==l['desc'] for x in lines): lines.append(l)
+                log.append(f"אינסטלציה: נקודות וכלים הוערכו לפי {pr['rooms']} חדרי אשפוז (חלקי)")
             assumptions.append(dict(t='מתזים וניקוז מזגנים בתקרות נמדדו חלקית',why='הצנרת עוברת מעל תקרה מונמכת וחלקה לא מופיעה בתוכנית האינסטלציה',how='העלה תוכניות תקרה/מתזים או הזן שטח תקרה וצפיפות ראשים'))
             assumptions.append(dict(t='מים חמים ומתזים באותו צבע במקרא',why='לא ניתן להפריד ביניהם לפי צבע, והאורך מוצג משותף',how='אשר חלוקה לפי כיתוב הקוטר בתוכנית'))
         except Exception as e: log.append(f"אינסטלציה: שגיאה {str(e)[:80]}")

@@ -122,3 +122,18 @@ def lines(paths):
         if dia: ds=' (קטרים שנקראו: '+', '.join(f'{d:g} מ"מ ×{c}' for d,c in dia.most_common(4))+')'
         L.append(dict(ch=7,sub=1,desc=SYS[n],unit='מ"א',q=round(v,1),st='חלקי',src=f'אורך קווים לפי צבע המערכת במקרא, בקנה המידה של כל גיליון; גיליון קומה טיפוסית מוכפל במספר הקומות שבכותרת{ds}',need='הצנרת בתקרות ובקומות חוזרות ייתכן שלא נספרה במלואה; לאמת כמות קומות טיפוסיות וצנרת מוסתרת',cover=[SYS[n]]))
     return L
+
+def estimate(rooms,measured_pipes=False):
+    """Plumbing quantities from the number of patient rooms, using per-room ratios learned from a real hospital-floors BOQ
+    (app/knowledge/plumb_rules.json). A calibrated prior, not a measurement: status 'חלקי' with a note."""
+    import json,os
+    f=os.path.join(os.path.dirname(os.path.abspath(__file__)),'knowledge','plumb_rules.json')
+    if not rooms or not os.path.exists(f): return []
+    L=[]
+    for r in json.load(open(f))['rows']:
+        if not r['room_based']: continue
+        if r['u']=='מ"א' and measured_pipes: continue
+        q=round(r['r']*rooms)
+        if q<1: continue
+        L.append(dict(ch=7,sub=1,desc=r['d'],unit=r['u'],q=q,st='חלקי',src=f"הערכה לפי יחס כמות לחדר ({r['r']:g} ל-{rooms} חדרי אשפוז) מכתב כמויות ייחוס של קומות אשפוז",need='הערכה לפי מבנה דומה. לאמת מול תוכניות אדריכלות של חדרי הרחצה',cover=[r['d']]))
+    return L
