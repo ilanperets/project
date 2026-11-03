@@ -38,6 +38,24 @@ def main():
         for it in d['items']:
             if not it['u'].strip(): continue
             add(CHAP.get(it['code'][2:4],'שונות'),clean(it['d']),U.get(it['u'],''),'k')
+    # 1b) plumbing .skn (Banarit export, parsed on the fly)
+    pk=os.path.join(TR,'plumbing')
+    if os.path.isdir(pk):
+        sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+        from parse_skn import parse
+        PU={'01':"יח'",'02':'מטר','09':"נק'",'18':"קומפ'",'06':"יח'",'03':'מ"ר','04':'מ"ק'}
+        for fn in sorted(os.listdir(pk)):
+            if not fn.lower().endswith('.skn'): continue
+            base=''
+            for it in parse(os.path.join(pk,fn)):
+                if not it['u'].strip() or it['u']=='00': continue
+                d=clean(it['d'])
+                d=re.sub(r'מק"ט\s*[\w\-]+','',d); d=re.sub(r'מ?תוצרת\s*"[^"]{1,40}"( או ש"ע)?',' או ש"ע',d); d=re.sub(r'\s+',' ',d).strip(' ,.;')
+                m=re.search(r'כנ"ל\s*,?\s*אך\s*(.*)$',d)
+                if m and base:        # "same as above but diameter X": expand with the preceding full item
+                    d=re.sub(r'\s*בקוטר.*$','',base)+' '+m.group(1)
+                elif len(d)>40: base=d
+                add('מתקני תברואה וכיבוי',d,PU.get(it['u'],''),'p')
     # 2) other reference BOQs (PDF extraction: noisier, only added if not a duplicate)
     for fn in sorted(os.listdir(os.path.join(TR,'refs'))) if os.path.isdir(os.path.join(TR,'refs')) else []:
         for it in json.load(open(os.path.join(TR,'refs',fn))):
